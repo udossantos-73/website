@@ -362,9 +362,6 @@ function loadInventory() {
                     // 2. Preço: Se for 0, usa 0. Se for null/undefined/inválido, usa 0.
                     let preco = item.Preço;
                     
-                    // CORREÇÃO: Usamos o typeof e checamos se não é um número OU se é NaN
-                    if (typeof preco !== 'number' || isNaN(preco)) {
-                        preco = 0;
                     }
                     // NOTA: Se preco for o número 0 (válido), ele passa por aqui inalterado.
                     // -----------------------------
