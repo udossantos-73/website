@@ -88,17 +88,30 @@
         #prev-slide { left: 10px; }
         #next-slide { right: 10px; }
         
+        /* --- ESTILOS DE DETALHES RE-ADICIONADOS --- */
+        #modal-details { 
+            padding: 10px; 
+            border-top: 1px solid #eee; 
+            font-size: 1.1em;
+            text-align: left; /* Garante que o texto está alinhado à esquerda */
+        }
+        .modal-source-link {
+            text-align: right; 
+            margin-top: 15px; 
+            border-top: 1px solid #eee; 
+            padding-top: 10px; 
+        }
+        
         /* --- RESPONSIVIDADE --- */
         @media (max-width: 600px) {
             .pop-inventory thead { display: none; }
             .pop-inventory, .pop-inventory tbody, .pop-inventory tr, .pop-inventory td { display: block; width: 100%; }
-            .pop-inventory tr { margin-bottom: 10px; border: 1px solid #ccc; }
+            .pop-inventory tr { margin-bottom: 10px; border: 1px solid #ccc; display: flex; flex-wrap: wrap; }
             .pop-inventory td { text-align: right; padding-left: 50%; position: relative; }
             .pop-inventory td::before { content: attr(data-label); position: absolute; left: 6px; width: 45%; padding-right: 10px; white-space: nowrap; font-weight: bold; text-align: left; }
             
-            /* CORREÇÃO CRÍTICA: Garantir que a imagem está em primeiro lugar na lista de detalhes em mobile */
+            /* Correção para a ordem da imagem em ecrãs pequenos */
             .pop-inventory td[data-label="Imagem"] { order: -1; } 
-            .pop-inventory tr { display: flex; flex-wrap: wrap; } /* Necessário para 'order' funcionar */
         }
     </style>
 </head>
@@ -137,6 +150,13 @@
                     <button id="next-slide" onclick="changeSlide(1)">&#10095;</button>
                 </div>
             </div>
+
+            <div id="modal-details"></div>
+            
+            <p class="modal-source-link">
+                Loja/Status: <span id="modal-source-status"></span>
+            </p>
+            
         </div>
     </div>
 
@@ -156,7 +176,7 @@
             projectId: "miguel-inventory",
             storageBucket: "miguel-inventory.firebasestorage.app",
             messagingSenderId: "277968569414",
-            appId: "1:277968569414:web:04884bc1932c2c7db6b647"
+            appId: "1:277968569414:web:04884bc1932c2c7dbb6b647"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -215,7 +235,7 @@
         }
         
         // -------------------------------------------------------
-        // 4. FUNÇÃO DE CONTROLO DO MODAL (Não alterada)
+        // 4. FUNÇÃO DE CONTROLO DO MODAL
         // -------------------------------------------------------
 
         function closeModal() {
@@ -241,6 +261,7 @@
 
                 document.getElementById('modal-title').innerText = `${itemName} (#${item.Numero || 'N/A'})`;
 
+                // 1. Criação do Slider (Mantida)
                 const images = item.Imagem;
                 
                 if (images && images.length > 0) {
@@ -262,6 +283,16 @@
                 
                 showSlide(currentSlideIndex);
 
+                // 2. DETALHES RE-ADICIONADOS: Apenas a Descrição
+                const detailsHtml = `
+                    <p><strong>Descrição:</strong> ${item.Descricao || 'N/A'}</p>
+                `;
+                document.getElementById('modal-details').innerHTML = detailsHtml;
+
+                // 3. Status de Compra/Oferta (Re-adicionado)
+                document.getElementById('modal-source-status').innerText = item.Loja || 'Não especificado';
+
+                // 4. Mostrar o Modal
                 document.getElementById('pop-modal').style.display = 'block';
 
             }).catch(error => {
@@ -297,7 +328,7 @@
                     
                     const collectionName = item['Nom da Coleção'] || 'N/A';
 
-                    // 3. Ordem da Coluna: Imagem na primeira posição
+                    // Ordem da Coluna: Imagem na primeira posição
                     row.innerHTML = `
                         <td data-label="Imagem">
                             <img src="${item.Imagem && item.Imagem.length > 0 ? item.Imagem[0] : 'https://via.placeholder.com/50'}"
