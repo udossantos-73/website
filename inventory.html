@@ -10,7 +10,8 @@
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 20px; color: #333; }
         h1 { color: #007acc; text-align: center; margin-bottom: 30px; }
         .pop-inventory { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background-color: white; }
-        /* 1. Largura da coluna da imagem na tabela */
+        
+        /* 1. Definir a largura e centralização da primeira coluna (Imagem) */
         .pop-inventory th:first-child, .pop-inventory td:first-child {
             width: 50px; 
             text-align: center;
@@ -40,7 +41,6 @@
             margin-bottom: 20px;
             position: relative; 
             overflow: hidden; 
-            /* ALTURA FIXA PARA EVITAR QUE IMAGENS GRANDES QUEBREM */
             max-height: 400px; 
         }
 
@@ -55,15 +55,14 @@
             min-width: 100%; 
             box-sizing: border-box;
             display: flex;
-            justify-content: center; /* Centraliza HORIZONTALMENTE */
-            align-items: center; /* Centraliza VERTICALMENTE */
+            justify-content: center; 
+            align-items: center; 
             height: 100%; 
-            padding: 10px; /* Espaçamento interno */
+            padding: 10px;
         }
 
         .carousel-slide img {
             max-width: 100%;
-            /* A CHAVE: Objeto de ajuste. Garante que cabe sem ser cortada */
             object-fit: contain; 
             height: auto;
             max-height: 350px; 
@@ -88,10 +87,6 @@
 
         #prev-slide { left: 10px; }
         #next-slide { right: 10px; }
-        /* -------------------------------------- */
-
-        #modal-details { padding: 0; border-top: none; font-size: 1.1em; }
-        .modal-source-link { display: none; }
         
         /* --- RESPONSIVIDADE --- */
         @media (max-width: 600px) {
@@ -100,8 +95,10 @@
             .pop-inventory tr { margin-bottom: 10px; border: 1px solid #ccc; }
             .pop-inventory td { text-align: right; padding-left: 50%; position: relative; }
             .pop-inventory td::before { content: attr(data-label); position: absolute; left: 6px; width: 45%; padding-right: 10px; white-space: nowrap; font-weight: bold; text-align: left; }
-            /* Ajustar a posição do campo Imagem em telas pequenas */
-            .pop-inventory td[data-label="Imagem"] { order: -1; /* Mover para o topo */ }
+            
+            /* CORREÇÃO CRÍTICA: Garantir que a imagem está em primeiro lugar na lista de detalhes em mobile */
+            .pop-inventory td[data-label="Imagem"] { order: -1; } 
+            .pop-inventory tr { display: flex; flex-wrap: wrap; } /* Necessário para 'order' funcionar */
         }
     </style>
 </head>
@@ -134,20 +131,19 @@
             
             <div id="modal-image-gallery">
                 <div class="carousel-container" id="carousel-container">
-                    </div>
+                </div>
                 <div class="carousel-controls">
                     <button id="prev-slide" onclick="changeSlide(-1)">&#10094;</button>
                     <button id="next-slide" onclick="changeSlide(1)">&#10095;</button>
                 </div>
             </div>
-            </div>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
     <script>
-        // Variáveis globais para o slider
         let currentSlideIndex = 0;
         let slideCount = 0;
 
@@ -169,7 +165,7 @@
         const COLLECTION_NAME = "inventario"; 
 
         // -------------------------------------------------------
-        // 2. FUNÇÕES DO SLIDER
+        // 2. FUNÇÕES DO SLIDER (Não alteradas)
         // -------------------------------------------------------
         
         function showSlide(n) {
@@ -198,7 +194,7 @@
         }
 
         // -------------------------------------------------------
-        // 3. FUNÇÕES DE FORMATAÇÃO (Mantidas para a tabela)
+        // 3. FUNÇÕES DE FORMATAÇÃO (Não alteradas)
         // -------------------------------------------------------
 
         function formatCurrency(value) {
@@ -219,7 +215,7 @@
         }
         
         // -------------------------------------------------------
-        // 4. FUNÇÃO DE CONTROLO DO MODAL
+        // 4. FUNÇÃO DE CONTROLO DO MODAL (Não alterada)
         // -------------------------------------------------------
 
         function closeModal() {
@@ -243,10 +239,8 @@
                 currentSlideIndex = 0;
                 slideCount = 0;
 
-                // 1. Título
                 document.getElementById('modal-title').innerText = `${itemName} (#${item.Numero || 'N/A'})`;
 
-                // 2. Criação do Slider
                 const images = item.Imagem;
                 
                 if (images && images.length > 0) {
@@ -268,7 +262,6 @@
                 
                 showSlide(currentSlideIndex);
 
-                // 3. Mostrar o Modal
                 document.getElementById('pop-modal').style.display = 'block';
 
             }).catch(error => {
@@ -277,7 +270,6 @@
             });
         }
         
-        // --- ADICIONAR UM LISTENER PARA FECHAR O MODAL AO CLICAR FORA ---
         window.onclick = function(event) {
             const modal = document.getElementById('pop-modal');
             if (event.target == modal) {
@@ -305,7 +297,7 @@
                     
                     const collectionName = item['Nom da Coleção'] || 'N/A';
 
-                    // 3. Reorganizar a Tabela: Imagem como a primeira <td>
+                    // 3. Ordem da Coluna: Imagem na primeira posição
                     row.innerHTML = `
                         <td data-label="Imagem">
                             <img src="${item.Imagem && item.Imagem.length > 0 ? item.Imagem[0] : 'https://via.placeholder.com/50'}"
