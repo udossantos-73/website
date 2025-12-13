@@ -96,14 +96,12 @@
         }
 
         .carousel-slide img {
-            max-width: 100%;
-            /* 'contain' garante que a imagem é exibida na totalidade */
-            object-fit: contain; 
-            height: auto;
-            max-height: 70vh; /* Ajustado para 70% da altura da janela para evitar que a barra de navegação corte */
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            display: block; 
+        width: auto;
+        max-height: 500px; /* Garante que a imagem se encaixa */
+        max-width: 100%;
+        margin: 10px auto;
+        border: 1px solid #ddd;
+        border-radius: 4px;
         }
 
         .carousel-controls button {
