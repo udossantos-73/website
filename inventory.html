@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventário de Colecionáveis - Pops & Hot Wheels</title>
+    
+    <style>
+        /* --- ESTILOS GERAIS E DA TABELA --- */
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 20px; color: #333; }
+        h1 { color: #007acc; text-align: center; margin-bottom: 30px; }
+
+        .pop-inventory {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: white;
+        }
+        .pop-inventory th, .pop-inventory td {
+            border: 1px solid #ddd;
+            padding: 12px 8px;
+            text-align: left;
+        }
+        .pop-inventory th {
+            background-color: #007acc;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .pop-inventory tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .pop-inventory tbody tr:hover {
+            background-color: #e9e9e9;
+        }
+        
+        .pop-main-image {
+            width: 50px;
+            height: auto;
+            cursor: pointer; 
+            border-radius: 4px;
+        }
+
+        /* --- ESTILOS DO MODAL --- */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.7); 
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto; 
+            padding: 30px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 700px;
+            border-radius: 8px;
+            position: relative;
+            animation-name: animatetop;
+            animation-duration: 0.4s;
+        }
+        @keyframes animatetop {
+            from {top:-300px; opacity:0}
+            to {top:0; opacity:1}
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-button:hover, .close-button:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        #modal-image-gallery {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #modal-image-gallery img {
+            max-width: 100%;
+            height: auto;
+            max-height: 350px;
+            border: 1px solid #ddd;
+            margin: 5px;
+            border-radius: 4px;
+        }
+
+        #modal-details {
+            padding: 10px;
+            border-top: 1px solid #eee;
+            font-size: 1.1em;
+        }
+
+        .modal-source-link {
+            text-align: right;
+            margin-top: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+        
+        /* --- RESPONSIVIDADE --- */
+        @media (max-width: 600px) {
+            .pop-inventory thead { display: none; }
+            .pop-inventory, .pop-inventory tbody, .pop-inventory tr, .pop-inventory td {
+                display: block;
+                width: 100%;
+            }
+            .pop-inventory tr {
+                margin-bottom: 10px;
+                border: 1px solid #ccc;
+            }
+            .pop-inventory td {
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+            }
+            .pop-inventory td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                font-weight: bold;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Inventário Detalhado da Coleção</h1>
+
+    <table class="pop-inventory">
+        <thead>
+            <tr>
+                <th>Marca</th>
+                <th>Nome da Coleção</th>
+                <th>Nº</th>
+                <th>Status</th> 
+                <th>Preço</th>
+                <th>Data Compra</th>
+                <th>Na Coleção</th>
+                <th>Imagem</th>
+            </tr>
+        </thead>
+        <tbody id="inventory-body">
+            <tr><td colspan="8">A carregar dados... Por favor aguarde.</td></tr>
+        </tbody>
+    </table>
+
+    <div id="pop-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <h2 id="modal-title"></h2>
+            
+            <div id="modal-image-gallery"></div>
+            
+            <div id="modal-details"></div>
+            
+            <p class="modal-source-link">
+                Comprado/Oferecido por: <span id="modal-source-status"></span>
+            </p>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <script>
+        // -------------------------------------------------------
+        // 1. CONFIGURAÇÃO E INICIALIZAÇÃO DO FIREBASE (COM OS SEUS DADOS)
+        // -------------------------------------------------------
+        const firebaseConfig = {
+            apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
+            authDomain: "miguel-inventory.firebaseapp.com",
+            projectId: "miguel-inventory",
+            storageBucket: "miguel-inventory.firebasestorage.app",
+            messagingSenderId: "277968569414",
+            appId: "1:277968569414:web:04884bc1932c2c7db6b647"
+        };
+
+        // Inicializar o Firebase e o Firestore
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        // Defina o nome da Coleção que criou (deve ser 'collectibles' ou 'funkoPops')
+        const COLLECTION_NAME = "collectibles"; 
+
+        // -------------------------------------------------------
+        // 2. FUNÇÕES DE FORMATAÇÃO
+        // -------------------------------------------------------
+
+        function formatCurrency(value) {
+            // Se o valor for 0, trata como 'Oferecido' (conforme a lógica do seu dado)
+            if (value === 0) return 'OF.'; 
+            if (typeof value !== 'number') return 'N/A';
+            return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(value);
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp || !timestamp.toDate) return 'N/A';
+            const date = timestamp.toDate();
+            // Formato '13/Dez/2025'
+            return new Intl.DateTimeFormat('pt-PT', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
+        }
+
+        function translateBoolean(value) {
+            if (value === undefined || value === null) return 'Não'; 
+            return value === true ? 'Sim' : 'Não';
+        }
+        
+        // -------------------------------------------------------
+        // 3. FUNÇÃO DE CONTROLO DO MODAL
+        // -------------------------------------------------------
+
+        function closeModal() {
+            document.getElementById('pop-modal').style.display = 'none';
+        }
+
+        function openModal(itemId, itemName) {
+            
+            db.collection(COLLECTION_NAME).doc(itemId).get().then((doc) => {
+                if (!doc.exists) {
+                    alert("Detalhes do item não encontrados!");
+                    return;
+                }
+
+                const item = doc.data();
+                
+                // Os nomes dos campos são sensíveis a maiúsculas/minúsculas e acentuação
+
+                // 1. Título
+                document.getElementById('modal-title').innerText = `${item.Nome || itemName} (#${item.Numero || 'N/A'})`;
+
+                // 2. Galeria de Imagens
+                const gallery = document.getElementById('modal-image-gallery');
+                gallery.innerHTML = '';
+                
+                if (item.Imagem && item.Imagem.length > 0) {
+                    item.Imagem.forEach(url => {
+                        gallery.innerHTML += `<img src="${url}" alt="Imagem de ${item.Nome}">`;
+                    });
+                } else {
+                    gallery.innerHTML = '<p>Nenhuma imagem detalhada disponível.</p>';
+                }
+
+                // 3. Detalhes
+                const detailsHtml = `
+                    <p><strong>Marca:</strong> ${item.Marca || 'N/A'}</p>
+                    <p><strong>Nome da Coleção:</strong> ${item.NomeDaColecao || 'N/A'}</p>
+                    <p><strong>Número:</strong> ${item.Numero || 'N/A'}</p>
+                    <p><strong>Descrição:</strong> ${item.Descrição || 'N/A'}</p>
+                    <p><strong>Preço Pago:</strong> ${formatCurrency(item.Preço)}</p>
+                    <p><strong>Data de Compra:</strong> ${formatDate(item.DataDeCompra)}</p>
+                    <p><strong>Na Coleção:</strong> ${translateBoolean(item.NaColecao)}</p>
+                `;
+                document.getElementById('modal-details').innerHTML = detailsHtml;
+
+                // 4. Status de Compra/Oferta
+                document.getElementById('modal-source-status').innerText = item.CompradoOferecido || 'Não especificado';
+
+                // 5. Mostrar o Modal
+                document.getElementById('pop-modal').style.display = 'block';
+
+            }).catch(error => {
+                console.error("Erro ao obter documento para modal:", error);
+                alert("Não foi possível carregar os detalhes.");
+            });
+        }
+        
+        // --- ADICIONAR UM LISTENER PARA FECHAR O MODAL AO CLICAR FORA ---
+        window.onclick = function(event) {
+            const modal = document.getElementById('pop-modal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+
+        // -------------------------------------------------------
+        // 4. FUNÇÃO DE CARREGAMENTO DE INVENTÁRIO (Preenche a tabela)
+        // -------------------------------------------------------
+
+        function loadInventory() {
+            const tableBody = document.getElementById('inventory-body');
+            tableBody.innerHTML = '<tr><td colspan="8">A carregar dados...</td></tr>';
+
+            db.collection(COLLECTION_NAME).get().then((querySnapshot) => {
+                tableBody.innerHTML = ''; 
+                
+                querySnapshot.forEach((doc) => {
+                    const item = doc.data(); 
+                    const itemId = doc.id;   
+                    
+                    const row = tableBody.insertRow();
+                    
+                    row.innerHTML = `
+                        <td data-label="Marca">${item.Marca || 'N/A'}</td>
+                        <td data-label="Nome da Coleção">${item.NomeDaColecao || 'N/A'}</td>
+                        <td data-label="Nº">${item.Numero || 'N/A'}</td>
+                        <td data-label="Status">${item.CompradoOferecido || 'N/A'}</td>
+                        <td data-label="Preço">${formatCurrency(item.Preço)}</td>
+                        <td data-label="Data Compra">${formatDate(item.DataDeCompra)}</td>
+                        <td data-label="Na Coleção">${translateBoolean(item.NaColecao)}</td>
+                        
+                        <td data-label="Imagem">
+                            <img src="${item.Imagem && item.Imagem.length > 0 ? item.Imagem[0] : 'https://via.placeholder.com/50'}"
+                                 alt="${item.Nome}"
+                                 class="pop-main-image"
+                                 onclick="openModal('${itemId}', '${item.Nome}')"> 
+                        </td>
+                    `;
+                });
+            }).catch((error) => {
+                console.error("Erro ao carregar o inventário: ", error);
+                tableBody.innerHTML = '<tr><td colspan="8">Erro ao carregar os dados. Verifique a consola (F12).</td></tr>';
+            });
+        }
+
+        // 5. INÍCIO: Chamar a função para preencher a tabela quando a página carregar
+        window.onload = loadInventory;
+    </script>
+
+</body>
+</html>
