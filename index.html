@@ -3,27 +3,43 @@
     h1 { color: #007acc; }
     .nav-container { margin-top: 30px; }
 
-    /* Estilo do Botão/Área de Link: Mantido, mas agora só contorna o logo */
+    /* Estilo do Botão/Área de Link */
     .nav-button {
         display: inline-block;
-        padding: 10px; /* Reduzido para encaixar o logo */
+        padding: 10px; 
         margin: 10px;
         text-decoration: none;
-        background-color: white; /* Fundo branco ou transparente */
-        border: 2px solid #ccc; /* Borda sutil */
+        
+        /* ALTERAÇÃO CRÍTICA: Define o fundo como branco sólido */
+        background-color: white; 
+        
+        border: 2px solid #ccc;
         border-radius: 8px;
+        /* Define um tamanho FIXO para a área do botão para consistência */
+        width: 220px; 
+        height: 150px;
+        
+        /* Centraliza a imagem verticalmente dentro do botão */
+        display: flex;
+        align-items: center; /* Centraliza verticalmente */
+        justify-content: center; /* Centraliza horizontalmente */
+        
         transition: border-color 0.3s, box-shadow 0.3s;
     }
     .nav-button:hover {
-        border-color: #007acc; /* Mudar a cor no hover */
+        border-color: #007acc; 
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
     
-    /* NOVO: Estilo para a Imagem do Logo */
+    /* Estilo para a Imagem do Logo */
     .logo-img {
-        max-width: 200px; /* Largura máxima uniforme */
+        /* ALTERAÇÃO CRÍTICA: Define um tamanho MÁXIMO consistente para todas as imagens */
+        max-width: 100%; 
+        max-height: 100%; /* Garante que a imagem se encaixa no tamanho fixo do botão */
+        width: auto;
         height: auto;
-        display: block; /* Garante que a imagem se comporta como um bloco dentro do botão */
+        display: block; 
+        object-fit: contain; /* Garante que a imagem é redimensionada sem ser cortada */
     }
 </style>
 <body>
