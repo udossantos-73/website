@@ -1,44 +1,49 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minhas Coleções</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f4; }
-        h1 { color: #007acc; }
-        .nav-container { margin-top: 30px; }
-        .nav-button {
-            display: inline-block;
-            padding: 15px 30px;
-            margin: 10px;
-            text-decoration: none;
-            background-color: #007acc;
-            color: white;
-            border-radius: 8px;
-            font-size: 1.2em;
-            transition: background-color 0.3s;
-        }
-        .nav-button:hover {
-            background-color: #005f99;
-        }
-    </style>
-</head>
+<style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f4; }
+    h1 { color: #007acc; }
+    .nav-container { margin-top: 30px; }
+
+    /* Estilo do Botão/Área de Link: Mantido, mas agora só contorna o logo */
+    .nav-button {
+        display: inline-block;
+        padding: 10px; /* Reduzido para encaixar o logo */
+        margin: 10px;
+        text-decoration: none;
+        background-color: white; /* Fundo branco ou transparente */
+        border: 2px solid #ccc; /* Borda sutil */
+        border-radius: 8px;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .nav-button:hover {
+        border-color: #007acc; /* Mudar a cor no hover */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* NOVO: Estilo para a Imagem do Logo */
+    .logo-img {
+        max-width: 200px; /* Largura máxima uniforme */
+        height: auto;
+        display: block; /* Garante que a imagem se comporta como um bloco dentro do botão */
+    }
+</style>
 <body>
 
     <h1>Escolha a Coleção que Deseja Visualizar</h1>
 
     <div class="nav-container">
         
-        <a href="funko-pop-inventory.html" class="nav-button">
-            Funko Pop! (Inventário de Figuras)
+        <a href="funko-pop-inventory.html" class="nav-button" title="Inventário Funko Pop!">
+            <img src="https://i.imgur.com/tDD3477.png" 
+                 alt="Logo Funko Pop" 
+                 class="logo-img">
         </a>
 
-        <a href="hot-wheels-inventory.html" class="nav-button">
-            Hot Wheels (Inventário de Carros)
+        <a href="hot-wheels-inventory.html" class="nav-button" title="Inventário Hot Wheels">
+            <img src="https://i.imgur.com/DagQfFR.png" 
+                 alt="Logo Hot Wheels" 
+                 class="logo-img">
         </a>
         
         </div>
 
 </body>
-</html>
