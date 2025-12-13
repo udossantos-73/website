@@ -10,11 +10,22 @@
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 20px; color: #333; }
         h1 { color: #007acc; text-align: center; margin-bottom: 30px; }
         .pop-inventory { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background-color: white; }
+        /* 1. Largura da coluna da imagem na tabela */
+        .pop-inventory th:first-child, .pop-inventory td:first-child {
+            width: 50px; 
+            text-align: center;
+        }
+
         .pop-inventory th, .pop-inventory td { border: 1px solid #ddd; padding: 12px 8px; text-align: left; }
         .pop-inventory th { background-color: #007acc; color: white; font-weight: bold; text-transform: uppercase; }
         .pop-inventory tbody tr:nth-child(even) { background-color: #f9f9f9; }
         .pop-inventory tbody tr:hover { background-color: #e9e9e9; }
-        .pop-main-image { width: 50px; height: auto; cursor: pointer; border-radius: 4px; }
+        .pop-main-image { 
+            width: 50px; 
+            height: auto; 
+            cursor: pointer; 
+            border-radius: 4px;
+        }
 
         /* --- ESTILOS DO MODAL --- */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); }
@@ -24,63 +35,61 @@
         .close-button:hover, .close-button:focus { color: #000; text-decoration: none; cursor: pointer; }
 
         /* --- ESTILOS DO CARROSSEL (SLIDER) --- */
-/* --- ESTILOS DO CARROSSEL (SLIDER) --- */
-#modal-image-gallery {
-    text-align: center;
-    margin-bottom: 20px;
-    position: relative; 
-    overflow: hidden; 
-    /* Adicionar uma altura máxima ao contentor para centralização vertical */
-    max-height: 400px; /* Ajuste este valor conforme o tamanho desejado (50px extra para margem/padding) */
-}
+        #modal-image-gallery {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative; 
+            overflow: hidden; 
+            /* ALTURA FIXA PARA EVITAR QUE IMAGENS GRANDES QUEBREM */
+            max-height: 400px; 
+        }
 
-.carousel-container {
-    display: flex; 
-    transition: transform 0.4s ease-in-out; 
-    width: 100%;
-    /* Garantir que o container do slide se ajusta à altura do contentor pai */
-    height: 100%; 
-}
+        .carousel-container {
+            display: flex; 
+            transition: transform 0.4s ease-in-out; 
+            width: 100%;
+            height: 100%;
+        }
 
-.carousel-slide {
-    min-width: 100%; 
-    box-sizing: border-box;
-    display: flex;
-    justify-content: center; /* Centraliza horizontalmente a imagem no slide */
-    align-items: center; /* Centraliza verticalmente a imagem no slide */
-    /* Garantir que o slide ocupa toda a altura */
-    height: 100%; 
-}
+        .carousel-slide {
+            min-width: 100%; 
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center; /* Centraliza HORIZONTALMENTE */
+            align-items: center; /* Centraliza VERTICALMENTE */
+            height: 100%; 
+            padding: 10px; /* Espaçamento interno */
+        }
 
-.carousel-slide img {
-    max-width: 100%;
-    height: auto;
-    max-height: 350px; /* Limitação máxima da imagem */
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    /* Adicionar esta linha para garantir que a imagem não excede o espaço */
-    display: block; 
-}
+        .carousel-slide img {
+            max-width: 100%;
+            /* A CHAVE: Objeto de ajuste. Garante que cabe sem ser cortada */
+            object-fit: contain; 
+            height: auto;
+            max-height: 350px; 
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: block; 
+        }
 
-.carousel-controls button {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    padding: 10px 15px;
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
-    border: none;
-    cursor: pointer;
-    z-index: 10;
-    font-size: 1.5em;
-    user-select: none;
-}
+        .carousel-controls button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 10px 15px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            cursor: pointer;
+            z-index: 10;
+            font-size: 1.5em;
+            user-select: none;
+        }
 
         #prev-slide { left: 10px; }
         #next-slide { right: 10px; }
         /* -------------------------------------- */
 
-        /* Estes estilos não serão mais necessários, mas mantemos por precaução */
         #modal-details { padding: 0; border-top: none; font-size: 1.1em; }
         .modal-source-link { display: none; }
         
@@ -91,6 +100,8 @@
             .pop-inventory tr { margin-bottom: 10px; border: 1px solid #ccc; }
             .pop-inventory td { text-align: right; padding-left: 50%; position: relative; }
             .pop-inventory td::before { content: attr(data-label); position: absolute; left: 6px; width: 45%; padding-right: 10px; white-space: nowrap; font-weight: bold; text-align: left; }
+            /* Ajustar a posição do campo Imagem em telas pequenas */
+            .pop-inventory td[data-label="Imagem"] { order: -1; /* Mover para o topo */ }
         }
     </style>
 </head>
@@ -187,7 +198,7 @@
         }
 
         // -------------------------------------------------------
-        // 3. FUNÇÕES DE FORMATAÇÃO (Mantidas, mas não usadas no modal)
+        // 3. FUNÇÕES DE FORMATAÇÃO (Mantidas para a tabela)
         // -------------------------------------------------------
 
         function formatCurrency(value) {
@@ -244,7 +255,6 @@
                     images.forEach((url, index) => {
                         const slideDiv = document.createElement('div');
                         slideDiv.className = 'carousel-slide';
-                        // Usamos o nome da coleção como ALT text, pois os outros detalhes foram removidos
                         slideDiv.innerHTML = `<img src="${url}" alt="${itemName} - Imagem ${index + 1}">`;
                         carouselContainer.appendChild(slideDiv);
                     });
@@ -258,9 +268,7 @@
                 
                 showSlide(currentSlideIndex);
 
-                // 3. REMOVEMOS A CRIAÇÃO DE detailsHtml
-
-                // 4. Mostrar o Modal
+                // 3. Mostrar o Modal
                 document.getElementById('pop-modal').style.display = 'block';
 
             }).catch(error => {
@@ -279,7 +287,7 @@
 
 
         // -------------------------------------------------------
-        // 5. FUNÇÃO DE CARREGAMENTO DE INVENTÁRIO (Mantida inalterada)
+        // 5. FUNÇÃO DE CARREGAMENTO DE INVENTÁRIO (Tabela)
         // -------------------------------------------------------
 
         function loadInventory() {
@@ -297,7 +305,14 @@
                     
                     const collectionName = item['Nom da Coleção'] || 'N/A';
 
+                    // 3. Reorganizar a Tabela: Imagem como a primeira <td>
                     row.innerHTML = `
+                        <td data-label="Imagem">
+                            <img src="${item.Imagem && item.Imagem.length > 0 ? item.Imagem[0] : 'https://via.placeholder.com/50'}"
+                                 alt="${collectionName}"
+                                 class="pop-main-image"
+                                 onclick="openModal('${itemId}', '${collectionName}')"> 
+                        </td>
                         <td data-label="Marca">${item.Marca || 'N/A'}</td>
                         <td data-label="Nome da Coleção">${collectionName}</td>
                         <td data-label="Nº">${item.Numero || 'N/A'}</td>
@@ -305,13 +320,6 @@
                         <td data-label="Preço">${formatCurrency(item.Preço)}</td>
                         <td data-label="Data Compra">${formatDate(item.DataDeCompra)}</td>
                         <td data-label="Adquirido">${translateBoolean(item.Adquirido)}</td>
-                        
-                        <td data-label="Imagem">
-                            <img src="${item.Imagem && item.Imagem.length > 0 ? item.Imagem[0] : 'https://via.placeholder.com/50'}"
-                                 alt="${collectionName}"
-                                 class="pop-main-image"
-                                 onclick="openModal('${itemId}', '${collectionName}')"> 
-                        </td>
                     `;
                 });
             }).catch((error) => {
