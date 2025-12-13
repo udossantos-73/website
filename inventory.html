@@ -341,56 +341,60 @@ window.onclick = function(event) {
         // -------------------------------------------------------
 
 function loadInventory() {
-            const tableBody = document.getElementById('inventory-body');
-            tableBody.innerHTML = '<tr><td colspan="9">A carregar dados...</td></tr>';
+    const tableBody = document.getElementById('inventory-body');
+    tableBody.innerHTML = '<tr><td colspan="9">A carregar dados... Por favor aguarde.</td></tr>';
 
-            db.collection(COLLECTION_NAME).get().then((querySnapshot) => {
-                tableBody.innerHTML = ''; 
-                
-                querySnapshot.forEach((doc) => {
-                    const item = doc.data(); 
-                    const itemId = doc.id;   
-                    
-                    const row = tableBody.insertRow();
-                    
-                    const collectionName = item['Nom da Coleção'] || 'N/A';
-                    const description = item.Descricao || 'N/A'; 
-                    
-                    // 1. Loja/Status: Se estiver vazio, usa 'Desconhecido'
-                    const lojaStatus = item.Loja || 'Desconhecido'; 
+    db.collection(COLLECTION_NAME).get().then((querySnapshot) => {
+        tableBody.innerHTML = ''; 
+        
+        querySnapshot.forEach((doc) => {
+            const item = doc.data(); 
+            const itemId = doc.id;   
+            
+            const row = tableBody.insertRow();
+            
+            const rawCollectionName = item['Nom da Coleção'] || 'N/A';
+            const description = item.Descricao || 'N/A'; 
+            
+            // --- CORREÇÃO DE SINTAXE CHAVE ---
+            // Escapa as aspas simples (apóstrofos) dentro do nome para o onclick funcionar.
+            const escapedCollectionName = rawCollectionName.replace(/'/g, "\\'");
+            
+            // 1. Loja/Status: Se estiver vazio, usa 'Desconhecido'
+            const lojaStatus = item.Loja || 'Desconhecido'; 
 
-                    // 2. Preço: Se for 0, usa 0. Se for null/undefined/inválido, usa 0.
-                    let preco = item.Preço;
-                    
-                    }
-                    // NOTA: Se preco for o número 0 (válido), ele passa por aqui inalterado.
-                    // -----------------------------
+            // 2. Preço: Se for null/undefined/inválido, usa 0. (Lógica de correção que estava em falta)
+            let preco = item.Preço;
+            if (typeof preco !== 'number' || isNaN(preco)) {
+                preco = 0;
+            }
+            // -----------------------------
 
-                    row.innerHTML = `
-                        <td data-label="Imagem">
-                            <img src="${item.Imagem && item.Imagem.length > 0 ? item.Imagem[0] : 'https://via.placeholder.com/50'}"
-                                 alt="${collectionName}"
-                                 class="pop-main-image"
-                                 onclick="openModal('${itemId}', '${collectionName}')"> 
-                        </td>
-                        <td data-label="Marca">${item.Marca || 'N/A'}</td>
-                        <td data-label="Nome da Coleção">${collectionName}</td>
-                        <td data-label="Descrição">${description}</td>
-                        <td data-label="Nº">${item.Numero || 'N/A'}</td>
-                        <td data-label="Loja/Status">${lojaStatus}</td> 
-                        <td data-label="Preço">${formatCurrency(preco)}</td>
-                        <td data-label="Data Compra">${formatDate(item['Data de Compra'])}</td>
-                        <td data-label="Adquirido">${translateBoolean(item.Adquirido)}</td>
-                    `;
-                });
-            }).catch((error) => {
-                console.error("Erro ao carregar o inventário: ", error);
-                tableBody.innerHTML = '<tr><td colspan="9">Erro ao carregar os dados. Verifique a consola (F12).</td></tr>';
-            });
-        }
+            row.innerHTML = `
+                <td data-label="Imagem">
+                    <img src="${item.Imagem && item.Imagem.length > 0 ? item.Imagem[0] : 'https://via.placeholder.com/50'}"
+                         alt="${rawCollectionName}"
+                         class="pop-main-image"
+                         onclick="openModal('${itemId}', '${escapedCollectionName}')"> 
+                </td>
+                <td data-label="Marca">${item.Marca || 'N/A'}</td>
+                <td data-label="Nome da Coleção">${rawCollectionName}</td>
+                <td data-label="Descrição">${description}</td>
+                <td data-label="Nº">${item.Numero || 'N/A'}</td>
+                <td data-label="Loja/Status">${lojaStatus}</td> 
+                <td data-label="Preço">${formatCurrency(preco)}</td>
+                <td data-label="Data Compra">${formatDate(item['Data de Compra'])}</td>
+                <td data-label="Adquirido">${translateBoolean(item.Adquirido)}</td>
+            `;
+        });
+    }).catch((error) => {
+        console.error("Erro ao carregar o inventário: ", error);
+        tableBody.innerHTML = '<tr><td colspan="9">Erro ao carregar dados. Verifique a consola (F12) para detalhes.</td></tr>';
+    });
+}
 
-        // 6. INÍCIO: Chamar a função para preencher a tabela quando a página carregar
-        window.onload = loadInventory;
+// 6. INÍCIO: Chamar a função para preencher a tabela quando a página carregar
+window.onload = loadInventory;
     </script>
 
 </body>
