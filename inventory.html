@@ -27,18 +27,18 @@
         #modal-image-gallery {
             text-align: center;
             margin-bottom: 20px;
-            position: relative; /* Para posicionar os botões */
-            overflow: hidden; /* Esconde as imagens que não estão visíveis */
+            position: relative; 
+            overflow: hidden; 
         }
 
         .carousel-container {
-            display: flex; /* Permite que as imagens fiquem lado a lado */
-            transition: transform 0.4s ease-in-out; /* Adiciona animação de slide */
+            display: flex; 
+            transition: transform 0.4s ease-in-out; 
             width: 100%;
         }
 
         .carousel-slide {
-            min-width: 100%; /* Cada slide ocupa a largura total do contentor */
+            min-width: 100%; 
             box-sizing: border-box;
             display: flex;
             justify-content: center;
@@ -71,8 +71,9 @@
         #next-slide { right: 10px; }
         /* -------------------------------------- */
 
-        #modal-details { padding: 10px; border-top: 1px solid #eee; font-size: 1.1em; }
-        .modal-source-link { text-align: right; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
+        /* Estes estilos não serão mais necessários, mas mantemos por precaução */
+        #modal-details { padding: 0; border-top: none; font-size: 1.1em; }
+        .modal-source-link { display: none; }
         
         /* --- RESPONSIVIDADE --- */
         @media (max-width: 600px) {
@@ -119,12 +120,7 @@
                     <button id="next-slide" onclick="changeSlide(1)">&#10095;</button>
                 </div>
             </div>
-            <div id="modal-details"></div>
-            
-            <p class="modal-source-link">
-                Adquirido de: <span id="modal-source-status"></span>
-            </p>
-        </div>
+            </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -153,22 +149,18 @@
         const COLLECTION_NAME = "inventario"; 
 
         // -------------------------------------------------------
-        // 2. FUNÇÕES DO SLIDER (NOVO)
+        // 2. FUNÇÕES DO SLIDER
         // -------------------------------------------------------
         
-        // Exibe o slide atual e esconde os outros
         function showSlide(n) {
             const container = document.getElementById('carousel-container');
             
-            // Lógica de loop (volta ao início/fim)
             if (n >= slideCount) { currentSlideIndex = 0; }
             if (n < 0) { currentSlideIndex = slideCount - 1; }
             
-            // Move o container (o efeito de slide)
-            const offset = currentSlideIndex * 100; // Move 100% para a esquerda/direita
+            const offset = currentSlideIndex * 100;
             container.style.transform = `translateX(-${offset}%)`;
 
-            // Oculta os controlos se houver apenas 1 imagem
             const prevBtn = document.getElementById('prev-slide');
             const nextBtn = document.getElementById('next-slide');
 
@@ -181,13 +173,12 @@
             }
         }
 
-        // Altera o slide
         function changeSlide(n) {
             showSlide(currentSlideIndex += n);
         }
 
         // -------------------------------------------------------
-        // 3. FUNÇÕES DE FORMATAÇÃO
+        // 3. FUNÇÕES DE FORMATAÇÃO (Mantidas, mas não usadas no modal)
         // -------------------------------------------------------
 
         function formatCurrency(value) {
@@ -213,7 +204,6 @@
 
         function closeModal() {
             document.getElementById('pop-modal').style.display = 'none';
-            // Reset do slider ao fechar
             currentSlideIndex = 0;
             slideCount = 0;
         }
@@ -228,9 +218,8 @@
 
                 const item = doc.data();
                 const carouselContainer = document.getElementById('carousel-container');
-                carouselContainer.innerHTML = ''; // Limpa as imagens antigas
+                carouselContainer.innerHTML = ''; 
                 
-                // Reset das variáveis globais
                 currentSlideIndex = 0;
                 slideCount = 0;
 
@@ -246,38 +235,23 @@
                     images.forEach((url, index) => {
                         const slideDiv = document.createElement('div');
                         slideDiv.className = 'carousel-slide';
-                        slideDiv.innerHTML = `<img src="${url}" alt="Imagem ${index + 1} de ${itemName}">`;
+                        // Usamos o nome da coleção como ALT text, pois os outros detalhes foram removidos
+                        slideDiv.innerHTML = `<img src="${url}" alt="${itemName} - Imagem ${index + 1}">`;
                         carouselContainer.appendChild(slideDiv);
                     });
                     
-                    // Ajusta a largura total do contentor para o número de slides
                     carouselContainer.style.width = `${slideCount * 100}%`;
 
                 } else {
-                    carouselContainer.innerHTML = '<div class="carousel-slide"><p>Nenhuma imagem detalhada disponível.</p></div>';
-                    slideCount = 1; // Para garantir que o showSlide não cause erro
+                    carouselContainer.innerHTML = '<div class="carousel-slide"><p>Nenhuma imagem disponível.</p></div>';
+                    slideCount = 1; 
                 }
                 
-                // Exibe o primeiro slide e configura os controlos
                 showSlide(currentSlideIndex);
 
+                // 3. REMOVEMOS A CRIAÇÃO DE detailsHtml
 
-                // 3. Detalhes
-                const detailsHtml = `
-                    <p><strong>Marca:</strong> ${item.Marca || 'N/A'}</p>
-                    <p><strong>Nome da Coleção:</strong> ${item['Nom da Coleção'] || 'N/A'}</p>
-                    <p><strong>Número:</strong> ${item.Numero || 'N/A'}</p>
-                    <p><strong>Descrição:</strong> ${item['Descriç~çao'] || 'N/A'}</p>
-                    <p><strong>Preço Pago:</strong> ${formatCurrency(item.Preço)}</p>
-                    <p><strong>Data de Compra:</strong> ${formatDate(item.DataDeCompra)}</p>
-                    <p><strong>Adquirido:</strong> ${translateBoolean(item.Adquirido)}</p>
-                `;
-                document.getElementById('modal-details').innerHTML = detailsHtml;
-
-                // 4. Status de Compra/Oferta
-                document.getElementById('modal-source-status').innerText = item.Loja || 'Não especificado';
-
-                // 5. Mostrar o Modal
+                // 4. Mostrar o Modal
                 document.getElementById('pop-modal').style.display = 'block';
 
             }).catch(error => {
@@ -296,7 +270,7 @@
 
 
         // -------------------------------------------------------
-        // 5. FUNÇÃO DE CARREGAMENTO DE INVENTÁRIO (Preenche a tabela)
+        // 5. FUNÇÃO DE CARREGAMENTO DE INVENTÁRIO (Mantida inalterada)
         // -------------------------------------------------------
 
         function loadInventory() {
@@ -312,7 +286,6 @@
                     
                     const row = tableBody.insertRow();
                     
-                    // NOTA: Usamos item['Nome do Campo'] para campos com espaços ou caracteres especiais
                     const collectionName = item['Nom da Coleção'] || 'N/A';
 
                     row.innerHTML = `
