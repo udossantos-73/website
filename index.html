@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funko Pop! Collection Inventory (Gallery View)</title>
+    <style>
+    /* --- General Styling --- */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f4f4f4;
+        color: #333;
+    }
+    h1 {
+        text-align: center;
+        color: #007acc;
+        border-bottom: 2px solid #007acc;
+        padding-bottom: 10px;
+    }
+
+    /* --- Table Styling --- */
+    .pop-inventory {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background-color: white;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .pop-inventory th, .pop-inventory td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+    }
+    .pop-inventory th {
+        background-color: #007acc;
+        color: white;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    .pop-inventory tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    .pop-inventory tbody tr:hover {
+        background-color: #e6f7ff;
+    }
+
+    /* --- COLUMN WIDTH ADJUSTMENTS --- */
+    /* Targeting the 6th column (Price) in the table rows */
+    .pop-inventory td:nth-child(6) { 
+        width: 8%; /* Adjust this percentage to control space */
+        min-width: 80px; /* Ensures minimum space is always reserved */
+        text-align: right; /* Right-aligning prices for better financial readability */
+        font-weight: bold;
+    }
+
+    /* Targeting the 7th column (Date Purchased) */
+    .pop-inventory td:nth-child(7) {
+        width: 10%; /* Ensures date has enough space */
+    }
+    /* --- END COLUMN WIDTH ADJUSTMENTS --- */
+
+    /* --- Image Column Styling: Only shows one image initially --- */
+    .pop-inventory .pop-image-cell {
+        text-align: center;
+        cursor: pointer;
+    }
+    .pop-inventory .pop-main-image {
+        max-width: 80px;
+        height: auto;
+        border: 2px solid transparent;
+        border-radius: 4px;
+        transition: border-color 0.2s;
+    }
+    .pop-inventory .pop-main-image:hover {
+        border-color: #007acc;
+    }
+
+    /* --- Gallery Container Styling --- */
+    .pop-gallery {
+        display: none;
+        padding: 10px;
+        margin-top: 10px;
+        border-top: 1px solid #ccc;
+        background-color: #f0f0f0;
+        overflow: auto;
+        white-space: nowrap;
+    }
+    .pop-gallery img {
+        max-height: 100px;
+        max-width: 100px;
+        margin-right: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        display: inline-block;
+    }
+
+    /* --- JavaScript Toggle Class --- */
+    .pop-gallery.show {
+        display: block;
+    }
+</style>
+</head>
+<body>
+
+    <h1>✨ My Funko Pop! Collection Inventory (Gallery View) ✨</h1>
+
+    <table class="pop-inventory">
+        <thead>
+            <tr>
+                <th>Image (Click for Gallery)</th>
+                <th>Collection Name</th>
+                <th>#</th>
+                <th>Description</th>
+                <th>Store Purchased</th>
+                <th>Price</th>
+                <th>Date Purchased</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="pop-image-cell">
+                    <img src="https://imgur.com/mTrJ1TG" 
+                         alt="Max Verstappen Front" 
+                         class="pop-main-image"
+                         onclick="toggleGallery(this)">
+                </td>
+                <td>Pop! Max Verstappen with USA Helmet</td>
+                <td>#14</td>
+                <td>Get ready racers! POP! Max Verstappen is looking to take first place in your collection! Put the pedal to the metal and add this Oracle Red Bull Racing motorist with his USA helmet to your POP! Racing collection. Rev up your motorsports lineup by making this exclusive driver the next addition to your roster</td>
+                <td>https://www.fnac.pt/</td>
+                <td>18,99 €</td>
+                <td>2025-12-06</td>
+            </tr>
+            <tr class="gallery-row">
+                <td colspan="7">
+                    <div id="gallery-15" class="pop-gallery">
+                        <img src="https://imgur.com/mTrJ1TG" alt="Funko Pop">
+                        <img src="https://imgur.com/nQcGhgX" alt="Box">
+                        </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="pop-image-cell">
+                    <img src="URL_TO_YOUR_IMAGE_2_FRONT" 
+                         alt="Goku Front" 
+                         class="pop-main-image"
+                         onclick="toggleGallery(this)">
+                </td>
+                <td>Goku (Super Saiyan God)</td>
+                <td>#244</td>
+                <td>A special edition from the Dragon Ball Z series. Features vibrant red hair and a dynamic pose.</td>
+                <td>Local Comic Shop (Mundo Pop!)</td>
+                <td>$12.99</td>
+                <td>2025-06-21</td>
+            </tr>
+            <tr class="gallery-row">
+                <td colspan="7">
+                    <div id="gallery-244" class="pop-gallery">
+                        <img src="URL_TO_YOUR_IMAGE_2_IN_BOX" alt="In Box">
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        function toggleGallery(clickedImage) {
+            // 1. Find the parent <tr> (the Pop's row)
+            const popRow = clickedImage.closest('tr');
+            
+            // 2. Find the *next* sibling <tr>, which is the gallery row
+            const galleryRow = popRow.nextElementSibling;
+            
+            // 3. Find the gallery <div> inside the gallery row
+            const galleryDiv = galleryRow ? galleryRow.querySelector('.pop-gallery') : null;
+
+            if (galleryDiv) {
+                // 4. Toggle the 'show' CSS class to display/hide the gallery
+                galleryDiv.classList.toggle('show');
+            }
+        }
+    </script>
+
+</body>
+</html>
