@@ -232,11 +232,17 @@
         // -------------------------------------------------------
 
         function formatCurrency(value) {
-            if (value === 0) return 'OF.'; 
-            if (typeof value !== 'number') return 'N/A';
+            // [CORREÇÃO FINAL] Removida a linha: if (value === 0) return 'OF.';
+            
+            if (typeof value !== 'number') {
+                // Se não for um número (como no caso de null/undefined), retorna 'N/A' 
+                // (embora a função loadInventory já garanta que é 0)
+                return 'N/A';
+            }
+            
+            // Se for o número 0, será formatado como 0,00 €
             return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(value);
         }
-
         function formatDate(timestamp) {
             if (!timestamp || !timestamp.toDate) return 'N/A';
             const date = timestamp.toDate();
