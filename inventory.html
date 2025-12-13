@@ -11,7 +11,6 @@
         h1 { color: #007acc; text-align: center; margin-bottom: 30px; }
         .pop-inventory { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background-color: white; }
         
-        /* 1. Definir a largura e centralização da primeira coluna (Imagem) */
         .pop-inventory th:first-child, .pop-inventory td:first-child {
             width: 50px; 
             text-align: center;
@@ -28,26 +27,43 @@
             border-radius: 4px;
         }
         
-        /* Otimizar a coluna de Descrição para quebrar o texto e não alargar muito a tabela */
-        .pop-inventory td:nth-child(4) { /* O 4º TD é a descrição agora */
+        .pop-inventory td:nth-child(4) { 
             max-width: 250px; 
             white-space: normal; 
         }
 
         /* --- ESTILOS DO MODAL --- */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); }
+        .modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            /* CORREÇÃO CHAVE: Usar Flexbox para centralizar o conteúdo */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.7); 
+            padding: 20px; /* Adicionar padding para evitar que o conteúdo toque nas bordas do ecrã */
+        }
         .modal-content { 
             background-color: #fefefe; 
-            margin: 5% auto; 
             padding: 30px; 
             border: 1px solid #888; 
-            /* CORREÇÃO CHAVE AQUI: Ajustar a largura ao conteúdo, não a um tamanho rígido */
-            width: fit-content; 
+            /* Ajustar ao conteúdo */
+            width: auto; 
             max-width: 90%; 
+            /* Permitir que o conteúdo do modal desça se for muito alto */
+            max-height: 90vh;
+            overflow-y: auto; 
             border-radius: 8px; 
             position: relative; 
             animation-name: animatetop; 
             animation-duration: 0.4s; 
+            margin: auto; /* Remover margin: 5% auto; */
         }
         @keyframes animatetop { from {top:-300px; opacity:0} to {top:0; opacity:1} }
         .close-button { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
@@ -59,7 +75,6 @@
             margin-bottom: 20px;
             position: relative; 
             overflow: hidden; 
-            /* CORREÇÃO CHAVE AQUI: Remover a altura fixa que estava a cortar a imagem */
             max-height: none; 
         }
 
@@ -67,7 +82,7 @@
             display: flex; 
             transition: transform 0.4s ease-in-out; 
             width: 100%;
-            height: auto; /* Deixar que a altura seja definida pelo conteúdo */
+            height: auto;
         }
 
         .carousel-slide {
@@ -76,8 +91,8 @@
             display: flex;
             justify-content: center; 
             align-items: center; 
-            height: auto; /* Deixar que a altura seja definida pelo conteúdo */
-            padding: 0; /* Remove padding para maximizar o espaço da imagem */
+            height: auto;
+            padding: 0;
         }
 
         .carousel-slide img {
@@ -85,7 +100,7 @@
             /* 'contain' garante que a imagem é exibida na totalidade */
             object-fit: contain; 
             height: auto;
-            max-height: 80vh; /* Limite máximo para a imagem não sair do ecrã */
+            max-height: 70vh; /* Ajustado para 70% da altura da janela para evitar que a barra de navegação corte */
             border: 1px solid #ddd;
             border-radius: 4px;
             display: block; 
@@ -120,7 +135,6 @@
             .pop-inventory td { text-align: right; padding-left: 50%; position: relative; }
             .pop-inventory td::before { content: attr(data-label); position: absolute; left: 6px; width: 45%; padding-right: 10px; white-space: nowrap; font-weight: bold; text-align: left; }
             
-            /* Ordem em ecrãs pequenos */
             .pop-inventory td[data-label="Imagem"] { order: -1; } 
             .pop-inventory td[data-label="Descrição"] { word-wrap: break-word; }
         }
@@ -249,7 +263,9 @@
         // -------------------------------------------------------
 
         function closeModal() {
-            document.getElementById('pop-modal').style.display = 'none';
+            // Se o modal estiver visível (style.display === 'flex' ou 'block'), esconde-o
+            const modal = document.getElementById('pop-modal');
+            modal.style.display = 'none';
             currentSlideIndex = 0;
             slideCount = 0;
         }
@@ -293,7 +309,8 @@
                 
                 showSlide(currentSlideIndex);
 
-                document.getElementById('pop-modal').style.display = 'block';
+                // Mostrar o Modal (usando 'flex' para ativar a centralização CSS)
+                document.getElementById('pop-modal').style.display = 'flex';
 
             }).catch(error => {
                 console.error("Erro ao obter documento para modal:", error);
@@ -303,6 +320,7 @@
         
         window.onclick = function(event) {
             const modal = document.getElementById('pop-modal');
+            // Fechar apenas se o alvo for o fundo do modal
             if (event.target == modal) {
                 closeModal();
             }
@@ -310,7 +328,7 @@
 
 
         // -------------------------------------------------------
-        // 5. FUNÇÃO DE CARREGAMENTO DE INVENTÁRIO (Tabela: Descrição Adicionada)
+        // 5. FUNÇÃO DE CARREGAMENTO DE INVENTÁRIO (Tabela)
         // -------------------------------------------------------
 
         function loadInventory() {
@@ -327,7 +345,6 @@
                     const row = tableBody.insertRow();
                     
                     const collectionName = item['Nom da Coleção'] || 'N/A';
-                    
                     const description = item.Descricao || 'N/A'; 
 
                     // Ordem da Coluna: Imagem na primeira posição, Descrição na quarta
