@@ -340,7 +340,7 @@ window.onclick = function(event) {
         // 5. FUNÇÃO DE CARREGAMENTO DE INVENTÁRIO (Tabela)
         // -------------------------------------------------------
 
-        function loadInventory() {
+function loadInventory() {
             const tableBody = document.getElementById('inventory-body');
             // Corrigido para colspan="9"
             tableBody.innerHTML = '<tr><td colspan="9">A carregar dados...</td></tr>';
@@ -369,9 +369,9 @@ window.onclick = function(event) {
                         <td data-label="Nome da Coleção">${collectionName}</td>
                         <td data-label="Descrição">${description}</td>
                         <td data-label="Nº">${item.Numero || 'N/A'}</td>
-                        <td data-label="Loja">${item.Loja || 'N/A'}</td>
+                        <td data-label="Loja/Status">${item.Loja || 'N/A'}</td>
                         <td data-label="Preço">${formatCurrency(item.Preço)}</td>
-                        <td data-label="Data Compra">${formatDate(item.DataDeCompra)}</td>
+                        <td data-label="Data Compra">${formatDate(item['Data de Compra'])}</td> 
                         <td data-label="Adquirido">${translateBoolean(item.Adquirido)}</td>
                     `;
                 });
