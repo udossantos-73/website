@@ -27,6 +27,12 @@
             cursor: pointer; 
             border-radius: 4px;
         }
+        
+        /* Otimizar a coluna de Descrição para quebrar o texto e não alargar muito a tabela */
+        .pop-inventory td:nth-child(3) { 
+            max-width: 250px; 
+            white-space: normal; 
+        }
 
         /* --- ESTILOS DO MODAL --- */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); }
@@ -88,19 +94,9 @@
         #prev-slide { left: 10px; }
         #next-slide { right: 10px; }
         
-        /* --- ESTILOS DE DETALHES RE-ADICIONADOS --- */
-        #modal-details { 
-            padding: 10px; 
-            border-top: 1px solid #eee; 
-            font-size: 1.1em;
-            text-align: left; /* Garante que o texto está alinhado à esquerda */
-        }
-        .modal-source-link {
-            text-align: right; 
-            margin-top: 15px; 
-            border-top: 1px solid #eee; 
-            padding-top: 10px; 
-        }
+        /* --- REMOÇÃO DE DETALHES DO MODAL (Retorno ao estado original sem detalhes) --- */
+        #modal-details { display: none; }
+        .modal-source-link { display: none; }
         
         /* --- RESPONSIVIDADE --- */
         @media (max-width: 600px) {
@@ -112,6 +108,8 @@
             
             /* Correção para a ordem da imagem em ecrãs pequenos */
             .pop-inventory td[data-label="Imagem"] { order: -1; } 
+            /* Para a descrição caber em mobile */
+            .pop-inventory td[data-label="Descrição"] { word-wrap: break-word; }
         }
     </style>
 </head>
@@ -125,6 +123,7 @@
                 <th>Imagem</th>
                 <th>Marca</th>
                 <th>Nome da Coleção</th>
+                <th>Descrição</th>
                 <th>Nº</th>
                 <th>Loja/Status</th> 
                 <th>Preço</th>
@@ -133,7 +132,7 @@
             </tr>
         </thead>
         <tbody id="inventory-body">
-            <tr><td colspan="8">A carregar dados... Por favor aguarde.</td></tr>
+            <tr><td colspan="9">A carregar dados... Por favor aguarde.</td></tr>
         </tbody>
     </table>
 
@@ -152,11 +151,9 @@
             </div>
 
             <div id="modal-details"></div>
-            
             <p class="modal-source-link">
                 Loja/Status: <span id="modal-source-status"></span>
             </p>
-            
         </div>
     </div>
 
@@ -185,7 +182,7 @@
         const COLLECTION_NAME = "inventario"; 
 
         // -------------------------------------------------------
-        // 2. FUNÇÕES DO SLIDER (Não alteradas)
+        // 2. FUNÇÕES DO SLIDER (Mantidas)
         // -------------------------------------------------------
         
         function showSlide(n) {
@@ -214,7 +211,7 @@
         }
 
         // -------------------------------------------------------
-        // 3. FUNÇÕES DE FORMATAÇÃO (Não alteradas)
+        // 3. FUNÇÕES DE FORMATAÇÃO (Mantidas)
         // -------------------------------------------------------
 
         function formatCurrency(value) {
@@ -235,7 +232,7 @@
         }
         
         // -------------------------------------------------------
-        // 4. FUNÇÃO DE CONTROLO DO MODAL
+        // 4. FUNÇÃO DE CONTROLO DO MODAL (Lógica da Descrição Removida)
         // -------------------------------------------------------
 
         function closeModal() {
@@ -261,7 +258,7 @@
 
                 document.getElementById('modal-title').innerText = `${itemName} (#${item.Numero || 'N/A'})`;
 
-                // 1. Criação do Slider (Mantida)
+                // Criação do Slider 
                 const images = item.Imagem;
                 
                 if (images && images.length > 0) {
@@ -283,16 +280,8 @@
                 
                 showSlide(currentSlideIndex);
 
-                // 2. DETALHES RE-ADICIONADOS: Apenas a Descrição
-                const detailsHtml = `
-                    <p><strong>Descrição:</strong> ${item.Descricao || 'N/A'}</p>
-                `;
-                document.getElementById('modal-details').innerHTML = detailsHtml;
+                // REMOVIDA A LÓGICA DE PREENCHIMENTO DA DESCRIÇÃO AQUI.
 
-                // 3. Status de Compra/Oferta (Re-adicionado)
-                document.getElementById('modal-source-status').innerText = item.Loja || 'Não especificado';
-
-                // 4. Mostrar o Modal
                 document.getElementById('pop-modal').style.display = 'block';
 
             }).catch(error => {
@@ -310,12 +299,12 @@
 
 
         // -------------------------------------------------------
-        // 5. FUNÇÃO DE CARREGAMENTO DE INVENTÁRIO (Tabela)
+        // 5. FUNÇÃO DE CARREGAMENTO DE INVENTÁRIO (Tabela: Descrição Adicionada)
         // -------------------------------------------------------
 
         function loadInventory() {
             const tableBody = document.getElementById('inventory-body');
-            tableBody.innerHTML = '<tr><td colspan="8">A carregar dados...</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="9">A carregar dados...</td></tr>';
 
             db.collection(COLLECTION_NAME).get().then((querySnapshot) => {
                 tableBody.innerHTML = ''; 
@@ -327,8 +316,11 @@
                     const row = tableBody.insertRow();
                     
                     const collectionName = item['Nom da Coleção'] || 'N/A';
+                    
+                    // Nota: O nome do campo é "Descricao" (sem til)
+                    const description = item.Descricao || 'N/A'; 
 
-                    // Ordem da Coluna: Imagem na primeira posição
+                    // Ordem da Coluna: Imagem na primeira posição, Descrição na quarta
                     row.innerHTML = `
                         <td data-label="Imagem">
                             <img src="${item.Imagem && item.Imagem.length > 0 ? item.Imagem[0] : 'https://via.placeholder.com/50'}"
@@ -338,7 +330,7 @@
                         </td>
                         <td data-label="Marca">${item.Marca || 'N/A'}</td>
                         <td data-label="Nome da Coleção">${collectionName}</td>
-                        <td data-label="Nº">${item.Numero || 'N/A'}</td>
+                        <td data-label="Descrição">${description}</td> <td data-label="Nº">${item.Numero || 'N/A'}</td>
                         <td data-label="Loja/Status">${item.Loja || 'N/A'}</td>
                         <td data-label="Preço">${formatCurrency(item.Preço)}</td>
                         <td data-label="Data Compra">${formatDate(item.DataDeCompra)}</td>
@@ -347,7 +339,7 @@
                 });
             }).catch((error) => {
                 console.error("Erro ao carregar o inventário: ", error);
-                tableBody.innerHTML = '<tr><td colspan="8">Erro ao carregar os dados. Verifique a consola (F12).</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="9">Erro ao carregar os dados. Verifique a consola (F12).</td></tr>';
             });
         }
 
