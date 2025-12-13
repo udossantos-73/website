@@ -6,129 +6,196 @@
     <title>Inventário de Colecionáveis - Pops & Hot Wheels</title>
     
     <style>
-        /* --- ESTILOS GERAIS E DA TABELA --- */
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 20px; color: #333; }
-        h1 { color: #007acc; text-align: center; margin-bottom: 30px; }
-        .pop-inventory { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background-color: white; }
+    /* --- ESTILOS GERAIS E DA TABELA --- */
+    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 20px; color: #333; }
+    h1 { color: #007acc; text-align: center; margin-bottom: 30px; }
+    .pop-inventory { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background-color: white; }
+    
+    .pop-inventory th:first-child, .pop-inventory td:first-child {
+        width: 50px; 
+        text-align: center;
+    }
+
+    .pop-inventory th, .pop-inventory td { border: 1px solid #ddd; padding: 12px 8px; text-align: left; }
+    .pop-inventory th { background-color: #007acc; color: white; font-weight: bold; text-transform: uppercase; }
+    .pop-inventory tbody tr:nth-child(even) { background-color: #f9f9f9; }
+    .pop-inventory tbody tr:hover { background-color: #e9e9e9; }
+    .pop-main-image { 
+        width: 50px; 
+        height: auto; 
+        cursor: pointer; 
+        border-radius: 4px;
+    }
+    
+    /* Posição 5 agora é Descrição */
+    .pop-inventory td:nth-child(5) { 
+        max-width: 250px; 
+        white-space: normal; 
+    }
+
+    /* --- ESTILOS DO MODAL (Mantidos) --- */
+    .modal { 
+        display: none; 
+        position: fixed; 
+        z-index: 1000; 
+        left: 0; 
+        top: 0; 
+        width: 100%; 
+        height: 100%; 
+        justify-content: center;
+        align-items: center;
+        overflow-y: auto; 
+        background-color: rgba(0,0,0,0.7); 
+        padding: 20px; 
+    }
+    .modal-content { 
+        background-color: #fefefe; 
+        padding: 30px; 
+        border: 1px solid #888; 
+        width: auto; 
+        max-width: 90%; 
+        max-height: 90vh; 
+        overflow-y: auto; 
+        border-radius: 8px; 
+        position: relative; 
+        animation-name: animatetop; 
+        animation-duration: 0.4s; 
+        margin: auto; 
+    }
+    @keyframes animatetop { from {top:-300px; opacity:0} to {top:0; opacity:1} }
+    .close-button { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
+    .close-button:hover, .close-button:focus { color: #000; text-decoration: none; cursor: pointer; }
+
+    /* --- ESTILOS DO CARROSSEL (SLIDER) --- */
+    #modal-image-gallery {
+        position: relative;
+        width: 100%;
+        overflow-x: hidden;
+        overflow-y: visible;
+    }
+
+    .carousel-container {
+        display: flex;
+        transition: transform 0.4s ease-in-out;
+        width: 100%;
+        height: auto;
+    }
+
+    .carousel-slide {
+        flex: 0 0 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .carousel-slide img {
+        width: 100%;
+        max-height: 70vh;
+        object-fit: contain;
+        display: block;
+    }
+
+    .carousel-controls button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        padding: 10px 15px;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        cursor: pointer;
+        z-index: 10;
+        font-size: 1.5em;
+        user-select: none;
+    }
+
+    #prev-slide { left: 10px; }
+    #next-slide { right: 10px; }
+    
+    /* --- REMOÇÃO DE DETALHES DO MODAL --- */
+    #modal-details { display: none; }
+    .modal-source-link { display: none; }
+    
+    /* --- RESPONSIVIDADE (MOBILE-FIRST) --- */
+    @media (max-width: 768px) { 
         
-        .pop-inventory th:first-child, .pop-inventory td:first-child {
-            width: 50px; 
-            text-align: center;
+        .pop-inventory { 
+            box-shadow: none;
+            background-color: transparent;
         }
 
-        .pop-inventory th, .pop-inventory td { border: 1px solid #ddd; padding: 12px 8px; text-align: left; }
-        .pop-inventory th { background-color: #007acc; color: white; font-weight: bold; text-transform: uppercase; }
-        .pop-inventory tbody tr:nth-child(even) { background-color: #f9f9f9; }
-        .pop-inventory tbody tr:hover { background-color: #e9e9e9; }
-        .pop-main-image { 
-            width: 50px; 
-            height: auto; 
-            cursor: pointer; 
-            border-radius: 4px;
+        .pop-inventory thead { 
+            display: none; 
         }
         
-        /* Otimizar a coluna de Descrição para quebrar o texto e não alargar muito a tabela */
-        .pop-inventory td:nth-child(4) { 
-            max-width: 250px; 
-            white-space: normal; 
-        }
-
-        /* --- ESTILOS DO MODAL --- */
-        .modal { 
-            display: none; /* Inicialmente escondido */
-            position: fixed; 
-            z-index: 1000; 
-            left: 0; 
-            top: 0; 
+        .pop-inventory, .pop-inventory tbody, .pop-inventory tr { 
+            display: block; 
             width: 100%; 
-            height: 100%; 
-            /* Flexbox para centralizar o modal-content */
-            justify-content: center;
-            align-items: center;
-            overflow-y: auto; /* Permitir scroll se o conteúdo for muito alto */
-            background-color: rgba(0,0,0,0.7); 
-            padding: 20px; 
         }
-        .modal-content { 
-            background-color: #fefefe; 
-            padding: 30px; 
-            border: 1px solid #888; 
-            width: auto; 
-            max-width: 90%; 
-            max-height: 90vh; /* Altura máxima para não sair do ecrã */
-            overflow-y: auto; 
-            border-radius: 8px; 
+        
+        .pop-inventory tr { 
+            margin-bottom: 15px; 
+            border: 1px solid #ccc; 
+            background-color: white; 
+            border-radius: 6px; 
+            padding: 10px;
+            display: flex; 
+            flex-wrap: wrap; 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* 1. Esconder todas as colunas por defeito no mobile */
+        .pop-inventory td { 
+            display: none; /* Esconde tudo por defeito */
+            width: 100%; 
+            text-align: left; 
+            padding: 5px 0 5px 45%; 
             position: relative; 
-            animation-name: animatetop; 
-            animation-duration: 0.4s; 
-            margin: auto; 
+            border: none; 
         }
-        @keyframes animatetop { from {top:-300px; opacity:0} to {top:0; opacity:1} }
-        .close-button { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
-        .close-button:hover, .close-button:focus { color: #000; text-decoration: none; cursor: pointer; }
 
-        /* --- ESTILOS DO CARROSSEL (SLIDER) --- */
-        #modal-image-gallery {
-    position: relative;
-    width: 100%;
-    overflow-x: hidden;   /* mostra só 1 slide */
-    overflow-y: visible;
-}
+        /* 2. Tornar visíveis apenas as 4 colunas desejadas e ajustar o layout */
+        
+        /* Imagem (1ª Coluna) - Deve ser o primeiro item e ocupar a linha inteira */
+        .pop-inventory td[data-label="Imagem"] { 
+            display: block;
+            order: -1; 
+            width: 100%;
+            text-align: center;
+            padding: 10px 0 10px 0; /* Remove padding-left extra */
+        }
+        /* Marca (2ª Coluna) */
+        .pop-inventory td[data-label="Marca"] { 
+            display: block; 
+        }
+        /* Nº (3ª Coluna) */
+        .pop-inventory td[data-label="Nº"] { 
+            display: block; 
+        }
+        /* Nome da Coleção (4ª Coluna) */
+        .pop-inventory td[data-label="Nome da Coleção"] { 
+            display: block; 
+        }
+        
+        /* Ajustar o Rótulo (Label) para as células que estão visíveis */
+        .pop-inventory td::before { 
+            content: attr(data-label); 
+            position: absolute; 
+            left: 0; 
+            width: 40%; 
+            padding-right: 10px; 
+            font-weight: bold; 
+            text-align: right; 
+            color: #007acc; 
+        }
 
-        .carousel-container {
-    display: flex;
-    transition: transform 0.4s ease-in-out;
-    width: 100%;
+        /* Otimizar o estilo da Imagem no mobile */
+        .pop-main-image {
+            width: 80px;
             height: auto;
         }
-
-        .carousel-slide {
-    flex: 0 0 100%;       /* 🔴 garante 1 slide por viewport */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-        .carousel-slide img {
-    width: 100%;
-    max-height: 70vh;
-    object-fit: contain;
-    display: block;
-}
-
-        .carousel-controls button {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            padding: 10px 15px;
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            cursor: pointer;
-            z-index: 10;
-            font-size: 1.5em;
-            user-select: none;
-        }
-
-        #prev-slide { left: 10px; }
-        #next-slide { right: 10px; }
-        
-        /* --- REMOÇÃO DE DETALHES DO MODAL --- */
-        #modal-details { display: none; }
-        .modal-source-link { display: none; }
-        
-        /* --- RESPONSIVIDADE --- */
-        @media (max-width: 600px) {
-            .pop-inventory thead { display: none; }
-            .pop-inventory, .pop-inventory tbody, .pop-inventory tr, .pop-inventory td { display: block; width: 100%; }
-            .pop-inventory tr { margin-bottom: 10px; border: 1px solid #ccc; display: flex; flex-wrap: wrap; }
-            .pop-inventory td { text-align: right; padding-left: 50%; position: relative; }
-            .pop-inventory td::before { content: attr(data-label); position: absolute; left: 6px; width: 45%; padding-right: 10px; white-space: nowrap; font-weight: bold; text-align: left; }
-            
-            .pop-inventory td[data-label="Imagem"] { order: -1; } 
-            .pop-inventory td[data-label="Descrição"] { word-wrap: break-word; }
-        }
-    </style>
+    }
+</style>
 </head>
 <body>
 
