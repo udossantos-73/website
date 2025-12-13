@@ -263,11 +263,11 @@
                 const detailsHtml = `
                     <p><strong>Marca:</strong> ${item.Marca || 'N/A'}</p>
                     <p><strong>Nome da Coleção:</strong> ${item.NomeDaColecao || 'N/A'}</p>
-                    <p><strong>Número:</strong> ${item.Numero || 'N/A'}</p>
+                    <p><strong>Numero:</strong> ${item.Numero || 'N/A'}</p>
                     <p><strong>Descrição:</strong> ${item.Descrição || 'N/A'}</p>
-                    <p><strong>Preço Pago:</strong> ${formatCurrency(item.Preço)}</p>
+                    <p><strong>Preço:</strong> ${formatCurrency(item.Preço)}</p>
                     <p><strong>Data de Compra:</strong> ${formatDate(item.DataDeCompra)}</p>
-                    <p><strong>Na Coleção:</strong> ${translateBoolean(item.NaColecao)}</p>
+                    <p><strong>Na coleção:</strong> ${translateBoolean(item.NaColecao)}</p>
                 `;
                 document.getElementById('modal-details').innerHTML = detailsHtml;
 
