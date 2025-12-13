@@ -116,85 +116,85 @@
     #modal-details { display: none; }
     .modal-source-link { display: none; }
     
-    /* --- RESPONSIVIDADE (MOBILE-FIRST) --- */
-    @media (max-width: 768px) { 
-        
-        .pop-inventory { 
-            box-shadow: none;
-            background-color: transparent;
-        }
-
-        .pop-inventory thead { 
-            display: none; 
-        }
-        
-        .pop-inventory, .pop-inventory tbody, .pop-inventory tr { 
-            display: block; 
-            width: 100%; 
-        }
-        
-        .pop-inventory tr { 
-            margin-bottom: 15px; 
-            border: 1px solid #ccc; 
-            background-color: white; 
-            border-radius: 6px; 
-            padding: 10px;
-            display: flex; 
-            flex-wrap: wrap; 
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-        
-        /* 1. Esconder todas as colunas por defeito no mobile */
-        .pop-inventory td { 
-            display: none; /* Esconde tudo por defeito */
-            width: 100%; 
-            text-align: left; 
-            padding: 5px 0 5px 45%; 
-            position: relative; 
-            border: none; 
-        }
-
-        /* 2. Tornar visíveis apenas as 4 colunas desejadas e ajustar o layout */
-        
-        /* Imagem (1ª Coluna) - Deve ser o primeiro item e ocupar a linha inteira */
-        .pop-inventory td[data-label="Imagem"] { 
-            display: block;
-            order: -1; 
-            width: 100%;
-            text-align: center;
-            padding: 10px 0 10px 0; /* Remove padding-left extra */
-        }
-        /* Marca (2ª Coluna) */
-        .pop-inventory td[data-label="Marca"] { 
-            display: block; 
-        }
-        /* Nº (3ª Coluna) */
-        .pop-inventory td[data-label="Nº"] { 
-            display: block; 
-        }
-        /* Nome da Coleção (4ª Coluna) */
-        .pop-inventory td[data-label="Nome da Coleção"] { 
-            display: block; 
-        }
-        
-        /* Ajustar o Rótulo (Label) para as células que estão visíveis */
-        .pop-inventory td::before { 
-            content: attr(data-label); 
-            position: absolute; 
-            left: 0; 
-            width: 40%; 
-            padding-right: 10px; 
-            font-weight: bold; 
-            text-align: right; 
-            color: #007acc; 
-        }
-
-        /* Otimizar o estilo da Imagem no mobile */
-        .pop-main-image {
-            width: 80px;
-            height: auto;
-        }
+/* --- RESPONSIVIDADE (MOBILE-FIRST) --- */
+@media (max-width: 768px) { 
+    
+    .pop-inventory { 
+        box-shadow: none;
+        background-color: transparent;
     }
+
+    .pop-inventory thead { 
+        display: none; /* 🔴 CORREÇÃO CHAVE: Garante que os títulos desaparecem completamente */
+    }
+    
+    .pop-inventory, .pop-inventory tbody, .pop-inventory tr { 
+        display: block; 
+        width: 100%; 
+    }
+    
+    .pop-inventory tr { 
+        margin-bottom: 15px; 
+        border: 1px solid #ccc; 
+        background-color: white; 
+        border-radius: 6px; 
+        padding: 10px;
+        display: flex; 
+        flex-wrap: wrap; 
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* 1. Esconder todas as colunas por defeito no mobile */
+    .pop-inventory td { 
+        display: none; 
+        width: 100%; 
+        text-align: left; 
+        padding: 5px 0 5px 45%; 
+        position: relative; 
+        border: none; 
+    }
+
+    /* 2. Tornar visíveis apenas as 4 colunas desejadas e ajustar o layout */
+    
+    /* Imagem (1ª Coluna) - Item especial */
+    .pop-inventory td[data-label="Imagem"] { 
+        display: block;
+        order: -1; 
+        width: 100%;
+        text-align: center;
+        padding: 10px 0 10px 0; 
+    }
+    /* Marca (2ª Coluna) */
+    .pop-inventory td[data-label="Marca"] { 
+        display: block; 
+    }
+    /* Nº (3ª Coluna) */
+    .pop-inventory td[data-label="Nº"] { 
+        display: block; 
+    }
+    /* Nome da Coleção (4ª Coluna) */
+    .pop-inventory td[data-label="Nome da Coleção"] { 
+        display: block; 
+    }
+    
+    /* Ajustar o Rótulo (Label) para as células que estão visíveis */
+    .pop-inventory td::before { 
+        content: attr(data-label); 
+        position: absolute; 
+        left: 0; 
+        width: 40%; 
+        padding-right: 10px; 
+        font-weight: bold; 
+        text-align: right; 
+        color: #007acc; 
+    }
+
+    /* Otimizar o estilo da Imagem no mobile */
+    .pop-main-image {
+        width: 80px;
+        height: auto;
+    }
+}
 </style>
 </head>
 <body>
