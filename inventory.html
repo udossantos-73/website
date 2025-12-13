@@ -27,6 +27,7 @@
             border-radius: 4px;
         }
         
+        /* Otimizar a coluna de Descrição para quebrar o texto e não alargar muito a tabela */
         .pop-inventory td:nth-child(4) { 
             max-width: 250px; 
             white-space: normal; 
@@ -34,36 +35,33 @@
 
         /* --- ESTILOS DO MODAL --- */
         .modal { 
-            display: none; 
+            display: none; /* Inicialmente escondido */
             position: fixed; 
             z-index: 1000; 
             left: 0; 
             top: 0; 
             width: 100%; 
             height: 100%; 
-            /* CORREÇÃO CHAVE: Usar Flexbox para centralizar o conteúdo */
-            display: flex;
+            /* Flexbox para centralizar o modal-content */
             justify-content: center;
             align-items: center;
-            overflow: auto; 
+            overflow-y: auto; /* Permitir scroll se o conteúdo for muito alto */
             background-color: rgba(0,0,0,0.7); 
-            padding: 20px; /* Adicionar padding para evitar que o conteúdo toque nas bordas do ecrã */
+            padding: 20px; 
         }
         .modal-content { 
             background-color: #fefefe; 
             padding: 30px; 
             border: 1px solid #888; 
-            /* Ajustar ao conteúdo */
             width: auto; 
             max-width: 90%; 
-            /* Permitir que o conteúdo do modal desça se for muito alto */
-            max-height: 90vh;
+            max-height: 90vh; /* Altura máxima para não sair do ecrã */
             overflow-y: auto; 
             border-radius: 8px; 
             position: relative; 
             animation-name: animatetop; 
             animation-duration: 0.4s; 
-            margin: auto; /* Remover margin: 5% auto; */
+            margin: auto; 
         }
         @keyframes animatetop { from {top:-300px; opacity:0} to {top:0; opacity:1} }
         .close-button { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
@@ -75,7 +73,7 @@
             margin-bottom: 20px;
             position: relative; 
             overflow: hidden; 
-            max-height: none; 
+            max-height: none; /* Deixar a altura ser definida pela imagem */
         }
 
         .carousel-container {
@@ -100,7 +98,8 @@
             /* 'contain' garante que a imagem é exibida na totalidade */
             object-fit: contain; 
             height: auto;
-            max-height: 70vh; /* Ajustado para 70% da altura da janela para evitar que a barra de navegação corte */
+            max-height: 70vh; /* Limite a altura da imagem à altura visível do ecrã */
+            min-height: 100px; /* Garante que o contentor tem altura mínima */
             border: 1px solid #ddd;
             border-radius: 4px;
             display: block; 
@@ -209,7 +208,7 @@
         const COLLECTION_NAME = "inventario"; 
 
         // -------------------------------------------------------
-        // 2. FUNÇÕES DO SLIDER (Mantidas)
+        // 2. FUNÇÕES DO SLIDER 
         // -------------------------------------------------------
         
         function showSlide(n) {
@@ -259,13 +258,12 @@
         }
         
         // -------------------------------------------------------
-        // 4. FUNÇÃO DE CONTROLO DO MODAL (Mantida)
+        // 4. FUNÇÃO DE CONTROLO DO MODAL 
         // -------------------------------------------------------
 
         function closeModal() {
-            // Se o modal estiver visível (style.display === 'flex' ou 'block'), esconde-o
-            const modal = document.getElementById('pop-modal');
-            modal.style.display = 'none';
+            // Usa 'none' para desligar o display flex
+            document.getElementById('pop-modal').style.display = 'none';
             currentSlideIndex = 0;
             slideCount = 0;
         }
@@ -300,11 +298,13 @@
                         carouselContainer.appendChild(slideDiv);
                     });
                     
+                    // Definir a largura do contentor só depois de adicionar slides
                     carouselContainer.style.width = `${slideCount * 100}%`;
 
                 } else {
                     carouselContainer.innerHTML = '<div class="carousel-slide"><p>Nenhuma imagem disponível.</p></div>';
                     slideCount = 1; 
+                    carouselContainer.style.width = '100%'; 
                 }
                 
                 showSlide(currentSlideIndex);
@@ -320,7 +320,6 @@
         
         window.onclick = function(event) {
             const modal = document.getElementById('pop-modal');
-            // Fechar apenas se o alvo for o fundo do modal
             if (event.target == modal) {
                 closeModal();
             }
@@ -333,6 +332,7 @@
 
         function loadInventory() {
             const tableBody = document.getElementById('inventory-body');
+            // Corrigido para colspan="9"
             tableBody.innerHTML = '<tr><td colspan="9">A carregar dados...</td></tr>';
 
             db.collection(COLLECTION_NAME).get().then((querySnapshot) => {
@@ -347,7 +347,7 @@
                     const collectionName = item['Nom da Coleção'] || 'N/A';
                     const description = item.Descricao || 'N/A'; 
 
-                    // Ordem da Coluna: Imagem na primeira posição, Descrição na quarta
+                    // Ordem da Coluna: Imagem (1ª) e Descrição (4ª)
                     row.innerHTML = `
                         <td data-label="Imagem">
                             <img src="${item.Imagem && item.Imagem.length > 0 ? item.Imagem[0] : 'https://via.placeholder.com/50'}"
