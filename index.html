@@ -117,6 +117,16 @@
     @media (max-width: 768px) {
         /* ... Estilos de responsividade da tabela ... */
     }
+	/* --- NOVO ESTILO: Linha Destacada --- */
+	.pop-inventory .linha-destacada {
+    background-color: #e8e8e8 !important; /* Cinzento Claro */
+    font-weight: bold; /* Opcional: Para tornar o texto mais forte */
+	}
+
+	/* Opcional: Remove o hover para esta linha, se desejar */
+	.pop-inventory .linha-destacada:hover {
+    background-color: #dcdcdc !important; /* Um cinzento ligeiramente mais escuro no hover */
+	}
 </style>
 </head>
 <body>
@@ -150,7 +160,7 @@
                 <td></td>
                 <td>2025-11-20</td>
             </tr>
-			<tr>
+			<tr> class="linha-destacada">
                 <td class="pop-image-cell">
                     <img src="https://i.imgur.com/KCHI3Ub.png" 
                          alt="Funko" 
@@ -323,6 +333,7 @@
 
 </body>
 </html>
+
 
 
 
