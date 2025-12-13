@@ -69,40 +69,32 @@
 
         /* --- ESTILOS DO CARROSSEL (SLIDER) --- */
         #modal-image-gallery {
-            text-align: center;
-            margin-bottom: 20px;
-            position: relative; 
-            overflow: hidden; 
-            max-height: none; /* Deixar a altura ser definida pela imagem */
-        }
+    position: relative;
+    width: 100%;
+    overflow-x: hidden;   /* mostra só 1 slide */
+    overflow-y: visible;
+}
 
         .carousel-container {
-            display: relative; 
-            width: 100%;
+    display: flex;
+    transition: transform 0.4s ease-in-out;
+    width: 100%;
             height: auto;
         }
 
         .carousel-slide {
-            min-width: 100%; 
-            box-sizing: border-box;
-            display: flex;
-            justify-content: center; 
-            align-items: center; 
-            height: auto;
-            padding: 0;
-        }
+    flex: 0 0 100%;       /* 🔴 garante 1 slide por viewport */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
         .carousel-slide img {
-            max-width: 100%;
-            /* 'contain' garante que a imagem é exibida na totalidade */
-            object-fit: contain; 
-            height: auto;
-            max-height: 70vh; /* Limite a altura da imagem à altura visível do ecrã */
-            min-height: 100px; /* Garante que o contentor tem altura mínima */
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            display: block; 
-        }
+    width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    display: block;
+}
 
         .carousel-controls button {
             position: absolute;
@@ -260,69 +252,88 @@
         // 4. FUNÇÃO DE CONTROLO DO MODAL 
         // -------------------------------------------------------
 
-        function closeModal() {
-            // Usa 'none' para desligar o display flex
-            document.getElementById('pop-modal').style.display = 'none';
-            currentSlideIndex = 0;
-            slideCount = 0;
+function closeModal() {
+    document.getElementById('pop-modal').style.display = 'none';
+    currentSlideIndex = 0;
+    slideCount = 0;
+
+    // Reset da posição do carrossel
+    const carouselContainer = document.getElementById('carousel-container');
+    carouselContainer.style.transform = 'translateX(0)';
+}
+
+function openModal(itemId, itemName) {
+
+    db.collection(COLLECTION_NAME).doc(itemId).get().then((doc) => {
+        if (!doc.exists) {
+            alert("Detalhes do item não encontrados!");
+            return;
         }
 
-        function openModal(itemId, itemName) {
-            
-            db.collection(COLLECTION_NAME).doc(itemId).get().then((doc) => {
-                if (!doc.exists) {
-                    alert("Detalhes do item não encontrados!");
-                    return;
-                }
+        const item = doc.data();
+        const carouselContainer = document.getElementById('carousel-container');
 
-                const item = doc.data();
-                const carouselContainer = document.getElementById('carousel-container');
-                carouselContainer.innerHTML = ''; 
-                
-                currentSlideIndex = 0;
-                slideCount = 0;
+        // Limpa o carrossel
+        carouselContainer.innerHTML = '';
+        carouselContainer.style.transform = 'translateX(0)';
 
-                document.getElementById('modal-title').innerText = `${itemName} (#${item.Numero || 'N/A'})`;
+        currentSlideIndex = 0;
+        slideCount = 0;
 
-                // Criação do Slider 
-                const images = item.Imagem;
-                
-                if (images && images.length > 0) {
-                    slideCount = images.length;
-                    
-                    images.forEach((url, index) => {
-                        const slideDiv = document.createElement('div');
-                        slideDiv.className = 'carousel-slide';
-                        slideDiv.innerHTML = `<img src="${url}" alt="${itemName} - Imagem ${index + 1}">`;
-                        carouselContainer.appendChild(slideDiv);
-                    });
-                    
-                    // Definir a largura do contentor só depois de adicionar slides
-                    carouselContainer.style.width = `${slideCount * 100}%`;
+        document.getElementById('modal-title').innerText =
+            `${itemName} (#${item.Numero || 'N/A'})`;
 
-                } else {
-                    carouselContainer.innerHTML = '<div class="carousel-slide"><p>Nenhuma imagem disponível.</p></div>';
-                    slideCount = 1; 
-                    carouselContainer.style.width = '100%'; 
-                }
-                
-                showSlide(currentSlideIndex);
+        const images = item.Imagem;
 
-                // Mostrar o Modal (usando 'flex' para ativar a centralização CSS)
-                document.getElementById('pop-modal').style.display = 'flex';
+        if (images && images.length > 0) {
+            slideCount = images.length;
 
-            }).catch(error => {
-                console.error("Erro ao obter documento para modal:", error);
-                alert("Não foi possível carregar os detalhes.");
+            images.forEach((url, index) => {
+                const slideDiv = document.createElement('div');
+                slideDiv.className = 'carousel-slide';
+                slideDiv.innerHTML =
+                    `<img src="${url}" alt="${itemName} - Imagem ${index + 1}">`;
+                carouselContainer.appendChild(slideDiv);
             });
+
+        } else {
+            carouselContainer.innerHTML = `
+                <div class="carousel-slide">
+                    <p>Nenhuma imagem disponível.</p>
+                </div>`;
+            slideCount = 1;
         }
-        
-        window.onclick = function(event) {
-            const modal = document.getElementById('pop-modal');
-            if (event.target == modal) {
-                closeModal();
-            }
-        }
+
+        showSlide(currentSlideIndex);
+
+        document.getElementById('pop-modal').style.display = 'flex';
+
+    }).catch(error => {
+        console.error("Erro ao obter documento para modal:", error);
+        alert("Não foi possível carregar os detalhes.");
+    });
+}
+
+function showSlide(index) {
+    const carouselContainer = document.getElementById('carousel-container');
+
+    if (index < 0) index = slideCount - 1;
+    if (index >= slideCount) index = 0;
+
+    currentSlideIndex = index;
+
+    // 🔴 Movimento correto: 1 imagem (100%) por vez
+    carouselContainer.style.transform =
+        `translateX(-${currentSlideIndex * 100}%)`;
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('pop-modal');
+    if (event.target === modal) {
+        closeModal();
+    }
+};
+
 
 
         // -------------------------------------------------------
