@@ -342,7 +342,6 @@ window.onclick = function(event) {
 
 function loadInventory() {
             const tableBody = document.getElementById('inventory-body');
-            // Corrigido para colspan="9"
             tableBody.innerHTML = '<tr><td colspan="9">A carregar dados...</td></tr>';
 
             db.collection(COLLECTION_NAME).get().then((querySnapshot) => {
@@ -356,8 +355,18 @@ function loadInventory() {
                     
                     const collectionName = item['Nom da Coleção'] || 'N/A';
                     const description = item.Descricao || 'N/A'; 
+                    
+                    // --- NOVAS CORREÇÕES AQUI ---
+                    // 1. Loja/Status: Se estiver vazio, usa 'Desconhecido'
+                    const lojaStatus = item.Loja || 'Desconhecido'; 
+                    
+                    // 2. Preço: Se não for um número válido, usa 0
+                    let preco = item.Preço;
+                    if (typeof preco !== 'number' || isNaN(preco)) {
+                        preco = 0;
+                    }
+                    // -----------------------------
 
-                    // Ordem da Coluna: Imagem (1ª) e Descrição (4ª)
                     row.innerHTML = `
                         <td data-label="Imagem">
                             <img src="${item.Imagem && item.Imagem.length > 0 ? item.Imagem[0] : 'https://via.placeholder.com/50'}"
@@ -369,9 +378,9 @@ function loadInventory() {
                         <td data-label="Nome da Coleção">${collectionName}</td>
                         <td data-label="Descrição">${description}</td>
                         <td data-label="Nº">${item.Numero || 'N/A'}</td>
-                        <td data-label="Loja/Status">${item.Loja || 'N/A'}</td>
-                        <td data-label="Preço">${formatCurrency(item.Preço)}</td>
-                        <td data-label="Data Compra">${formatDate(item['Data de Compra'])}</td> 
+                        <td data-label="Loja/Status">${lojaStatus}</td> 
+                        <td data-label="Preço">${formatCurrency(preco)}</td>
+                        <td data-label="Data Compra">${formatDate(item['Data de Compra'])}</td>
                         <td data-label="Adquirido">${translateBoolean(item.Adquirido)}</td>
                     `;
                 });
