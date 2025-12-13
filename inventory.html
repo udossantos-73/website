@@ -6,7 +6,7 @@
     <title>Inventário de Colecionáveis - Pops & Hot Wheels</title>
     
     <style>
-        /* --- ESTILOS GERAIS E DA TABELA --- */
+        /* ... (CSS mantido do código anterior) ... */
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 20px; color: #333; }
         h1 { color: #007acc; text-align: center; margin-bottom: 30px; }
 
@@ -41,103 +41,25 @@
             cursor: pointer; 
             border-radius: 4px;
         }
-
+        
         /* --- ESTILOS DO MODAL --- */
-        .modal {
-            display: none; 
-            position: fixed; 
-            z-index: 1000; 
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto; 
-            background-color: rgba(0,0,0,0.7); 
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto; 
-            padding: 30px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 700px;
-            border-radius: 8px;
-            position: relative;
-            animation-name: animatetop;
-            animation-duration: 0.4s;
-        }
-        @keyframes animatetop {
-            from {top:-300px; opacity:0}
-            to {top:0; opacity:1}
-        }
-
-        .close-button {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .close-button:hover, .close-button:focus {
-            color: #000;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        #modal-image-gallery {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        #modal-image-gallery img {
-            max-width: 100%;
-            height: auto;
-            max-height: 350px;
-            border: 1px solid #ddd;
-            margin: 5px;
-            border-radius: 4px;
-        }
-
-        #modal-details {
-            padding: 10px;
-            border-top: 1px solid #eee;
-            font-size: 1.1em;
-        }
-
-        .modal-source-link {
-            text-align: right;
-            margin-top: 15px;
-            border-top: 1px solid #eee;
-            padding-top: 10px;
-        }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); }
+        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 30px; border: 1px solid #888; width: 80%; max-width: 700px; border-radius: 8px; position: relative; animation-name: animatetop; animation-duration: 0.4s; }
+        @keyframes animatetop { from {top:-300px; opacity:0} to {top:0; opacity:1} }
+        .close-button { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
+        .close-button:hover, .close-button:focus { color: #000; text-decoration: none; cursor: pointer; }
+        #modal-image-gallery { text-align: center; margin-bottom: 20px; }
+        #modal-image-gallery img { max-width: 100%; height: auto; max-height: 350px; border: 1px solid #ddd; margin: 5px; border-radius: 4px; }
+        #modal-details { padding: 10px; border-top: 1px solid #eee; font-size: 1.1em; }
+        .modal-source-link { text-align: right; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
         
         /* --- RESPONSIVIDADE --- */
         @media (max-width: 600px) {
             .pop-inventory thead { display: none; }
-            .pop-inventory, .pop-inventory tbody, .pop-inventory tr, .pop-inventory td {
-                display: block;
-                width: 100%;
-            }
-            .pop-inventory tr {
-                margin-bottom: 10px;
-                border: 1px solid #ccc;
-            }
-            .pop-inventory td {
-                text-align: right;
-                padding-left: 50%;
-                position: relative;
-            }
-            .pop-inventory td::before {
-                content: attr(data-label);
-                position: absolute;
-                left: 6px;
-                width: 45%;
-                padding-right: 10px;
-                white-space: nowrap;
-                font-weight: bold;
-                text-align: left;
-            }
+            .pop-inventory, .pop-inventory tbody, .pop-inventory tr, .pop-inventory td { display: block; width: 100%; }
+            .pop-inventory tr { margin-bottom: 10px; border: 1px solid #ccc; }
+            .pop-inventory td { text-align: right; padding-left: 50%; position: relative; }
+            .pop-inventory td::before { content: attr(data-label); position: absolute; left: 6px; width: 45%; padding-right: 10px; white-space: nowrap; font-weight: bold; text-align: left; }
         }
     </style>
 </head>
@@ -151,10 +73,10 @@
                 <th>Marca</th>
                 <th>Nome da Coleção</th>
                 <th>Nº</th>
-                <th>Status</th> 
+                <th>Loja/Status</th> 
                 <th>Preço</th>
                 <th>Data Compra</th>
-                <th>Na Coleção</th>
+                <th>Adquirido</th>
                 <th>Imagem</th>
             </tr>
         </thead>
@@ -173,7 +95,7 @@
             <div id="modal-details"></div>
             
             <p class="modal-source-link">
-                Comprado/Oferecido por: <span id="modal-source-status"></span>
+                Adquirido de: <span id="modal-source-status"></span>
             </p>
         </div>
     </div>
@@ -183,7 +105,7 @@
 
     <script>
         // -------------------------------------------------------
-        // 1. CONFIGURAÇÃO E INICIALIZAÇÃO DO FIREBASE (COM OS SEUS DADOS)
+        // 1. CONFIGURAÇÃO E INICIALIZAÇÃO DO FIREBASE
         // -------------------------------------------------------
         const firebaseConfig = {
             apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
@@ -198,15 +120,14 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         
-        // Defina o nome da Coleção que criou (deve ser 'collectibles' ou 'funkoPops')
-        const COLLECTION_NAME = "collectibles"; 
+        // >>> NOME DA COLEÇÃO: Mantenha 'inventario' ou mude para o nome EXATO que usou no Firebase.
+        const COLLECTION_NAME = "inventario"; 
 
         // -------------------------------------------------------
         // 2. FUNÇÕES DE FORMATAÇÃO
         // -------------------------------------------------------
 
         function formatCurrency(value) {
-            // Se o valor for 0, trata como 'Oferecido' (conforme a lógica do seu dado)
             if (value === 0) return 'OF.'; 
             if (typeof value !== 'number') return 'N/A';
             return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(value);
@@ -215,7 +136,6 @@
         function formatDate(timestamp) {
             if (!timestamp || !timestamp.toDate) return 'N/A';
             const date = timestamp.toDate();
-            // Formato '13/Dez/2025'
             return new Intl.DateTimeFormat('pt-PT', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
         }
 
@@ -242,10 +162,10 @@
 
                 const item = doc.data();
                 
-                // Os nomes dos campos são sensíveis a maiúsculas/minúsculas e acentuação
+                // NOTA: Usamos item['Nome do Campo'] para campos com espaços ou caracteres especiais
 
                 // 1. Título
-                document.getElementById('modal-title').innerText = `${item.Nome || itemName} (#${item.Numero || 'N/A'})`;
+                document.getElementById('modal-title').innerText = `${itemName} (#${item.Numero || 'N/A'})`;
 
                 // 2. Galeria de Imagens
                 const gallery = document.getElementById('modal-image-gallery');
@@ -253,7 +173,7 @@
                 
                 if (item.Imagem && item.Imagem.length > 0) {
                     item.Imagem.forEach(url => {
-                        gallery.innerHTML += `<img src="${url}" alt="Imagem de ${item.Nome}">`;
+                        gallery.innerHTML += `<img src="${url}" alt="Imagem de ${itemName}">`;
                     });
                 } else {
                     gallery.innerHTML = '<p>Nenhuma imagem detalhada disponível.</p>';
@@ -262,17 +182,17 @@
                 // 3. Detalhes
                 const detailsHtml = `
                     <p><strong>Marca:</strong> ${item.Marca || 'N/A'}</p>
-                    <p><strong>Nome da Coleção:</strong> ${item.NomeDaColecao || 'N/A'}</p>
-                    <p><strong>Numero:</strong> ${item.Numero || 'N/A'}</p>
-                    <p><strong>Descrição:</strong> ${item.Descrição || 'N/A'}</p>
-                    <p><strong>Preço:</strong> ${formatCurrency(item.Preço)}</p>
+                    <p><strong>Nome da Coleção:</strong> ${item['Nom da Coleção'] || 'N/A'}</p>
+                    <p><strong>Número:</strong> ${item.Numero || 'N/A'}</p>
+                    <p><strong>Descrição:</strong> ${item['Descriç~çao'] || 'N/A'}</p>
+                    <p><strong>Preço Pago:</strong> ${formatCurrency(item.Preço)}</p>
                     <p><strong>Data de Compra:</strong> ${formatDate(item.DataDeCompra)}</p>
-                    <p><strong>Na coleção:</strong> ${translateBoolean(item.NaColecao)}</p>
+                    <p><strong>Adquirido:</strong> ${translateBoolean(item.Adquirido)}</p>
                 `;
                 document.getElementById('modal-details').innerHTML = detailsHtml;
 
                 // 4. Status de Compra/Oferta
-                document.getElementById('modal-source-status').innerText = item.CompradoOferecido || 'Não especificado';
+                document.getElementById('modal-source-status').innerText = item.Loja || 'Não especificado';
 
                 // 5. Mostrar o Modal
                 document.getElementById('pop-modal').style.display = 'block';
@@ -311,18 +231,18 @@
                     
                     row.innerHTML = `
                         <td data-label="Marca">${item.Marca || 'N/A'}</td>
-                        <td data-label="Nome da Coleção">${item.NomeDaColecao || 'N/A'}</td>
+                        <td data-label="Nome da Coleção">${item['Nom da Coleção'] || 'N/A'}</td>
                         <td data-label="Nº">${item.Numero || 'N/A'}</td>
-                        <td data-label="Status">${item.CompradoOferecido || 'N/A'}</td>
+                        <td data-label="Loja/Status">${item.Loja || 'N/A'}</td>
                         <td data-label="Preço">${formatCurrency(item.Preço)}</td>
                         <td data-label="Data Compra">${formatDate(item.DataDeCompra)}</td>
-                        <td data-label="Na Coleção">${translateBoolean(item.NaColecao)}</td>
+                        <td data-label="Adquirido">${translateBoolean(item.Adquirido)}</td>
                         
                         <td data-label="Imagem">
                             <img src="${item.Imagem && item.Imagem.length > 0 ? item.Imagem[0] : 'https://via.placeholder.com/50'}"
-                                 alt="${item.Nome}"
+                                 alt="${item['Nom da Coleção']}"
                                  class="pop-main-image"
-                                 onclick="openModal('${itemId}', '${item.Nome}')"> 
+                                 onclick="openModal('${itemId}', '${item['Nom da Coleção']}')"> 
                         </td>
                     `;
                 });
