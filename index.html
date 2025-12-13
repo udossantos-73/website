@@ -1,71 +1,96 @@
-<style>
-    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f4; }
-    h1 { color: #007acc; }
-
-    /* ======================================================= */
-    /* --- GRID LAYOUT: 3 COLUNAS EM ECRÃS GRANDES --- */
-    /* ======================================================= */
-    .nav-container { 
-        margin-top: 30px; 
-        max-width: 1000px; /* Limita a largura do grid */
-        margin-left: auto;
-        margin-right: auto;
-        display: grid;
-        
-        /* NOVO: Define 3 colunas de largura igual (1fr) */
-        grid-template-columns: repeat(3, 1fr); 
-        gap: 20px; /* Espaço entre os botões */
-        padding: 0 20px;
-    }
-
-    /* Estilo do Botão/Área de Link */
-    .nav-button {
-        /* As propriedades display: flex, width e height são essenciais para manter o tamanho uniforme no grid */
-        padding: 10px; 
-        text-decoration: none;
-        background-color: white; 
-        border: 2px solid #ccc;
-        border-radius: 8px;
-        width: 100%; /* Ocupa o espaço total da célula do grid */
-        height: 150px; /* Altura fixa (pode ajustar) */
-        
-        display: flex;
-        align-items: center; 
-        justify-content: center;
-        
-        transition: border-color 0.3s, box-shadow 0.3s;
-    }
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventário de Coleções</title>
     
-    .nav-button:hover {
-        border-color: #007acc; 
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    
-    /* Estilo para a Imagem do Logo */
-    .logo-img {
-        max-width: 100%; 
-        max-height: 100%; 
-        width: auto;
-        height: auto;
-        display: block; 
-        object-fit: contain;
-        filter: brightness(1) contrast(100%); /* Mantém filtro anti-artefactos */
-    }
-
-    /* ======================================================= */
-    /* --- MEDIA QUERY: Volta a 1 Coluna em Telemóveis --- */
-    /* ======================================================= */
-    @media (max-width: 768px) {
-        .nav-container {
-            /* Em ecrãs pequenos (telemóveis), volta a ter apenas 1 coluna */
-            grid-template-columns: 1fr; 
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            margin-top: 50px; 
+            background-color: #f4f4f4; 
         }
+        h1 { 
+            color: #007acc; 
+            margin-bottom: 40px;
+        }
+
+        /* ======================================================= */
+        /* --- GRID LAYOUT: 3 COLUNAS EM ECRÃS GRANDES --- */
+        /* ======================================================= */
+        .nav-container { 
+            margin-top: 30px; 
+            max-width: 1000px; 
+            margin-left: auto;
+            margin-right: auto;
+            display: grid;
+            
+            /* Define 3 colunas de largura igual (1fr) */
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 20px; 
+            padding: 0 20px;
+        }
+
+        /* Estilo do Botão/Área de Link */
         .nav-button {
-            /* Dá mais altura para ser mais fácil de clicar */
-            height: 120px; 
+            padding: 10px; 
+            text-decoration: none;
+            color: #333; /* Cor do texto no botão */
+            background-color: white; 
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            width: 100%; 
+            height: 150px; 
+            
+            display: flex;
+            flex-direction: column; /* Organiza conteúdo verticalmente */
+            align-items: center; 
+            justify-content: center;
+            
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
-    }
-</style>
+        
+        .nav-button:hover {
+            border-color: #007acc; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Estilo para a Imagem do Logo */
+        .logo-img {
+            max-width: 90%; /* Ajustado para deixar espaço para o padding */
+            max-height: 80%; /* Deixa espaço para o texto se houver */
+            width: auto;
+            height: auto;
+            display: block; 
+            object-fit: contain;
+            /* Se quiser remover o filtro de cor para imagens coloridas, remova a linha abaixo */
+            /* filter: brightness(1) contrast(100%); */
+        }
+        
+        /* Estilo para o texto (placeholder) se não houver imagem */
+        .button-text {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        /* ======================================================= */
+        /* --- MEDIA QUERY: Volta a 1 Coluna em Telemóveis --- */
+        /* ======================================================= */
+        @media (max-width: 768px) {
+            .nav-container {
+                /* Em ecrãs pequenos (telemóveis), volta a ter apenas 1 coluna */
+                grid-template-columns: 1fr; 
+            }
+            .nav-button {
+                /* Dá mais altura para ser mais fácil de clicar */
+                height: 120px; 
+            }
+        }
+    </style>
+</head>
 <body>
 
     <h1>Escolha a Coleção que Deseja Visualizar</h1>
@@ -74,16 +99,22 @@
         
         <a href="funko-pop-inventory.html" class="nav-button" title="Inventário Funko Pop!">
             <img src="https://i.imgur.com/1vIdlaA.png" 
-                 alt="Logo Funko Pop" 
-                 class="logo-img">
+                alt="Logo Funko Pop" 
+                class="logo-img">
         </a>
 
         <a href="hot-wheels-inventory.html" class="nav-button" title="Inventário Hot Wheels">
             <img src="https://i.imgur.com/UqptwaH.png" 
-                 alt="Logo Hot Wheels" 
-                 class="logo-img">
+                alt="Logo Hot Wheels" 
+                class="logo-img">
         </a>
         
-        </div>
+        <a href="funko-pop-inventory.html" class="nav-button" title="Outra Coleção">
+             <span class="button-text">OUTRA COLEÇÃO</span>
+             <span style="font-size: 0.9em; opacity: 0.7;">(Placeholder)</span>
+        </a>
+            
+    </div>
 
 </body>
+</html>
