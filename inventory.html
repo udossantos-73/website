@@ -24,48 +24,57 @@
         .close-button:hover, .close-button:focus { color: #000; text-decoration: none; cursor: pointer; }
 
         /* --- ESTILOS DO CARROSSEL (SLIDER) --- */
-        #modal-image-gallery {
-            text-align: center;
-            margin-bottom: 20px;
-            position: relative; 
-            overflow: hidden; 
-        }
+/* --- ESTILOS DO CARROSSEL (SLIDER) --- */
+#modal-image-gallery {
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative; 
+    overflow: hidden; 
+    /* Adicionar uma altura máxima ao contentor para centralização vertical */
+    max-height: 400px; /* Ajuste este valor conforme o tamanho desejado (50px extra para margem/padding) */
+}
 
-        .carousel-container {
-            display: flex; 
-            transition: transform 0.4s ease-in-out; 
-            width: 100%;
-        }
+.carousel-container {
+    display: flex; 
+    transition: transform 0.4s ease-in-out; 
+    width: 100%;
+    /* Garantir que o container do slide se ajusta à altura do contentor pai */
+    height: 100%; 
+}
 
-        .carousel-slide {
-            min-width: 100%; 
-            box-sizing: border-box;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+.carousel-slide {
+    min-width: 100%; 
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center; /* Centraliza horizontalmente a imagem no slide */
+    align-items: center; /* Centraliza verticalmente a imagem no slide */
+    /* Garantir que o slide ocupa toda a altura */
+    height: 100%; 
+}
 
-        .carousel-slide img {
-            max-width: 100%;
-            height: auto;
-            max-height: 350px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
+.carousel-slide img {
+    max-width: 100%;
+    height: auto;
+    max-height: 350px; /* Limitação máxima da imagem */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    /* Adicionar esta linha para garantir que a imagem não excede o espaço */
+    display: block; 
+}
 
-        .carousel-controls button {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            padding: 10px 15px;
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            cursor: pointer;
-            z-index: 10;
-            font-size: 1.5em;
-            user-select: none;
-        }
+.carousel-controls button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 10px 15px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    font-size: 1.5em;
+    user-select: none;
+}
 
         #prev-slide { left: 10px; }
         #next-slide { right: 10px; }
