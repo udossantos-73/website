@@ -314,55 +314,54 @@
         function formatCurrency(value) {
             
             if (typeof value !== 'number') {
-                // Se não for um número (como no caso de null/undefined), retorna 'N/A' 
-                // (embora a função loadInventory já garanta que é 0)
+// Se não for um número (como no caso de null/undefined), retorna 'N/A' 
+ // (embora a função loadInventory já garanta que é 0)
                 return 'N/A';
             }
             
-        // Se for o número 0, será formatado como 0,00 €
+// Se for o número 0, será formatado como 0,00 €
             return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(value);
-        }
-        function formatDate(timestamp) {
-            if (!timestamp || !timestamp.toDate) return 'N/A';
-            const date = timestamp.toDate();
-            return new Intl.DateTimeFormat('pt-PT', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
-        }
-
-        function translateBoolean(value) {
-            if (value === undefined || value === null) return 'Não'; 
-            return value === true ? 'Sim' : 'Não';
-        }
-
-        function translateColecionado(value) {
-            return value === true ? 'Sim' : 'Não';
-        }
-
-        function translateOrigem(value) {
-            return value === true ? 'Adquirido' : 'Oferecido';
-        }
-
-
+            }
         
+            function formatDate(timestamp) {
+                if (!timestamp || !timestamp.toDate) return 'N/A';
+                const date = timestamp.toDate();
+                return new Intl.DateTimeFormat('pt-PT', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
+            }
+
+            function translateBoolean(value) {
+                if (value === undefined || value === null) return 'Não'; 
+                return value === true ? 'Sim' : 'Não';
+            }
+
+            function translateColecionado(value) {
+                return value === true ? 'Sim' : 'Não';
+            }
+
+            function translateOrigem(value) {
+                return value === true ? 'Adquirido' : 'Oferecido';
+            }
+     
 // -------------------------------------------------------
 // Função de controlo do Modal
 // -------------------------------------------------------
 
-function closeModal() {
-    document.getElementById('pop-modal').style.display = 'none';
-    currentSlideIndex = 0;
-    slideCount = 0;
+            function closeModal() {
+                document.getElementById('pop-modal').style.display = 'none';
+                currentSlideIndex = 0;
+                slideCount = 0;
 
-    const carouselContainer = document.getElementById('carousel-container');
-    carouselContainer.style.transform = 'translateX(0)';
-}
+            const carouselContainer = document.getElementById('carousel-container');
+                carouselContainer.style.transform = 'translateX(0)';
+            }
 
-function openModal(itemId, itemName) {
+            function openModal(itemId, itemName) {
 
-    db.collection(COLLECTION_NAME).doc(itemId).get().then((doc) => {
-        if (!doc.exists) {
-            alert("Detalhes do item não encontrados!");
-            return;
-        }
+            db.collection(COLLECTION_NAME).doc(itemId).get().then((doc) => {
+                if (!doc.exists) {
+                alert("Detalhes do item não encontrados!");
+                return;
+            }
 
         const item = doc.data();
         const carouselContainer = document.getElementById('carousel-container');
