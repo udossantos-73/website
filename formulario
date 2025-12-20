@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventário de Colecionáveis - Formulário</title>
+
+<style>
+body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 20px; color: #333; }
+h1, h2 { color: #007acc; text-align: center; margin-bottom: 20px; }
+
+/* --- FORMULÁRIO --- */
+form#add-item-form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 800px;
+    margin: 0 auto 30px auto;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+form#add-item-form div {
+    margin-bottom: 12px;
+}
+
+form#add-item-form label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: bold;
+}
+
+form#add-item-form input[type="text"],
+form#add-item-form input[type="number"],
+form#add-item-form input[type="date"],
+form#add-item-form select,
+form#add-item-form textarea {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+form#add-item-form button {
+    background-color: #007acc;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+form#add-item-form button:hover {
+    background-color: #005fa3;
+}
+</style>
+</head>
+<body>
+
+<h1>Adicionar Novo Item à Coleção</h1>
+
+<h2>Formulário de Inserção</h2>
+<form id="add-item-form">
+    <div>
+        <label for="marca">Marca:</label>
+        <input type="text" id="marca" required>
+    </div>
+    <div>
+        <label for="imagem1">URL da Imagem 1:</label>
+        <input type="text" id="imagem1" placeholder="https://exemplo.com/imagem1.jpg">
+    </div>
+    <div>
+        <label for="imagem2">URL da Imagem 2:</label>
+        <input type="text" id="imagem2" placeholder="https://exemplo.com/imagem2.jpg">
+    </div>
+    <div>
+        <label for="numero">Nº na Coleção:</label>
+        <input type="number" id="numero">
+    </div>
+    <div>
+        <label for="nomeColecao">Nome da Coleção:</label>
+        <input type="text" id="nomeColecao" required>
+    </div>
+    <div>
+        <label for="descricao">Descrição:</label>
+        <textarea id="descricao"></textarea>
+    </div>
+    <div>
+        <label for="loja">Loja:</label>
+        <input type="text" id="loja">
+    </div>
+    <div>
+        <label for="preco">Preço (€):</label>
+        <input type="number" step="0.01" id="preco">
+    </div>
+    <div>
+        <label for="origem">Origem:</label>
+        <select id="origem">
+            <option value="true">Adquirido</option>
+            <option value="false">Oferecido</option>
+        </select>
+    </div>
+    <div>
+        <label for="dataCompra">Data de Compra:</label>
+        <input type="date" id="dataCompra">
+    </div>
+    <div>
+        <label for="colecionado">Colecionado:</label>
+        <input type="checkbox" id="colecionado">
+    </div>
+    <button type="submit">Adicionar Item</button>
+</form>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<script>
+// Inicializar Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
+    authDomain: "miguel-inventory.firebaseapp.com",
+    projectId: "miguel-inventory",
+    storageBucket: "miguel-inventory.firebasestorage.app",
+    messagingSenderId: "277968569414",
+    appId: "1:277968569414:web:04884bc1932c2c7dbb6b647"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const COLLECTION_NAME = "inventario";
+
+// ------------------- FORMULÁRIO -------------------
+document.getElementById('add-item-form').addEventListener('submit', function(e){
+    e.preventDefault();
+
+    const marca = document.getElementById('marca').value.trim();
+    const imagem1 = document.getElementById('imagem1').value.trim();
+    const imagem2 = document.getElementById('imagem2').value.trim();
+    const imagens = [];
+    if(imagem1) imagens.push(imagem1);
+    if(imagem2) imagens.push(imagem2);
+
+    const numero = parseInt(document.getElementById('numero').value) || null;
+    const nomeColecao = document.getElementById('nomeColecao').value.trim();
+    const descricao = document.getElementById('descricao').value.trim();
+    const loja = document.getElementById('loja').value.trim() || 'Desconhecido';
+    const preco = parseFloat(document.getElementById('preco').value) || 0;
+    const origem = document.getElementById('origem').value === 'true';
+    const dataCompraInput = document.getElementById('dataCompra').value;
+    const colecionado = document.getElementById('colecionado').checked;
+
+    let dataCompra = null;
+    if(dataCompraInput) dataCompra = firebase.firestore.Timestamp.fromDate(new Date(dataCompraInput));
+
+    const newItem = {
+        Marca: marca,
+        Imagem: imagens,
+        Numero: numero,
+        "Nom da Coleção": nomeColecao,
+        Descricao: descricao,
+        Loja: loja,
+        Preço: preco,
+        Origem: origem,
+        "Data de Compra": dataCompra,
+        Colecionado: colecionado
+    };
+
+    db.collection(COLLECTION_NAME).add(newItem)
+      .then(() => { 
+          alert('Item adicionado com sucesso!'); 
+          document.getElementById('add-item-form').reset(); 
+      })
+      .catch(err => { 
+          console.error(err); 
+          alert('Erro ao adicionar item.'); 
+      });
+});
+</script>
+
+</body>
+</html>
