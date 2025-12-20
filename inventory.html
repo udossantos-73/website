@@ -176,8 +176,12 @@
     .pop-inventory td[data-label="Nome da Coleção"] { 
         display: block; 
     }
-    
-    /* Ajustar o Rótulo (Label) para as células que estão visíveis */
+    .pop-inventory td[data-label="Colecionado"] { 
+    display: block; 
+    }    
+
+/* Ajustar o Rótulo (Label) para as células que estão visíveis */
+
     .pop-inventory td::before { 
         content: attr(data-label); 
         position: absolute; 
@@ -189,7 +193,8 @@
         color: #007acc; 
     }
 
-    /* Otimizar o estilo da Imagem no mobile */
+/* Otimizar o estilo da Imagem no mobile */
+
     .pop-main-image {
         width: 80px;
         height: auto;
@@ -199,9 +204,11 @@
 </head>
 <body>
 
+<!--
 // -------------------------------------------------------
-// Formatação das colunas da tabela
+// Formatação das colunas da tabela 
 // -------------------------------------------------------
+-->
     
     <h1>Inventário Detalhado da Coleção</h1>
 
@@ -213,6 +220,7 @@
                 <th>Nº na Coleção</th>
                 <th>Nome da Coleção</th>
                 <th>Descrição</th>
+                <th>Origem</th>
                 <th>Loja</th> 
                 <th>Preço</th>
                 <th>Data Compra</th>
@@ -326,7 +334,7 @@
         }
 
         function translateColecionado(value) {
-            return value === true ? '✔ Sim' : '✖ Não';
+            return value === true ? 'Sim' : 'Não';
         }
 
         
@@ -415,10 +423,9 @@ window.onclick = function(event) {
 };
 
 
-
-        // -------------------------------------------------------
-        // 5. FUNÇÃO DE CARREGAMENTO DE INVENTÁRIO (Tabela)
-        // -------------------------------------------------------
+// -------------------------------------------------------
+// FUNÇÃO DE CARREGAMENTO DE INVENTÁRIO (Tabela)
+// -------------------------------------------------------
 
 function loadInventory() {
     const tableBody = document.getElementById('inventory-body');
@@ -461,6 +468,7 @@ function loadInventory() {
                 <td data-label="Nº na Coleção">${item.Numero || 'N/A'}</td>
                 <td data-label="Nome da Coleção">${rawCollectionName}</td>
                 <td data-label="Descrição">${description}</td>
+                <td data-label="Origem">${origem}</td>
                 <td data-label="Loja/Status">${lojaStatus}</td> 
                 <td data-label="Preço">${formatCurrency(preco)}</td>
                 <td data-label="Data Compra">${formatDate(item['Data de Compra'])}</td>
