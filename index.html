@@ -77,49 +77,67 @@ tario<!DOCTYPE html>
     }
 
     /* Gallery */
+    /* --- ESTILOS BASE (DESKTOP/TABLET) --- */
+.gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 60px 20px;
+    max-width: 1200px;
+    margin: auto;
+    justify-content: center;
+}
+
+.item-card {
+    display: flex;
+    flex-direction: column; /* Desktop: Imagem em cima, texto em baixo */
+    width: 250px;
+    border: 2px solid #eee;
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+}
+
+.item-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+/* --- ESTILO MOBILE FORÇADO (IPHONE 11 PRO MAX E OUTROS) --- */
+@media (max-width: 500px) {
     .gallery {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 20px;
-        padding: 60px 20px;
-        max-width: 1200px;
-        margin: auto;
-        justify-content: center;
+        flex-direction: column; /* Empilha as linhas */
+        padding: 20px 10px;
+        gap: 15px;
     }
 
     .item-card {
-        border: 2px solid #eee;
-        border-radius: 12px;
-        overflow: hidden;
-        text-align: center;
-        background: white;
-        opacity: 0;
-        transform: translateY(50px);
-        transition: all 0.8s ease-out;
-    }
-
-    .item-card.visible {
-        opacity: 1;
-        transform: translateY(0);
+        flex-direction: row !important; /* FORÇA LADO A LADO */
+        width: 100% !important; /* Ocupa a largura toda como uma linha */
+        height: 100px;
+        align-items: center;
     }
 
     .item-card img {
-        width: 100%;
-        object-fit: cover;
-        height: 180px;
+        width: 100px !important; /* Largura fixa da miniatura */
+        height: 100% !important;
+        flex-shrink: 0;
     }
 
     .item-title {
-        padding: 15px;
-        font-size: 1.15em;
-        font-weight: 600;
+        padding: 0 15px !important;
+        font-size: 1.1em !important;
+        text-align: left;
     }
 
     .item-desc {
-        padding: 0 15px 15px;
-        font-size: 0.95em;
-        color: #666;
+        display: none !important; /* Esconde a descrição para caber na linha */
     }
+}
 
     /* Responsividade */
     @media (max-width: 1024px) {
