@@ -155,26 +155,51 @@ tario<!DOCTYPE html>
         }
     }
 
-    @media (max-width: 480px) {
-        header {
-            height: 250px;
-        }
-        header h1 {
-            font-size: 1.8em;
-        }
-        .btn {
-            width: 90%; /* 1 botão por linha */
-            height: 45px;
-            font-size: 0.95em;
-        }
-        .gallery {
-            grid-template-columns: 1fr; /* 1 coluna no mobile */
-            padding: 40px 10px;
-        }
-        .item-card img {
-            height: 120px;
-        }
+@media (max-width: 480px) {
+    header {
+        height: 250px;
     }
+    header h1 {
+        font-size: 1.8em;
+    }
+    .btn {
+        width: 90%; 
+        height: 45px;
+        font-size: 0.95em;
+    }
+
+    /* --- TRANSFORMAÇÃO PARA LINHAS --- */
+    .gallery {
+        grid-template-columns: 1fr; /* Mantém uma coluna, mas vamos mudar o interior */
+        padding: 20px 15px;
+        gap: 10px;
+    }
+
+    .item-card {
+        display: flex; /* Alinha imagem e texto lado a lado */
+        align-items: center;
+        text-align: left;
+        height: 100px; /* Altura fixa para as linhas */
+        text-decoration: none; /* Remove sublinhado se houver */
+        color: inherit;
+    }
+
+    .item-card img {
+        width: 100px; /* Imagem quadrada pequena */
+        height: 100%;
+        flex-shrink: 0; /* Impede a imagem de encolher */
+    }
+
+    .item-card .item-title {
+        padding: 5px 15px;
+        font-size: 1em;
+        margin: 0;
+    }
+
+    .item-card .item-desc {
+        display: none; /* Esconde a descrição no mobile para não amontoar */
+    }
+}
 </style>
 </head>
 <body>
