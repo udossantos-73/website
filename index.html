@@ -155,49 +155,59 @@ tario<!DOCTYPE html>
         }
     }
 
-@media (max-width: 480px) {
+/* Abrangendo iPhones maiores e dispositivos até 480px */
+@media (max-width: 500px) {
     header {
-        height: 250px;
+        height: 280px;
     }
+    
     header h1 {
         font-size: 1.8em;
-    }
-    .btn {
-        width: 90%; 
-        height: 45px;
-        font-size: 0.95em;
+        padding: 0 10px;
     }
 
-    /* --- TRANSFORMAÇÃO PARA LINHAS --- */
+    .btn {
+        width: 85%;
+        height: 50px;
+        font-size: 1em;
+    }
+
+    /* Transformação da Galeria em Lista de Linhas */
     .gallery {
-        grid-template-columns: 1fr; /* Mantém uma coluna, mas vamos mudar o interior */
-        padding: 20px 15px;
-        gap: 10px;
+        display: flex; /* Mudamos de Grid para Flex para melhor controlo */
+        flex-direction: column;
+        padding: 30px 15px;
+        gap: 12px;
     }
 
     .item-card {
-        display: flex; /* Alinha imagem e texto lado a lado */
+        display: flex !important; /* Força o alinhamento horizontal */
+        flex-direction: row; 
         align-items: center;
         text-align: left;
-        height: 100px; /* Altura fixa para as linhas */
-        text-decoration: none; /* Remove sublinhado se houver */
-        color: inherit;
+        height: 90px;
+        background: white;
+        border: 1px solid #ddd;
+        text-decoration: none;
     }
 
     .item-card img {
-        width: 100px; /* Imagem quadrada pequena */
-        height: 100%;
-        flex-shrink: 0; /* Impede a imagem de encolher */
+        width: 100px !important; /* Tamanho fixo da miniatura */
+        height: 100% !important;
+        object-fit: cover;
+        flex-shrink: 0;
     }
 
     .item-card .item-title {
-        padding: 5px 15px;
-        font-size: 1em;
-        margin: 0;
+        padding: 0 15px;
+        font-size: 1.1em;
+        font-weight: 700;
+        color: #007acc;
+        flex-grow: 1; /* Faz o título ocupar o espaço restante */
     }
 
     .item-card .item-desc {
-        display: none; /* Esconde a descrição no mobile para não amontoar */
+        display: none; /* Remove a descrição para não amontoar no iPhone */
     }
 }
 </style>
