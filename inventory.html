@@ -460,7 +460,8 @@ function loadInventory() {
             if (typeof preco !== 'number' || isNaN(preco)) {
                 preco = 0;
             }
-            // -----------------------------
+
+            const origem = item.Origem || 'Adquirido';
 
             row.innerHTML = `
                 <td data-label="Marca">${item.Marca || 'N/A'}</td>
