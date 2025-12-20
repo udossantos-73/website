@@ -464,7 +464,7 @@ function loadInventory() {
                 <td data-label="Loja/Status">${lojaStatus}</td> 
                 <td data-label="Preço">${formatCurrency(preco)}</td>
                 <td data-label="Data Compra">${formatDate(item['Data de Compra'])}</td>
-                <td data-label="Colecionado">${translateBoolean(item.Colecionado)}</td>
+                <td data-label="Colecionado">${translateColecionado(item.Colecionado)}</td>
             `;
         });
     }).catch((error) => {
