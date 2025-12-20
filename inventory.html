@@ -199,14 +199,18 @@
 </head>
 <body>
 
+// -------------------------------------------------------
+// Formatação da tabela
+// -------------------------------------------------------
+    
     <h1>Inventário Detalhado da Coleção</h1>
 
     <table class="pop-inventory">
         <thead>
             <tr>
-                <th>Imagem</th>
-                <th>Nº</th>
                 <th>Marca</th>
+                <th>Imagem</th>
+                <th>Nº na Coleção</th>
                 <th>Nome da Coleção</th>
                 <th>Descrição</th>
                 <th>Loja</th> 
@@ -444,13 +448,14 @@ function loadInventory() {
             // -----------------------------
 
             row.innerHTML = `
+                <td data-label="Marca">${item.Marca || 'N/A'}</td>
                 <td data-label="Imagem">
                     <img src="${item.Imagem && item.Imagem.length > 0 ? item.Imagem[0] : 'https://via.placeholder.com/50'}"
                          alt="${rawCollectionName}"
                          class="pop-main-image"
                          onclick="openModal('${itemId}', '${escapedCollectionName}')"> 
                 </td>
-                <td data-label="Nº">${item.Numero || 'N/A'}</td>
+                <td data-label="Nº na Coleção">${item.Numero || 'N/A'}</td>
                 <td data-label="Marca">${item.Marca || 'N/A'}</td>
                 <td data-label="Nome da Coleção">${rawCollectionName}</td>
                 <td data-label="Descrição">${description}</td>
