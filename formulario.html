@@ -1,180 +1,274 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inventário de Colecionáveis - Formulário</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Formulário</title>
 
-<style>
-body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 20px; color: #333; }
-h1, h2 { color: #007acc; text-align: center; margin-bottom: 20px; }
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; background: #f2f2f2; }
 
-/* --- FORMULÁRIO --- */
-form#add-item-form {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 800px;
-    margin: 0 auto 30px auto;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
+    /* HEADER */
+    header {
+      position: relative;
+      height: 40vh;
+      min-height: 280px;
+      background: url('https://i.imgur.com/O7EWNiI.jpeg') center / cover no-repeat fixed;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      text-align: center;
+      overflow: hidden;
+      z-index: 1;
+    }
 
-form#add-item-form div {
-    margin-bottom: 12px;
-}
+    header::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+    }
 
-form#add-item-form label {
-    display: block;
-    margin-bottom: 4px;
-    font-weight: bold;
-}
+    header h1 {
+      position: relative;
+      z-index: 2;
+      font-size: clamp(2rem, 5vw, 3rem);
+      margin: 0;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 15px rgba(0,0,0,0.6);
+    }
 
-form#add-item-form input[type="text"],
-form#add-item-form input[type="number"],
-form#add-item-form input[type="date"],
-form#add-item-form select,
-form#add-item-form textarea {
-    width: 100%;
-    padding: 6px 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
+    /* MAIN FORMULÁRIO */
+    main {
+      position: relative;
+      z-index: 2;
+      width: 90%;
+      max-width: 620px;
+      margin: 120px auto 50px;
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+    }
 
-form#add-item-form button {
-    background-color: #007acc;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1em;
-}
+    main h2 { text-align: center; margin-top: 0; }
 
-form#add-item-form button:hover {
-    background-color: #005fa3;
-}
-</style>
+    /* FORM */
+    form { display: grid; gap: 14px; }
+    input[type="text"], input[type="number"], input[type="date"], input[type="url"], textarea {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    textarea { resize: vertical; min-height: 80px; }
+    button {
+      background: #1f1f1f;
+      color: #fff;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    button:hover { background: #444; }
+
+    /* SWITCHES */
+    .checkbox-group {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+      flex-wrap: wrap;
+      grid-column: span 2;
+    }
+
+    .switch-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+    }
+
+    .switch-container span.label-text {
+      font-weight: 600;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 28px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 28px;
+    }
+
+    .slider::before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    .switch input:checked + .slider {
+      background-color: #1f1f1f;
+    }
+
+    .switch input:checked + .slider::before {
+      transform: translateX(22px);
+    }
+
+    /* TABLET */
+    @media (min-width: 600px) {
+      main { padding: 30px; }
+      form { grid-template-columns: 1fr 1fr; }
+      textarea, button, input[type="url"], .checkbox-group { grid-column: span 2; }
+    }
+
+    /* MOBILE FIX PARA background-attachment */
+    @media (max-width: 768px) { header { background-attachment: scroll; } }
+  </style>
 </head>
+
 <body>
 
-<h1>Adicionar Novo Item à Coleção</h1>
+<header>
+  <h1>Formulário</h1>
+</header>
 
-<h2>Formulário de Inserção</h2>
-<form id="add-item-form">
-    <div>
-        <label for="marca">Marca:</label>
-        <input type="text" id="marca" required>
-    </div>
-    <div>
-        <label for="imagem1">URL da Imagem 1:</label>
-        <input type="text" id="imagem1" placeholder="https://exemplo.com/imagem1.jpg">
-    </div>
-    <div>
-        <label for="imagem2">URL da Imagem 2:</label>
-        <input type="text" id="imagem2" placeholder="https://exemplo.com/imagem2.jpg">
-    </div>
-    <div>
-        <label for="numero">Nº na Coleção:</label>
-        <input type="number" id="numero">
-    </div>
-    <div>
-        <label for="nomeColecao">Nome da Coleção:</label>
-        <input type="text" id="nomeColecao" required>
-    </div>
-    <div>
-        <label for="descricao">Descrição:</label>
-        <textarea id="descricao"></textarea>
-    </div>
-    <div>
-        <label for="loja">Loja:</label>
-        <input type="text" id="loja">
-    </div>
-    <div>
-        <label for="preco">Preço (€):</label>
-        <input type="number" step="0.01" id="preco">
-    </div>
-    <div>
-        <label for="origem">Origem:</label>
-        <select id="origem">
-            <option value="true">Adquirido</option>
-            <option value="false">Oferecido</option>
-        </select>
-    </div>
-    <div>
-        <label for="dataCompra">Data de Compra:</label>
-        <input type="date" id="dataCompra">
-    </div>
-    <div>
-        <label for="colecionado">Colecionado:</label>
-        <input type="checkbox" id="colecionado">
-    </div>
-    <button type="submit">Adicionar Item</button>
-</form>
+<main>
+  <h2>Adicionar item à coleção</h2>
 
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <form id="colecaoForm">
+    <input type="text" id="colecao" placeholder="Coleção" required />
+    <input type="text" id="nomeNaColecao" placeholder="Nome na Coleção" required />
 
-<script>
-// Inicializar Firebase
+    <input type="number" id="numeroNaColecao" placeholder="Número na Coleção" />
+    <input type="text" id="marca" placeholder="Marca" />
+
+    <input type="text" id="loja" placeholder="Loja" />
+    <input type="number" step="0.01" id="preco" placeholder="Preço" />
+
+    <input type="date" id="dataDeCompra" />
+
+    <!-- SWITCHES COM LABEL VISÍVEL -->
+    <div class="checkbox-group">
+      <div class="switch-container">
+        <span class="label-text">Colecionado:</span>
+        <label class="switch">
+          <input type="checkbox" id="colecionado">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="switch-container">
+        <span class="label-text">Aquirido:</span>
+        <label class="switch">
+          <input type="checkbox" id="origem">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <textarea id="descricao" placeholder="Descrição"></textarea>
+
+    <input type="url" id="imagem1" placeholder="Link da Imagem 1 (Imgur)" required />
+    <input type="url" id="imagem2" placeholder="Link da Imagem 2 (Imgur)" required />
+
+    <button type="submit">Salvar</button>
+  </form>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getFirestore, collection, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+// Configuração Firebase
 const firebaseConfig = {
-    apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
-    authDomain: "miguel-inventory.firebaseapp.com",
-    projectId: "miguel-inventory",
-    storageBucket: "miguel-inventory.firebasestorage.app",
-    messagingSenderId: "277968569414",
-    appId: "1:277968569414:web:04884bc1932c2c7dbb6b647"
+  apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
+  authDomain: "miguel-inventory.firebaseapp.com",
+  projectId: "miguel-inventory",
+  storageBucket: "miguel-inventory.firebasestorage.app",
+  messagingSenderId: "277968569414",
+  appId: "1:277968569414:web:04884bc1932c2c7dbb6b647"
 };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const COLLECTION_NAME = "inventario";
 
-// ------------------- FORMULÁRIO -------------------
-document.getElementById('add-item-form').addEventListener('submit', function(e){
-    e.preventDefault();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    const marca = document.getElementById('marca').value.trim();
-    const imagem1 = document.getElementById('imagem1').value.trim();
-    const imagem2 = document.getElementById('imagem2').value.trim();
-    const imagens = [];
-    if(imagem1) imagens.push(imagem1);
-    if(imagem2) imagens.push(imagem2);
+const form = document.getElementById("colecaoForm");
 
-    const numero = parseInt(document.getElementById('numero').value) || null;
-    const nomeColecao = document.getElementById('nomeColecao').value.trim();
-    const descricao = document.getElementById('descricao').value.trim();
-    const loja = document.getElementById('loja').value.trim() || 'Desconhecido';
-    const preco = parseFloat(document.getElementById('preco').value) || 0;
-    const origem = document.getElementById('origem').value === 'true';
-    const dataCompraInput = document.getElementById('dataCompra').value;
-    const colecionado = document.getElementById('colecionado').checked;
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-    let dataCompra = null;
-    if(dataCompraInput) dataCompra = firebase.firestore.Timestamp.fromDate(new Date(dataCompraInput));
+  const imagem1 = document.getElementById("imagem1").value.trim();
+  const imagem2 = document.getElementById("imagem2").value.trim();
 
-    const newItem = {
-        Marca: marca,
-        Imagem: imagens,
-        Numero: numero,
-        "Nom da Coleção": nomeColecao,
-        Descricao: descricao,
-        Loja: loja,
-        Preço: preco,
-        Origem: origem,
-        "Data de Compra": dataCompra,
-        Colecionado: colecionado
-    };
+  if (!imagem1 || !imagem2) {
+    alert("Preencha os dois links das imagens.");
+    return;
+  }
 
-    db.collection(COLLECTION_NAME).add(newItem)
-      .then(() => { 
-          alert('Item adicionado com sucesso!'); 
-          document.getElementById('add-item-form').reset(); 
-      })
-      .catch(err => { 
-          console.error(err); 
-          alert('Erro ao adicionar item.'); 
-      });
+  // Validação segura da data
+  const dataCompraValue = document.getElementById("dataDeCompra").value;
+  let dataCompraTimestamp = null;
+
+  if (dataCompraValue) {
+    const dataObj = new Date(dataCompraValue);
+    if (!isNaN(dataObj.getTime())) {
+      dataCompraTimestamp = Timestamp.fromDate(dataObj);
+    } else {
+      alert("Data inválida!");
+      return;
+    }
+  }
+
+  try {
+    await addDoc(collection(db, "inventario"), {
+      Colecao: document.getElementById("colecao").value,
+      NomeNaColecao: document.getElementById("nomeNaColecao").value,
+      NumeroNaColecao: Number(document.getElementById("numeroNaColecao").value),
+      Descricao: document.getElementById("descricao").value,
+      Marca: document.getElementById("marca").value,
+      Loja: document.getElementById("loja").value,
+      Preco: Number(document.getElementById("preco").value),
+      Colecionado: document.getElementById("colecionado").checked,
+      Origem: document.getElementById("origem").checked,
+      DatadeCompra: dataCompraTimestamp,
+      Imagem: [imagem1, imagem2]
+    });
+
+    alert("Item adicionado com sucesso!");
+    form.reset();
+  } catch (error) {
+    console.error(error);
+    alert("Erro ao salvar os dados.");
+  }
 });
 </script>
 
