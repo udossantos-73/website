@@ -473,7 +473,7 @@ function loadInventory() {
                 <td data-label="Nº na Coleção">${item.Numero || 'N/A'}</td>
                 <td data-label="Nome da Coleção">${rawCollectionName}</td>
                 <td data-label="Descrição">${description}</td>
-                <td data-label="Origem">${origem}</td>
+                <td data-label="Origem">${translateOrigem(item.Origem)}</td>
                 <td data-label="Loja/Status">${lojaStatus}</td> 
                 <td data-label="Preço">${formatCurrency(preco)}</td>
                 <td data-label="Data Compra">${formatDate(item['Data de Compra'])}</td>
