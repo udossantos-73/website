@@ -117,87 +117,90 @@
     .modal-source-link { display: none; }
     
 /* --- RESPONSIVIDADE (MOBILE-FIRST) --- */
+/* --- RESPONSIVIDADE (LISTA EM MOBILE) --- */
 @media (max-width: 768px) { 
     
-    .pop-inventory { 
-        box-shadow: none;
-        background-color: transparent;
+    h1 { font-size: 1.5rem; margin: 15px 0; }
+
+    .filters-container {
+        flex-direction: column;
+        padding: 0 10px;
+    }
+
+    /* Transformar a tabela num container de blocos */
+    .pop-inventory, .pop-inventory tbody, .pop-inventory tr, .pop-inventory td { 
+        display: block; 
+        width: 100%; 
     }
 
     .pop-inventory thead { 
-        display: none; /* 🔴 CORREÇÃO CHAVE: Garante que os títulos desaparecem completamente */
+        display: none; /* Esconde os títulos da tabela no topo */
     }
-    
-    .pop-inventory, .pop-inventory tbody, .pop-inventory tr { 
-        display: block; 
-        width: 100%; 
+
+    .pop-inventory {
+        box-shadow: none;
+        background-color: transparent;
+        border: none;
     }
-    
+
     .pop-inventory tr { 
-        margin-bottom: 15px; 
-        border: 1px solid #ccc; 
+        margin-bottom: 20px; 
+        border: 1px solid #ddd; 
         background-color: white; 
-        border-radius: 6px; 
+        border-radius: 10px; 
         padding: 10px;
-        display: flex; 
-        flex-wrap: wrap; 
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column; /* Empilha as informações dentro da linha */
     }
-    
-    /* 1. Esconder todas as colunas por defeito no mobile */
+
+    /* Estilo para as "linhas" de dados dentro do card */
     .pop-inventory td { 
-        display: none; 
-        width: 100%; 
-        text-align: left; 
-        padding: 5px 0 5px 45%; 
-        position: relative; 
-        border: none; 
+        display: flex !important; /* Força exibir como linha flexível */
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 5px; 
+        border: none;
+        border-bottom: 1px solid #eee;
+        text-align: right;
+        font-size: 0.9em;
     }
 
-    /* 2. Tornar visíveis apenas as 4 colunas desejadas e ajustar o layout */
-    
-    /* Imagem (1ª Coluna) - Item especial */
-    .pop-inventory td[data-label="Imagem"] { 
-        display: block;
-        order: -1; 
-        width: 100%;
-        text-align: center;
-        padding: 10px 0 10px 0; 
-    }
-    /* Marca (2ª Coluna) */
-    .pop-inventory td[data-label="Marca"] { 
-        display: block; 
-    }
-    /* Nº (3ª Coluna) */
-    .pop-inventory td[data-label="Nº"] { 
-        display: block; 
-    }
-    /* Nome da Coleção (4ª Coluna) */
-    .pop-inventory td[data-label="Nome da Coleção"] { 
-        display: block; 
-    }
-    .pop-inventory td[data-label="Colecionado"] { 
-    display: block; 
-    }    
+    .pop-inventory td:last-child { border-bottom: none; }
 
-/* Ajustar o Rótulo (Label) para as células que estão visíveis */
-
+    /* Criar o rótulo à esquerda */
     .pop-inventory td::before { 
         content: attr(data-label); 
-        position: absolute; 
-        left: 0; 
-        width: 40%; 
-        padding-right: 10px; 
         font-weight: bold; 
-        text-align: right; 
         color: #007acc; 
+        text-align: left;
+        flex-shrink: 0;
+        margin-right: 10px;
     }
 
-/* Otimizar o estilo da Imagem no mobile */
+    /* Ajuste especial para a Imagem ficar em destaque na linha */
+    .pop-inventory td[data-label="Imagem"] {
+        justify-content: center;
+        padding: 10px 0;
+        background: #f9f9f9;
+        margin-bottom: 5px;
+        border-radius: 5px;
+    }
+
+    .pop-inventory td[data-label="Imagem"]::before {
+        display: none; /* Remove o texto "Imagem" para focar na foto */
+    }
 
     .pop-main-image {
-        width: 80px;
+        width: 100px;
         height: auto;
+    }
+
+    /* Esconder colunas menos importantes no mobile para poupar espaço */
+    .pop-inventory td[data-label="Descrição"],
+    .pop-inventory td[data-label="Origem"],
+    .pop-inventory td[data-label="Data Compra"] {
+        display: none !important;
     }
 }
 .filters-container {
