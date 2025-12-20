@@ -200,6 +200,18 @@
         height: auto;
     }
 }
+.filters-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+.filters-container input, .filters-container select {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
 </style>
 </head>
 <body>
@@ -211,14 +223,25 @@
 -->
     
     <h1>Inventário Detalhado da Coleção</h1>
+	
+<div class="filters-container">
+    <input type="text" id="searchColecao" placeholder="Filtrar por Coleção..." onkeyup="filterData()">
+    
+    <select id="searchMarca" onchange="filterData()">
+        <option value="">Todas as Marcas</option>
+        <option value="Funko Pop">Funko Pop</option>
+        <option value="Hot Wheels">Hot Wheels</option>
+    </select>
+</div>
 
     <table class="pop-inventory">
         <thead>
             <tr>
                 <th>Marca</th>
                 <th>Imagem</th>
-                <th>Nº na Coleção</th>
-                <th>Nome da Coleção</th>
+                <th>Numero</th>
+                <th>Coleção</th>
+				<th>Nome</th>
                 <th>Descrição</th>
                 <th>Origem</th>
                 <th>Loja</th> 
@@ -232,14 +255,15 @@
         </tbody>
     </table>
 
-    <div id="pop-modal" class="modal">
-        <div class="modal-content">
+	<div id="pop-modal" class="modal">
+	<div class="modal-content">
             <span class="close-button" onclick="closeModal()">&times;</span>
             <h2 id="modal-title"></h2>
             
             <div id="modal-image-gallery">
-                <div class="carousel-container" id="carousel-container">
-                </div>
+            <div class="carousel-container" id="carousel-container">
+            </div>
+
                 <div class="carousel-controls">
                     <button id="prev-slide" onclick="changeSlide(-1)">&#10094;</button>
                     <button id="next-slide" onclick="changeSlide(1)">&#10095;</button>
@@ -257,238 +281,118 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
     <script>
-        let currentSlideIndex = 0;
-        let slideCount = 0;
+let allItems = []; // Variável global
 
-// -------------------------------------------------------
-// Configuração do Firebase
-// -------------------------------------------------------
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
-            authDomain: "miguel-inventory.firebaseapp.com",
-            projectId: "miguel-inventory",
-            storageBucket: "miguel-inventory.firebasestorage.app",
-            messagingSenderId: "277968569414",
-            appId: "1:277968569414:web:04884bc1932c2c7dbb6b647"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        
-        const COLLECTION_NAME = "inventario"; 
-
-// -------------------------------------------------------
-// Configuração do Slider
-// -------------------------------------------------------
-        
-        function showSlide(n) {
-            const container = document.getElementById('carousel-container');
-            
-            if (n >= slideCount) { currentSlideIndex = 0; }
-            if (n < 0) { currentSlideIndex = slideCount - 1; }
-            
-            const offset = currentSlideIndex * 100;
-            container.style.transform = `translateX(-${offset}%)`;
-
-            const prevBtn = document.getElementById('prev-slide');
-            const nextBtn = document.getElementById('next-slide');
-
-            if (slideCount <= 1) {
-                prevBtn.style.display = 'none';
-                nextBtn.style.display = 'none';
-            } else {
-                prevBtn.style.display = 'block';
-                nextBtn.style.display = 'block';
-            }
-        }
-
-        function changeSlide(n) {
-            showSlide(currentSlideIndex += n);
-        }
-
-// -------------------------------------------------------
-// Formatação das celulas da tabela
-// -------------------------------------------------------
-
-        function formatCurrency(value) {
-            
-            if (typeof value !== 'number') {
-// Se não for um número (como no caso de null/undefined), retorna 'N/A' 
- // (embora a função loadInventory já garanta que é 0)
-                return 'N/A';
-            }
-            
-// Se for o número 0, será formatado como 0,00 €
-            return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(value);
-            }
-        
-            function formatDate(timestamp) {
-                if (!timestamp || !timestamp.toDate) return 'N/A';
-                const date = timestamp.toDate();
-                return new Intl.DateTimeFormat('pt-PT', { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
-            }
-
-            function translateBoolean(value) {
-                if (value === undefined || value === null) return 'Não'; 
-                return value === true ? 'Sim' : 'Não';
-            }
-
-            function translateColecionado(value) {
-                return value === true ? 'Sim' : 'Não';
-            }
-
-            function translateOrigem(value) {
-                return value === true ? 'Adquirido' : 'Oferecido';
-            }
-     
-// -------------------------------------------------------
-// Função de controlo do Modal
-// -------------------------------------------------------
-
-            function closeModal() {
-                document.getElementById('pop-modal').style.display = 'none';
-                currentSlideIndex = 0;
-                slideCount = 0;
-
-            const carouselContainer = document.getElementById('carousel-container');
-                carouselContainer.style.transform = 'translateX(0)';
-            }
-
-            function openModal(itemId, itemName) {
-
-            db.collection(COLLECTION_NAME).doc(itemId).get().then((doc) => {
-                if (!doc.exists) {
-                alert("Detalhes do item não encontrados!");
-                return;
-            }
-
-        const item = doc.data();
-        const carouselContainer = document.getElementById('carousel-container');
-
-        // Limpa o carrossel
-        carouselContainer.innerHTML = '';
-        carouselContainer.style.transform = 'translateX(0)';
-
-        currentSlideIndex = 0;
-        slideCount = 0;
-
-        document.getElementById('modal-title').innerText =
-            `${itemName} (#${item.Numero || 'N/A'})`;
-
-        const images = item.Imagem;
-
-        if (images && images.length > 0) {
-            slideCount = images.length;
-
-            images.forEach((url, index) => {
-                const slideDiv = document.createElement('div');
-                slideDiv.className = 'carousel-slide';
-                slideDiv.innerHTML =
-                    `<img src="${url}" alt="${itemName} - Imagem ${index + 1}">`;
-                carouselContainer.appendChild(slideDiv);
-            });
-
-        } else {
-            carouselContainer.innerHTML = `
-                <div class="carousel-slide">
-                    <p>Nenhuma imagem disponível.</p>
-                </div>`;
-            slideCount = 1;
-        }
-
-        showSlide(currentSlideIndex);
-
-        document.getElementById('pop-modal').style.display = 'flex';
-
-    }).catch(error => {
-        console.error("Erro ao obter documento para modal:", error);
-        alert("Não foi possível carregar os detalhes.");
-    });
-}
-
-function showSlide(index) {
-    const carouselContainer = document.getElementById('carousel-container');
-
-    if (index < 0) index = slideCount - 1;
-    if (index >= slideCount) index = 0;
-
-    currentSlideIndex = index;
-
-    carouselContainer.style.transform =
-        `translateX(-${currentSlideIndex * 100}%)`;
-}
-
-window.onclick = function(event) {
-    const modal = document.getElementById('pop-modal');
-    if (event.target === modal) {
-        closeModal();
-    }
+// 1. Configuração do Firebase (Mantém as tuas credenciais)
+const firebaseConfig = {
+    apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
+    authDomain: "miguel-inventory.firebaseapp.com",
+    projectId: "miguel-inventory",
+    storageBucket: "miguel-inventory.firebasestorage.app",
+    messagingSenderId: "277968569414",
+    appId: "1:277968569414:web:04884bc1932c2c7dbb6b647"
 };
 
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
+const COLLECTION_NAME = "inventario";
 
-// -------------------------------------------------------
-// FUNÇÃO DE CARREGAMENTO DE INVENTÁRIO (Tabela)
-// -------------------------------------------------------
+// 2. Funções de Apoio (Formatação)
+function formatCurrency(value) {
+    const n = typeof value === 'number' ? value : 0;
+    return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(n);
+}
 
+function formatDate(timestamp) {
+    if (!timestamp || !timestamp.toDate) return 'N/A';
+    return new Intl.DateTimeFormat('pt-PT', { day: '2-digit', month: 'short', year: 'numeric' }).format(timestamp.toDate());
+}
+
+function translateOrigem(val) { return val === false ? 'Oferecido' : 'Adquirido'; }
+function translateColecionado(val) { return val === true ? 'Sim' : 'Não'; }
+
+// 3. Carregar Inventário
 function loadInventory() {
     const tableBody = document.getElementById('inventory-body');
-    tableBody.innerHTML = '<tr><td colspan="9">A carregar dados... Por favor aguarde.</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="11">A carregar...</td></tr>';
 
     db.collection(COLLECTION_NAME).get().then((querySnapshot) => {
-        tableBody.innerHTML = ''; 
-        
+        allItems = [];
         querySnapshot.forEach((doc) => {
-            const item = doc.data(); 
-            const itemId = doc.id;   
-            
-            const row = tableBody.insertRow();
-            
-            const rawCollectionName = item['Nom da Coleção'] || 'N/A';
-            const description = item.Descricao || 'N/A'; 
-            
-            // --- CORREÇÃO DE SINTAXE CHAVE ---
-            // Escapa as aspas simples (apóstrofos) dentro do nome para o onclick funcionar.
-            const escapedCollectionName = rawCollectionName.replace(/'/g, "\\'");
-            
-            // 1. Loja/Status: Se estiver vazio, usa 'Desconhecido'
-            const lojaStatus = item.Loja || 'Desconhecido'; 
-
-            // 2. Preço: Se for null/undefined/inválido, usa 0. (Lógica de correção que estava em falta)
-            let preco = item.Preço;
-            if (typeof preco !== 'number' || isNaN(preco)) {
-                preco = 0;
-            }
-
-            const origem = item.Origem || 'Adquirido';
-
-            row.innerHTML = `
-                <td data-label="Marca">${item.Marca || 'N/A'}</td>
-                <td data-label="Imagem">
-                    <img src="${item.Imagem && item.Imagem.length > 0 ? item.Imagem[0] : 'https://via.placeholder.com/50'}"
-                         alt="${rawCollectionName}"
-                         class="pop-main-image"
-                         onclick="openModal('${itemId}', '${escapedCollectionName}')"> 
-                </td>
-                <td data-label="Nº na Coleção">${item.Numero || 'N/A'}</td>
-                <td data-label="Nome da Coleção">${rawCollectionName}</td>
-                <td data-label="Descrição">${description}</td>
-                <td data-label="Origem">${translateOrigem(item.Origem)}</td>
-                <td data-label="Loja/Status">${lojaStatus}</td> 
-                <td data-label="Preço">${formatCurrency(preco)}</td>
-                <td data-label="Data Compra">${formatDate(item['Data de Compra'])}</td>
-                <td data-label="Colecionado">${translateColecionado(item.Colecionado)}</td>
-            `;
+            const data = doc.data();
+            data.id = doc.id;
+            allItems.push(data);
         });
-    }).catch((error) => {
-        console.error("Erro ao carregar o inventário: ", error);
-        tableBody.innerHTML = '<tr><td colspan="9">Erro ao carregar dados. Verifique a consola (F12) para detalhes.</td></tr>';
+
+        sortItems(allItems);
+        renderTable(allItems);
+    }).catch(err => {
+        console.error(err);
+        tableBody.innerHTML = '<tr><td colspan="11">Erro ao carregar dados.</td></tr>';
     });
 }
 
-// 6. INÍCIO: Chamar a função para preencher a tabela quando a página carregar
+// 4. Ordenação
+function sortItems(arr) {
+    arr.sort((a, b) => {
+        const colA = (a.Colecao || '').toLowerCase();
+        const colB = (b.Colecao || '').toLowerCase();
+        if (colA !== colB) return colA.localeCompare(colB);
+        return (Number(a.NumeroNaColecao) || 0) - (Number(b.NumeroNaColecao) || 0);
+    });
+}
+
+// 5. Desenhar Tabela
+function renderTable(dataArray) {
+    const tableBody = document.getElementById('inventory-body');
+    tableBody.innerHTML = '';
+
+    dataArray.forEach((item) => {
+        const row = tableBody.insertRow();
+        const itemId = item.id;
+        const colecao = item.Colecao || 'N/A';
+        const nome = item.NomeNaColecao || 'N/A';
+        const preco = typeof item.Preço === 'number' ? item.Preço : 0;
+        const imgUrl = item.Imagem && item.Imagem.length > 0 ? item.Imagem[0] : 'https://via.placeholder.com/50';
+
+        row.innerHTML = `
+            <td data-label="Marca">${item.Marca || 'N/A'}</td>
+            <td data-label="Imagem">
+                <img src="${imgUrl}" class="pop-main-image" onclick="openModal('${itemId}', '${colecao.replace(/'/g, "\\'")}')">
+            </td>
+            <td data-label="Numero">${item.NumeroNaColecao || 'N/A'}</td>
+            <td data-label="Coleção">${colecao}</td>
+            <td data-label="Nome">${nome}</td>
+            <td data-label="Descrição">${item.Descricao || 'N/A'}</td>
+            <td data-label="Origem">${translateOrigem(item.Origem)}</td>
+            <td data-label="Loja/Status">${item.Loja || 'N/A'}</td>
+            <td data-label="Preço">${formatCurrency(preco)}</td>
+            <td data-label="Data Compra">${formatDate(item['DatadeCompra'])}</td>
+            <td data-label="Colecionado">${translateColecionado(item.Colecionado)}</td>
+        `;
+    });
+}
+
+// 6. Filtros
+function filterData() {
+    const searchColecao = document.getElementById('searchColecao').value.toLowerCase();
+    const searchMarca = document.getElementById('searchMarca').value;
+
+    const filtered = allItems.filter(item => {
+        const matchesColecao = (item.Colecao || '').toLowerCase().includes(searchColecao);
+        const matchesMarca = searchMarca === "" || item.Marca === searchMarca;
+        return matchesColecao && matchesMarca;
+    });
+
+    renderTable(filtered);
+}
+
+// Iniciar
 window.onload = loadInventory;
-    </script>
+
+</script>
 
 </body>
 </html>
