@@ -200,7 +200,7 @@
 <body>
 
 // -------------------------------------------------------
-// Formatação da tabela
+// Formatação das colunas da tabela
 // -------------------------------------------------------
     
     <h1>Inventário Detalhado da Coleção</h1>
@@ -216,7 +216,7 @@
                 <th>Loja</th> 
                 <th>Preço</th>
                 <th>Data Compra</th>
-                <th>Adquirido</th>
+                <th>Colecionado</th>
             </tr>
         </thead>
         <tbody id="inventory-body">
@@ -252,9 +252,10 @@
         let currentSlideIndex = 0;
         let slideCount = 0;
 
-        // -------------------------------------------------------
-        // 1. CONFIGURAÇÃO E INICIALIZAÇÃO DO FIREBASE
-        // -------------------------------------------------------
+// -------------------------------------------------------
+// Configuração do Firebase
+// -------------------------------------------------------
+        
         const firebaseConfig = {
             apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
             authDomain: "miguel-inventory.firebaseapp.com",
@@ -269,9 +270,9 @@
         
         const COLLECTION_NAME = "inventario"; 
 
-        // -------------------------------------------------------
-        // 2. FUNÇÕES DO SLIDER 
-        // -------------------------------------------------------
+// -------------------------------------------------------
+// Configuração do Slider
+// -------------------------------------------------------
         
         function showSlide(n) {
             const container = document.getElementById('carousel-container');
@@ -298,12 +299,11 @@
             showSlide(currentSlideIndex += n);
         }
 
-        // -------------------------------------------------------
-        // 3. FUNÇÕES DE FORMATAÇÃO (Mantidas)
-        // -------------------------------------------------------
+// -------------------------------------------------------
+// Formatação das celulas da tabela
+// -------------------------------------------------------
 
         function formatCurrency(value) {
-            // [CORREÇÃO FINAL] Removida a linha: if (value === 0) return 'OF.';
             
             if (typeof value !== 'number') {
                 // Se não for um número (como no caso de null/undefined), retorna 'N/A' 
@@ -311,7 +311,7 @@
                 return 'N/A';
             }
             
-            // Se for o número 0, será formatado como 0,00 €
+        // Se for o número 0, será formatado como 0,00 €
             return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(value);
         }
         function formatDate(timestamp) {
@@ -324,17 +324,21 @@
             if (value === undefined || value === null) return 'Não'; 
             return value === true ? 'Sim' : 'Não';
         }
+
+        function translateColecionado(value) {
+            return value === true ? '✔ Sim' : '✖ Não';
+        }
+
         
-        // -------------------------------------------------------
-        // 4. FUNÇÃO DE CONTROLO DO MODAL 
-        // -------------------------------------------------------
+// -------------------------------------------------------
+// Função de controlo do Modal
+// -------------------------------------------------------
 
 function closeModal() {
     document.getElementById('pop-modal').style.display = 'none';
     currentSlideIndex = 0;
     slideCount = 0;
 
-    // Reset da posição do carrossel
     const carouselContainer = document.getElementById('carousel-container');
     carouselContainer.style.transform = 'translateX(0)';
 }
@@ -399,7 +403,6 @@ function showSlide(index) {
 
     currentSlideIndex = index;
 
-    // 🔴 Movimento correto: 1 imagem (100%) por vez
     carouselContainer.style.transform =
         `translateX(-${currentSlideIndex * 100}%)`;
 }
@@ -461,7 +464,7 @@ function loadInventory() {
                 <td data-label="Loja/Status">${lojaStatus}</td> 
                 <td data-label="Preço">${formatCurrency(preco)}</td>
                 <td data-label="Data Compra">${formatDate(item['Data de Compra'])}</td>
-                <td data-label="Adquirido">${translateBoolean(item.Adquirido)}</td>
+                <td data-label="Colecionado">${translateBoolean(item.Colecionado)}</td>
             `;
         });
     }).catch((error) => {
