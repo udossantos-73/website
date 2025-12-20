@@ -117,91 +117,77 @@
     .modal-source-link { display: none; }
     
 /* --- RESPONSIVIDADE (MOBILE-FIRST) --- */
-/* --- RESPONSIVIDADE (LISTA EM MOBILE) --- */
-@media (max-width: 768px) { 
-    
-    h1 { font-size: 1.5rem; margin: 15px 0; }
+<style>
+    /* ... (Mantém os teus estilos de body e modal iguais) ... */
 
-    .filters-container {
-        flex-direction: column;
-        padding: 0 10px;
+    /* --- RESPONSIVIDADE (LISTA EM MOBILE) --- */
+    @media (max-width: 850px) { /* Aumentado para garantir que apanha o iPhone 11 Pro Max */
+        
+        body { margin: 10px; }
+        h1 { font-size: 1.4rem; }
+
+        .pop-inventory thead { display: none !important; }
+
+        .pop-inventory, .pop-inventory tbody, .pop-inventory tr, .pop-inventory td { 
+            display: block !important; 
+            width: 100% !important; 
+            box-sizing: border-box;
+        }
+
+        .pop-inventory { border: none; background: transparent; }
+
+        .pop-inventory tr { 
+            margin-bottom: 20px; 
+            border: 1px solid #ccc; 
+            background-color: white; 
+            border-radius: 12px; 
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Esconde TODAS as colunas primeiro */
+        .pop-inventory td { 
+            display: none !important; 
+            border: none;
+            padding: 8px 5px;
+            border-bottom: 1px solid #eee;
+            justify-content: space-between;
+            align-items: center;
+            text-align: right;
+            font-size: 0.95em;
+        }
+
+        /* Mostra APENAS as colunas essenciais como linhas */
+        .pop-inventory td[data-label="Imagem"],
+        .pop-inventory td[data-label="Marca"],
+        .pop-inventory td[data-label="Numero"],
+        .pop-inventory td[data-label="Colecao"],
+        .pop-inventory td[data-label="Nome"],
+        .pop-inventory td[data-label="Preco"] { 
+            display: flex !important; 
+        }
+
+        /* Estilo para o rótulo à esquerda */
+        .pop-inventory td::before { 
+            content: attr(data-label) ": "; 
+            font-weight: bold; 
+            color: #007acc; 
+            text-align: left;
+            flex-shrink: 0;
+        }
+
+        /* Destaque para a Imagem */
+        .pop-inventory td[data-label="Imagem"] {
+            justify-content: center;
+            background: #f0f7ff;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            height: auto;
+        }
+        .pop-inventory td[data-label="Imagem"]::before { display: none; }
+        .pop-main-image { width: 120px; height: auto; }
     }
-
-    /* Transformar a tabela num container de blocos */
-    .pop-inventory, .pop-inventory tbody, .pop-inventory tr, .pop-inventory td { 
-        display: block; 
-        width: 100%; 
-    }
-
-    .pop-inventory thead { 
-        display: none; /* Esconde os títulos da tabela no topo */
-    }
-
-    .pop-inventory {
-        box-shadow: none;
-        background-color: transparent;
-        border: none;
-    }
-
-    .pop-inventory tr { 
-        margin-bottom: 20px; 
-        border: 1px solid #ddd; 
-        background-color: white; 
-        border-radius: 10px; 
-        padding: 10px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        display: flex;
-        flex-direction: column; /* Empilha as informações dentro da linha */
-    }
-
-    /* Estilo para as "linhas" de dados dentro do card */
-    .pop-inventory td { 
-        display: flex !important; /* Força exibir como linha flexível */
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 5px; 
-        border: none;
-        border-bottom: 1px solid #eee;
-        text-align: right;
-        font-size: 0.9em;
-    }
-
-    .pop-inventory td:last-child { border-bottom: none; }
-
-    /* Criar o rótulo à esquerda */
-    .pop-inventory td::before { 
-        content: attr(data-label); 
-        font-weight: bold; 
-        color: #007acc; 
-        text-align: left;
-        flex-shrink: 0;
-        margin-right: 10px;
-    }
-
-    /* Ajuste especial para a Imagem ficar em destaque na linha */
-    .pop-inventory td[data-label="Imagem"] {
-        justify-content: center;
-        padding: 10px 0;
-        background: #f9f9f9;
-        margin-bottom: 5px;
-        border-radius: 5px;
-    }
-
-    .pop-inventory td[data-label="Imagem"]::before {
-        display: none; /* Remove o texto "Imagem" para focar na foto */
-    }
-
-    .pop-main-image {
-        width: 100px;
-        height: auto;
-    }
-
-    /* Esconder colunas menos importantes no mobile para poupar espaço */
-    .pop-inventory td[data-label="Descrição"],
-    .pop-inventory td[data-label="Origem"],
-    .pop-inventory td[data-label="Data Compra"] {
-        display: none !important;
-    }
+</style>
 }
 .filters-container {
     display: flex;
@@ -478,19 +464,20 @@ function renderTable(dataArray) {
         const preco = typeof item.Preço === 'number' ? item.Preço : 0;
         const imgUrl = item.Imagem && item.Imagem.length > 0 ? item.Imagem[0] : 'https://via.placeholder.com/50';
 
+        // Labels simplificados sem acentos para o CSS não falhar
         row.innerHTML = `
             <td data-label="Marca">${item.Marca || 'N/A'}</td>
             <td data-label="Imagem">
                 <img src="${imgUrl}" class="pop-main-image" onclick="openModal('${itemId}', '${colecao.replace(/'/g, "\\'")}')">
             </td>
             <td data-label="Numero">${item.NumeroNaColecao || 'N/A'}</td>
-            <td data-label="Coleção">${colecao}</td>
+            <td data-label="Colecao">${colecao}</td>
             <td data-label="Nome">${nome}</td>
-            <td data-label="Descrição">${item.Descricao || 'N/A'}</td>
+            <td data-label="Descricao">${item.Descricao || 'N/A'}</td>
             <td data-label="Origem">${translateOrigem(item.Origem)}</td>
-            <td data-label="Loja/Status">${item.Loja || 'N/A'}</td>
-            <td data-label="Preço">${formatCurrency(preco)}</td>
-            <td data-label="Data Compra">${formatDate(item['DatadeCompra'])}</td>
+            <td data-label="Loja">${item.Loja || 'N/A'}</td>
+            <td data-label="Preco">${formatCurrency(preco)}</td>
+            <td data-label="Data">${formatDate(item['DatadeCompra'])}</td>
             <td data-label="Colecionado">${translateColecionado(item.Colecionado)}</td>
         `;
     });
