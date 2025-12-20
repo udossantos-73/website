@@ -1,122 +1,217 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventário de Coleções</title>
-    
-    <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            text-align: center; 
-            margin-top: 50px; 
-            background-color: #f4f4f4; 
-        }
-        h1 { 
-            color: #007acc; 
-            margin-bottom: 40px;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo de Coleções Responsivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    body {
+        margin: 0;
+        font-family: 'Montserrat', sans-serif;
+        background-color: #f8f9fa;
+        color: #333;
+    }
 
-        /* ======================================================= */
-        /* --- GRID LAYOUT: 3 COLUNAS EM ECRÃS GRANDES --- */
-        /* ======================================================= */
-        .nav-container { 
-            margin-top: 30px; 
-            max-width: 1000px; 
-            margin-left: auto;
-            margin-right: auto;
-            display: grid;
-            
-            /* Define 3 colunas de largura igual (1fr) */
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 20px; 
-            padding: 0 20px;
-        }
+    /* Header */
+    header {
+        position: relative;
+        height: 400px;
+        background: url('https://i.imgur.com/oJ1qqf9.png') center center / cover no-repeat fixed;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        text-align: center;
+        overflow: hidden;
+    }
 
-        /* Estilo do Botão/Área de Link */
-        .nav-button {
-            padding: 10px; 
-            text-decoration: none;
-            color: #333; /* Cor do texto no botão */
-            background-color: white; 
-            border: 2px solid #ccc;
-            border-radius: 8px;
-            width: 100%; 
-            height: 150px; 
-            
-            display: flex;
-            flex-direction: column; /* Organiza conteúdo verticalmente */
-            align-items: center; 
-            justify-content: center;
-            
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-        
-        .nav-button:hover {
-            border-color: #007acc; 
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Estilo para a Imagem do Logo */
-        .logo-img {
-            max-width: 90%; /* Ajustado para deixar espaço para o padding */
-            max-height: 80%; /* Deixa espaço para o texto se houver */
-            width: auto;
-            height: auto;
-            display: block; 
-            object-fit: contain;
-            /* Se quiser remover o filtro de cor para imagens coloridas, remova a linha abaixo */
-            /* filter: brightness(1) contrast(100%); */
-        }
-        
-        /* Estilo para o texto (placeholder) se não houver imagem */
-        .button-text {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-top: 5px;
-        }
+    header::after {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.4);
+    }
 
-        /* ======================================================= */
-        /* --- MEDIA QUERY: Volta a 1 Coluna em Telemóveis --- */
-        /* ======================================================= */
-        @media (max-width: 768px) {
-            .nav-container {
-                /* Em ecrãs pequenos (telemóveis), volta a ter apenas 1 coluna */
-                grid-template-columns: 1fr; 
-            }
-            .nav-button {
-                /* Dá mais altura para ser mais fácil de clicar */
-                height: 120px; 
-            }
+    header h1 {
+        position: relative;
+        font-size: 3em;
+        z-index: 1;
+        margin: 0;
+        letter-spacing: 2px;
+        text-shadow: 2px 2px 15px rgba(0,0,0,0.5);
+    }
+
+    /* Botões */
+    .button-group {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-top: 30px;
+    }
+
+    .btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        width: 200px;
+        height: 60px;
+        background: #ffdd59;
+        color: #007acc;
+        font-weight: 700;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-size: 1.2em;
+    }
+
+    .btn:hover {
+        background: #ffe87f;
+        transform: translateY(-3px);
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* Gallery */
+    .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        padding: 60px 20px;
+        max-width: 1200px;
+        margin: auto;
+        justify-content: center;
+    }
+
+    .item-card {
+        border: 2px solid #eee;
+        border-radius: 12px;
+        overflow: hidden;
+        text-align: center;
+        background: white;
+        opacity: 0;
+        transform: translateY(50px);
+        transition: all 0.8s ease-out;
+    }
+
+    .item-card.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .item-card img {
+        width: 100%;
+        object-fit: cover;
+        height: 180px;
+    }
+
+    .item-title {
+        padding: 15px;
+        font-size: 1.15em;
+        font-weight: 600;
+    }
+
+    .item-desc {
+        padding: 0 15px 15px;
+        font-size: 0.95em;
+        color: #666;
+    }
+
+    /* Responsividade */
+    @media (max-width: 1024px) {
+        header h1 {
+            font-size: 2.5em;
         }
-    </style>
+        .btn {
+            width: 180px;
+            height: 55px;
+            font-size: 1.1em;
+        }
+        .item-card img {
+            height: 160px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        header h1 {
+            font-size: 2em;
+        }
+        .btn {
+            width: 45%; /* Dois botões por linha */
+            height: 50px;
+            font-size: 1em;
+        }
+        .gallery {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            padding: 50px 15px;
+            gap: 15px;
+        }
+        .item-card img {
+            height: 140px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        header {
+            height: 250px;
+        }
+        header h1 {
+            font-size: 1.8em;
+        }
+        .btn {
+            width: 90%; /* 1 botão por linha */
+            height: 45px;
+            font-size: 0.95em;
+        }
+        .gallery {
+            grid-template-columns: 1fr; /* 1 coluna no mobile */
+            padding: 40px 10px;
+        }
+        .item-card img {
+            height: 120px;
+        }
+    }
+</style>
 </head>
 <body>
 
-    <h1>Escolha a Coleção que Deseja Visualizar</h1>
-
-    <div class="nav-container">
-        
-        <a href="funko-pop-inventory.html" class="nav-button" title="Inventário Funko Pop!">
-            <img src="https://i.imgur.com/1vIdlaA.png" 
-                alt="Logo Funko Pop" 
-                class="logo-img">
-        </a>
-
-        <a href="hot-wheels-inventory.html" class="nav-button" title="Inventário Hot Wheels">
-            <img src="https://i.imgur.com/UqptwaH.png" 
-                alt="Logo Hot Wheels" 
-                class="logo-img">
-        </a>
-        
-        <a href="inventory.html" class="nav-button" title="Base de dados">
-                     <img src="https://i.imgur.com/dwYjc0j.png" 
-                alt="Logo Firebase" 
-                class="logo-img">
-            
-        </a>
-            
+<header>
+    <h1>Explorar as Coleções</h1>
+    <div class="button-group">
+        <a href="formulario.html" class="btn">Inserir Item</a>
+        <a href="inventario.html" class="btn">Ver Inventário</a>
     </div>
+</header>
+
+<section class="gallery">
+    <div class="item-card">
+        <img src="https://i.imgur.com/KK35pih.png" alt="Funko Pop">
+        <div class="item-title">Funko Pop!</div>
+        <div class="item-desc">Veja todos os itens disponíveis desta marca.</div>
+    </div>
+    <div class="item-card">
+        <img src="https://i.imgur.com/UqptwaH.png" alt="Hot Wheels">
+        <div class="item-title">Hot Wheels</div>
+        <div class="item-desc">Explore os modelos e variantes desta marca.</div>
+    </div>
+</section>
+
+<script>
+    // Animação ao scroll
+    const cards = document.querySelectorAll('.item-card');
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if(entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+    cards.forEach(card => observer.observe(card));
+</script>
 
 </body>
 </html>
