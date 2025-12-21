@@ -35,73 +35,49 @@
     .carousel-controls button { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; padding: 15px; cursor: pointer; z-index: 10; }
     #prev-slide { left: 10px; } #next-slide { right: 10px; }
 
-    /* --- RESPONSIVIDADE (MOBILE / IPHONE) --- */
-    @media (max-width: 850px) {
-        h1 { font-size: 1.5rem; }
-        .filters-container { flex-direction: column; align-items: stretch; }
+@media (max-width: 850px) {
+    h1 { font-size: 1.5rem; }
+    .filters-container { flex-direction: column; align-items: stretch; }
 
-        /* Forçar a tabela a virar blocos */
-        .pop-inventory, .pop-inventory thead, .pop-inventory tbody, .pop-inventory th, .pop-inventory td, .pop-inventory tr { 
-            display: block !important; 
-            width: 100% !important; 
-        }
-
-        .pop-inventory thead { display: none !important; } /* Esconde cabeçalho */
-
-        .pop-inventory tr {
-            background: white;
-            margin-bottom: 20px;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            border: 1px solid #ddd;
-        }
-
-        /* ESCONDER TODAS AS COLUNAS POR DEFEITO */
-        .pop-inventory td { 
-            display: none !important; 
-            padding: 8px 0;
-            border: none !important;
-            border-bottom: 1px solid #eee !important;
-            text-align: right;
-            position: relative;
-            font-size: 14px;
-        }
-
-        /* MOSTRAR APENAS AS 4 COLUNAS DESEJADAS */
-        .pop-inventory td[data-label="Marca"],
-        .pop-inventory td[data-label="Imagem"],
-        .pop-inventory td[data-label="Numero"],
-        .pop-inventory td[data-label="Colecao"] { 
-            display: flex !important; 
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Títulos à esquerda */
-        .pop-inventory td::before {
-            content: attr(data-label);
-            font-weight: bold;
-            color: #007acc;
-            float: left;
-            text-transform: uppercase;
-            font-size: 12px;
-        }
-
-        /* Ajuste da Imagem para ficar no topo e sem texto */
-        .pop-inventory td[data-label="Imagem"] { 
-            display: block !important; 
-            text-align: center; 
-            background: #f9f9f9;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            padding: 10px 0;
-        }
-        .pop-inventory td[data-label="Imagem"]::before { display: none; }
-        .pop-main-image { width: 120px; margin: auto; }
-        
-        .pop-inventory td[data-label="Colecao"] { border-bottom: none !important; }
+    /* 1. Manter o comportamento de tabela, mas garantir que ocupa a largura total */
+    .pop-inventory {
+        display: table !important; /* Reverte o 'block' */
+        width: 100% !important;
+        border-collapse: collapse;
+        font-size: 13px; /* Diminuir um pouco a fonte para caber tudo */
     }
+
+    /* 2. Garantir que o cabeçalho e linhas continuam a ser da tabela */
+    .pop-inventory thead { display: table-header-group !important; }
+    .pop-inventory tr { display: table-row !important; }
+    
+    /* 3. ESCONDER TODAS AS COLUNAS POR DEFEITO */
+    .pop-inventory th, 
+    .pop-inventory td { 
+        display: none !important; 
+        padding: 8px 4px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+    }
+
+    /* 4. MOSTRAR APENAS AS COLUNAS ESSENCIAIS */
+    /* Ajustamos a largura de cada uma para caberem bem lado a lado */
+    .pop-inventory th[data-label="Imagem"], .pop-inventory td[data-label="Imagem"],
+    .pop-inventory th[data-label="Marca"],  .pop-inventory td[data-label="Marca"],
+    .pop-inventory th[data-label="Numero"], .pop-inventory td[data-label="Numero"],
+    .pop-inventory th[data-label="Colecao"], .pop-inventory td[data-label="Colecao"] {
+        display: table-cell !important;
+    }
+
+    /* 5. Ajustes específicos para as colunas visíveis */
+    .pop-main-image {
+        width: 50px; /* Imagem muito menor para caber na linha */
+        height: auto;
+    }
+
+    /* Remover o 'before' que criava os títulos repetidos nos cards */
+    .pop-inventory td::before { content: none !important; }
+}
     </style>
 </head>
 <body>
@@ -173,10 +149,12 @@ if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const COLLECTION_NAME = "inventario";
 
+
 function formatCurrency(v) { return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(v || 0); }
 function formatDate(t) { return (t && t.toDate) ? new Intl.DateTimeFormat('pt-PT', { day: '2-digit', month: 'short', year: 'numeric' }).format(t.toDate()) : 'N/A'; }
 function translateOrigem(v) { return v === false ? 'Oferecido' : 'Adquirido'; }
 function translateColecionado(v) { return v === true ? 'Sim' : 'Não'; }
+function translateLoja(v) { return v ? v : 'Desconhecida'; }
 
 function loadInventory() {
     db.collection(COLLECTION_NAME).get().then((snap) => {
@@ -193,6 +171,8 @@ function renderTable(data) {
     data.forEach(item => {
         const row = body.insertRow();
         const img = (item.Imagem && item.Imagem[0]) ? item.Imagem[0] : 'https://via.placeholder.com/50';
+		const valorLoja = item.Loja || item.loja;
+		const valorPreco = item.Preço || item.Preco || item.preço || 0;
         row.innerHTML = `
             <td data-label="Marca">${item.Marca || 'N/A'}</td>
             <td data-label="Imagem"><img src="${img}" class="pop-main-image" onclick="openModal('${item.id}', '${(item.Colecao || '').replace(/'/g, "\\'")}')"></td>
@@ -201,8 +181,8 @@ function renderTable(data) {
             <td data-label="Nome">${item.NomeNaColecao || 'N/A'}</td>
             <td data-label="Descricao">${item.Descricao || 'N/A'}</td>
             <td data-label="Origem">${translateOrigem(item.Origem)}</td>
-            <td data-label="Loja">${item.Loja || 'N/A'}</td>
-            <td data-label="Preco">${formatCurrency(item.Preço)}</td>
+            <td data-label="Loja">${translateLoja(valorLoja)}</td>
+            <td data-label="Preco">${formatCurrency(valorPreco)}</td>
             <td data-label="Data">${formatDate(item.DatadeCompra)}</td>
             <td data-label="Colecionado">${translateColecionado(item.Colecionado)}</td>
         `;
