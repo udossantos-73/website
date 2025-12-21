@@ -151,7 +151,7 @@ const COLLECTION_NAME = "inventario";
 
 
 function formatCurrency(v) { return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(v || 0); }
-function formatDate(t) { return (t && t.toDate) ? new Intl.DateTimeFormat('pt-PT', { day: '2-digit', month: 'short', year: 'numeric' }).format(t.toDate()) : 'N/A'; }
+function formatDate(t) { return (t && t.toDate) ? new Intl.DateTimeFormat('pt-PT', { day: '2-digit', month: 'short', year: 'numeric' }).format(t.toDate()) : 'Desconhecida'; }
 function translateOrigem(v) { return v === false ? 'Oferecido' : 'Adquirido'; }
 function translateColecionado(v) { return v === true ? 'Sim' : 'Não'; }
 function translateLoja(v) { return v ? v : 'Desconhecida'; }
