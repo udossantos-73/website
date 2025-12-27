@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
+<script type="module" src="auth-guard.js"></script>
+<style>
+  body { display: none; }
+</style>
+<script>
+  // Só mostra o corpo da página se o script de autenticação der "OK"
+  // (O auth-guard vai redirecionar se falhar, por isso se ficar aqui é porque está logado)
+  setTimeout(() => { document.body.style.display = 'block'; }, 1000);
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Catálogo de Coleções Responsivo</title>
