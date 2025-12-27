@@ -1,190 +1,158 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
-<script type="module" src="auth-guard.js"></script>
-<style>
-  body { display: none; }
-</style>
-<script>
-  // Só mostra o corpo da página se o script de autenticação der "OK"
-  // (O auth-guard vai redirecionar se falhar, por isso se ficar aqui é porque está logado)
-  setTimeout(() => { document.body.style.display = 'block'; }, 1000);
-</script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Catálogo de Coleções Responsivo</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-<style>
-    body {
-        margin: 0;
-        font-family: 'Montserrat', sans-serif;
-        background-color: #f8f9fa;
-        color: #333;
-    }
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://www.gstatic.com https://*.firebaseio.com https://*.googleapis.com https://*.firebaseapp.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://i.imgur.com https://*.googleusercontent.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://*.firebaseapp.com;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Coleções Responsivo</title>
 
-    /* Header */
-    header {
-        position: relative;
-        height: 400px;
-        background: url('https://i.imgur.com/oJ1qqf9.png') center center / cover no-repeat fixed;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        color: white;
-        text-align: center;
-        overflow: hidden;
-    }
+    <script type="module" src="auth-guard.js"></script>
+    <style>
+        body { display: none; } /* Esconde o corpo até o auth-guard validar */
+    </style>
+    <script>
+        // Mostra o corpo após 1 segundo (tempo para o Firebase validar o login)
+        setTimeout(() => { document.body.style.display = 'block'; }, 1000);
+    </script>
 
-    header::after {
-        content: "";
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.4);
-    }
-
-    header h1 {
-        position: relative;
-        font-size: 3em;
-        z-index: 1;
-        margin: 0;
-        letter-spacing: 2px;
-        text-shadow: 2px 2px 15px rgba(0,0,0,0.5);
-    }
-
-    /* Botões */
-    .button-group {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        flex-wrap: wrap;
-        margin-top: 30px;
-    }
-
-    .btn {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        width: 200px;
-        height: 60px;
-        background: #ffdd59;
-        color: #007acc;
-        font-weight: 700;
-        text-decoration: none;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        font-size: 1.2em;
-    }
-
-    .btn:hover {
-        background: #ffe87f;
-        transform: translateY(-3px);
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
-    }
-
-    /* Gallery */
-    .gallery {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 20px;
-        padding: 60px 20px;
-        max-width: 1200px;
-        margin: auto;
-        justify-content: center;
-    }
-
-    .item-card {
-        border: 2px solid #eee;
-        border-radius: 12px;
-        overflow: hidden;
-        text-align: center;
-        background: white;
-        opacity: 0;
-        transform: translateY(50px);
-        transition: all 0.8s ease-out;
-    }
-
-    .item-card.visible {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    .item-card img {
-        width: 100%;
-        object-fit: cover;
-        height: 180px;
-    }
-
-    .item-title {
-        padding: 15px;
-        font-size: 1.15em;
-        font-weight: 600;
-    }
-
-    .item-desc {
-        padding: 0 15px 15px;
-        font-size: 0.95em;
-        color: #666;
-    }
-
-    /* Responsividade */
-    @media (max-width: 1024px) {
-        header h1 {
-            font-size: 2.5em;
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
         }
-        .btn {
-            width: 180px;
-            height: 55px;
-            font-size: 1.1em;
-        }
-        .item-card img {
-            height: 160px;
-        }
-    }
 
-    @media (max-width: 768px) {
-        header h1 {
-            font-size: 2em;
-        }
-        .btn {
-            width: 45%; /* Dois botões por linha */
-            height: 50px;
-            font-size: 1em;
-        }
-        .gallery {
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            padding: 50px 15px;
-            gap: 15px;
-        }
-        .item-card img {
-            height: 140px;
-        }
-    }
-
-    @media (max-width: 480px) {
+        /* Header */
         header {
-            height: 250px;
+            position: relative;
+            height: 400px;
+            background: url('https://i.imgur.com/oJ1qqf9.png') center center / cover no-repeat fixed;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            overflow: hidden;
         }
+
+        header::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+        }
+
         header h1 {
-            font-size: 1.8em;
+            position: relative;
+            font-size: 3em;
+            z-index: 1;
+            margin: 0;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 15px rgba(0,0,0,0.5);
         }
+
+        /* Botões */
+        .button-group {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
         .btn {
-            width: 90%; /* 1 botão por linha */
-            height: 45px;
-            font-size: 0.95em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            width: 200px;
+            height: 60px;
+            background: #ffdd59;
+            color: #007acc;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 1.2em;
         }
+
+        .btn:hover {
+            background: #ffe87f;
+            transform: translateY(-3px);
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* Gallery */
         .gallery {
-            grid-template-columns: 1fr; /* 1 coluna no mobile */
-            padding: 40px 10px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            padding: 60px 20px;
+            max-width: 1200px;
+            margin: auto;
+            justify-content: center;
         }
+
+        .item-card {
+            border: 2px solid #eee;
+            border-radius: 12px;
+            overflow: hidden;
+            text-align: center;
+            background: white;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease-out;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .item-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         .item-card img {
-            height: 120px;
+            width: 100%;
+            object-fit: cover;
+            height: 180px;
         }
-    }
-</style>
+
+        .item-title {
+            padding: 15px;
+            font-size: 1.15em;
+            font-weight: 600;
+        }
+
+        .item-desc {
+            padding: 0 15px 15px;
+            font-size: 0.95em;
+            color: #666;
+        }
+
+        /* Responsividade */
+        @media (max-width: 1024px) {
+            header h1 { font-size: 2.5em; }
+            .btn { width: 180px; height: 55px; font-size: 1.1em; }
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 2em; }
+            .btn { width: 45%; height: 50px; font-size: 1em; }
+            header { background-attachment: scroll; } /* Melhor performance mobile */
+        }
+
+        @media (max-width: 480px) {
+            header { height: 250px; }
+            header h1 { font-size: 1.8em; }
+            .btn { width: 90%; }
+            .gallery { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
 
@@ -197,11 +165,12 @@
 </header>
 
 <section class="gallery">
-    <a <a href="funko.html" class="item-card">
+    <a href="funko.html" class="item-card">
         <img src="https://i.imgur.com/Efawqzh.png" alt="Funko Pop">
         <div class="item-title">Funko Pop!</div>
         <div class="item-desc">Veja todos os itens disponíveis desta marca.</div>
     </a>
+    
     <a href="hotwheels.html" class="item-card">
         <img src="https://i.imgur.com/UqptwaH.png" alt="Hot Wheels">
         <div class="item-title">Hot Wheels</div>
@@ -219,6 +188,7 @@
             }
         });
     }, { threshold: 0.1 });
+    
     cards.forEach(card => observer.observe(card));
 </script>
 
