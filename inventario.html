@@ -1,3 +1,5 @@
+cd ~/website
+cat << 'EOF' > index.html
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
@@ -6,11 +8,9 @@
     <title>Inventário de Colecionáveis - Pops & Hot Wheels</title>
     
     <style>
-    /* --- ESTILOS GERAIS --- */
     body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 20px; color: #333; }
     h1 { color: #007acc; text-align: center; margin-bottom: 10px; }
     
-    /* --- PAINEL DE AUTENTICAÇÃO --- */
     .auth-container { text-align: center; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
     .auth-button { padding: 10px 20px; font-size: 1rem; color: white; background-color: #007acc; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
     .auth-button:hover { background-color: #005999; }
@@ -19,31 +19,36 @@
     .filters-container { display: flex; gap: 15px; margin-bottom: 20px; justify-content: center; }
     .filters-container input, .filters-container select { padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 1rem; }
 
-    /* --- ESTILOS DA TABELA --- */
     .pop-inventory { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background-color: white; }
     .pop-inventory th, .pop-inventory td { border: 1px solid #ddd; padding: 12px 8px; text-align: left; }
     .pop-inventory th { background-color: #007acc; color: white; font-weight: bold; text-transform: uppercase; }
     .pop-inventory tbody tr:nth-child(even) { background-color: #f9f9f9; }
-    .pop-inventory tbody tr:hover { background-color: #e9e9e9; }
+    .pop-inventory tbody tr:hover { background-color: #f1f5f9; }
     
-    .pop-main-image { width: 50px; height: auto; cursor: pointer; border-radius: 4px; display: block; margin: auto; }
+    .pop-main-image { width: 50px; height: auto; border-radius: 4px; display: block; margin: auto; }
     
-    /* LINK NO NOME DO ITEM */
-    .item-name-link { color: #007acc; font-weight: bold; cursor: pointer; text-decoration: underline; }
-    .item-name-link:hover { color: #005999; }
+    /* ESTILO DO LINK NO NOME */
+    .item-name-link { 
+        color: #007acc !important; 
+        font-weight: bold !important; 
+        cursor: pointer !important; 
+        text-decoration: underline !important; 
+        display: inline-block;
+    }
+    .item-name-link:hover { 
+        color: #005999 !important; 
+        background-color: #e0f2fe;
+    }
 
-    /* --- ESTILOS DO MODAL / CARTÃO --- */
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.75); padding: 15px; box-sizing: border-box; }
     .card-modal-content { background-color: #fff; padding: 25px; border-radius: 12px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
     .close-button { position: absolute; top: 15px; right: 20px; color: #888; font-size: 28px; font-weight: bold; cursor: pointer; }
     .close-button:hover { color: #000; }
 
-    /* ESTRUTURA DO CARTÃO DETALHADO */
     .card-header { text-align: center; margin-bottom: 15px; padding-right: 20px; }
     .card-header h2 { margin: 5px 0; color: #007acc; font-size: 1.4rem; }
     .card-badge { display: inline-block; background: #e0f2fe; color: #0369a1; font-size: 0.85rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; margin-bottom: 5px; }
 
-    /* IMAGEM E CARROSSEL NO CARTÃO */
     .card-image-wrapper { position: relative; width: 100%; height: 260px; background: #fafafa; border-radius: 8px; border: 1px solid #eee; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
     .card-image-wrapper img { max-width: 100%; max-height: 100%; object-fit: contain; }
     
@@ -52,14 +57,12 @@
     .nav-arrow.prev { left: 10px; }
     .nav-arrow.next { right: 10px; }
 
-    /* DETALHES TÉCNICOS NO CARTÃO */
     .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.9rem; }
     .card-grid-item { display: flex; flex-direction: column; }
     .card-grid-item.full-width { grid-column: span 2; }
     .card-label { font-size: 0.75rem; color: #64748b; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
     .card-value { color: #1e293b; font-weight: 500; }
 
-    /* NAVEGAÇÃO ENTRE ITENS DO INVENTÁRIO */
     .card-item-navigation { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; }
     .nav-item-btn { background: #007acc; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
     .nav-item-btn:hover { background: #005999; }
@@ -91,7 +94,6 @@
 
 <h1>Inventário Detalhado da Coleção</h1>
 
-<!-- SEÇÃO DE AUTENTICAÇÃO -->
 <div class="auth-container" id="auth-section">
     <button id="login-btn" class="auth-button" onclick="login()">Entrar com Google</button>
     <div id="user-details" style="display:none;">
@@ -99,7 +101,7 @@
         <button class="auth-button" style="background-color: #dc3545;" onclick="logout()">Sair</button>
     </div>
 </div>
-	
+
 <div class="filters-container">
     <input type="text" id="searchColecao" placeholder="Filtrar por Coleção..." onkeyup="filterData()">
     <select id="searchMarca" onchange="filterData()">
@@ -130,7 +132,6 @@
     </tbody>
 </table>
 
-<!-- MODAL EM FORMATO DE CARTÃO DE DETALHES -->
 <div id="card-modal" class="modal">
     <div class="card-modal-content">
         <span class="close-button" onclick="closeCardModal()">&times;</span>
@@ -143,14 +144,12 @@
             </div>
         </div>
 
-        <!-- CARROSSEL DE IMAGENS DO CARTÃO -->
         <div class="card-image-wrapper">
             <button class="nav-arrow prev" id="img-prev-btn" onclick="changeCardImage(-1)">&#10094;</button>
             <img id="card-img-display" src="" alt="Imagem do Item">
             <button class="nav-arrow next" id="img-next-btn" onclick="changeCardImage(1)">&#10095;</button>
         </div>
 
-        <!-- INFORMAÇÕES DETALHADAS -->
         <div class="card-grid">
             <div class="card-grid-item full-width">
                 <span class="card-label">Descrição</span>
@@ -178,7 +177,6 @@
             </div>
         </div>
 
-        <!-- CONTROLO DE NAVEGAÇÃO ENTRE ITENS DA TABELA -->
         <div class="card-item-navigation">
             <button class="nav-item-btn" id="prev-item-btn" onclick="navigateItem(-1)">&larr; Anterior</button>
             <span class="item-counter" id="item-counter">Item 1 de 10</span>
@@ -187,7 +185,6 @@
     </div>
 </div>
 
-<!-- LIBRARIES DO FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -213,7 +210,6 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 const COLLECTION_NAME = "inventario";
 
-// Lista de emails autorizados (em minúsculas)
 const authorizedEmails = [
     "ulisses.dos.santos@gmail.com",
     "urbino.sousa@gmail.com",
@@ -288,12 +284,15 @@ function renderTable(data) {
         const valorLoja = item.Loja || item.loja;
         const valorPreco = item.Preço || item.Preco || item.preço || 0;
         
+        // Lê qualquer variação de nome da base de dados
+        const nomeItem = item.NomeNaColecao || item.Nome || item.nome || item.Colecao || 'Ver Detalhes';
+        
         row.innerHTML = `
             <td data-label="Marca">${item.Marca || 'N/A'}</td>
-            <td data-label="Imagem"><img src="${img}" class="pop-main-image" onclick="openCardModal(${index})"></td>
-            <td data-label="Numero">${item.NumeroNaColecao || 'N/A'}</td>
+            <td data-label="Imagem"><img src="${img}" class="pop-main-image"></td>
+            <td data-label="Numero">${item.NumeroNaColecao || item.Numero || 'N/A'}</td>
             <td data-label="Colecao">${item.Colecao || 'N/A'}</td>
-            <td data-label="Nome"><span class="item-name-link" onclick="openCardModal(${index})">${item.NomeNaColecao || 'Sem Nome'}</span></td>
+            <td data-label="Nome"><a class="item-name-link" href="javascript:void(0)" onclick="openCardModal(${index})">${nomeItem}</a></td>
             <td data-label="Descricao">${item.Descricao || 'N/A'}</td>
             <td data-label="Origem">${translateOrigem(item.Origem)}</td>
             <td data-label="Loja">${translateLoja(valorLoja)}</td>
@@ -311,7 +310,6 @@ function filterData() {
     renderTable(currentFilteredItems);
 }
 
-/* --- LÓGICA DO CARTÃO / MODAL --- */
 function openCardModal(index) {
     currentItemIndex = index;
     displayCardData();
@@ -322,11 +320,10 @@ function displayCardData() {
     const item = currentFilteredItems[currentItemIndex];
     if (!item) return;
 
-    // Preencher textos do cartão
     document.getElementById('card-marca').innerText = item.Marca || 'Geral';
-    document.getElementById('card-nome').innerText = item.NomeNaColecao || 'Sem Nome';
+    document.getElementById('card-nome').innerText = item.NomeNaColecao || item.Nome || item.nome || 'Sem Nome';
     document.getElementById('card-colecao').innerText = item.Colecao || 'N/A';
-    document.getElementById('card-numero').innerText = item.NumeroNaColecao || 'N/A';
+    document.getElementById('card-numero').innerText = item.NumeroNaColecao || item.Numero || 'N/A';
     document.getElementById('card-descricao').innerText = item.Descricao || 'Sem descrição disponível.';
     document.getElementById('card-origem').innerText = translateOrigem(item.Origem);
     document.getElementById('card-loja').innerText = translateLoja(item.Loja || item.loja);
@@ -334,12 +331,10 @@ function displayCardData() {
     document.getElementById('card-data').innerText = formatDate(item.DatadeCompra);
     document.getElementById('card-colecionado').innerText = translateColecionado(item.Colecionado);
 
-    // Configurar carrossel de fotos do próprio item
     currentCardImages = (item.Imagem && item.Imagem.length > 0) ? item.Imagem : ['https://via.placeholder.com/300?text=Sem+Imagem'];
     currentCardImageIndex = 0;
     updateCardImageDisplay();
 
-    // Atualizar botões de navegação entre itens da tabela
     document.getElementById('item-counter').innerText = `${currentItemIndex + 1} de ${currentFilteredItems.length}`;
     document.getElementById('prev-item-btn').disabled = (currentItemIndex === 0);
     document.getElementById('next-item-btn').disabled = (currentItemIndex === currentFilteredItems.length - 1);
@@ -347,8 +342,6 @@ function displayCardData() {
 
 function updateCardImageDisplay() {
     document.getElementById('card-img-display').src = currentCardImages[currentCardImageIndex];
-    
-    // Esconder setas de imagem se o item só tiver 1 foto
     const showArrows = currentCardImages.length > 1;
     document.getElementById('img-prev-btn').style.display = showArrows ? 'flex' : 'none';
     document.getElementById('img-next-btn').style.display = showArrows ? 'flex' : 'none';
@@ -380,3 +373,4 @@ window.onclick = (e) => {
 
 </body>
 </html>
+EOF
