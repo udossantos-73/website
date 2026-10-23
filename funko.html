@@ -1,216 +1,115 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Funko Pop - Catálogo de Coleções</title>
-
-<!-- Fonte -->
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-
-<style>
-body {
-    margin: 0;
-    font-family: 'Montserrat', sans-serif;
-    background-color: #f8f9fa;
-    color: #333;
-}
-
-/* Header */
-header {
-    position: relative;
-    height: 400px;
-    background: url('https://i.imgur.com/CBq4bZP.png') center center / cover no-repeat fixed;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    text-align: center;
-    overflow: hidden;
-}
-header::after {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.4);
-}
-header h1 {
-    position: relative;
-    font-size: 3em;
-    z-index: 1;
-    margin: 0;
-    letter-spacing: 2px;
-    text-shadow: 2px 2px 15px rgba(0,0,0,0.5);
-}
-@media (max-width: 768px) { 
-    header { 
-        /* Mantemos o tamanho, mas removemos o 'fixed' para o mobile entender o 'cover' */
-        background-attachment: scroll !important; 
-        background-position: center center;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal da Coleção - Pops & Hot Wheels</title>
+    
+    <style>
+    body { 
+        font-family: Arial, sans-serif; 
+        background-color: #f4f4f4; 
+        margin: 0; 
+        padding: 0; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        min-height: 100vh; 
+        color: #333; 
     }
-    header h1 { font-size: 2em; } 
-}
 
-@media (max-width: 480px) { 
-    header { 
-        height: 250px; 
-        background-attachment: scroll !important;
-    } 
-    header h1 { font-size: 1.8em; } 
-}
+    .portal-card { 
+        background: #ffffff; 
+        padding: 40px; 
+        border-radius: 12px; 
+        box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
+        text-align: center; 
+        max-width: 450px; 
+        width: 90%; 
+    }
 
-/* Cards */
+    h1 { color: #007acc; margin-bottom: 10px; font-size: 1.8rem; }
+    p { color: #64748b; margin-bottom: 25px; line-height: 1.5; }
 
-.item-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    padding: 30px 20px;
-}
+    .auth-button { 
+        padding: 12px 24px; 
+        font-size: 1rem; 
+        color: white; 
+        background-color: #007acc; 
+        border: none; 
+        border-radius: 6px; 
+        cursor: pointer; 
+        font-weight: bold; 
+        transition: background-color 0.2s;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .auth-button:hover { background-color: #005999; }
 
-.item-card {
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    padding: 10px;
-    width: 200px;
-	flex: 0 1 200px;
-    cursor: pointer;
-    text-align: center;
-    transition: transform 0.2s;
-}
-.item-card:hover { 
-	transform: translateY(-5px); 
-}
-	
-.item-card img { 
-	width: 100%; 
-	border-radius: 5px; 
-	margin-bottom: 10px; 
-}
+    .nav-button {
+        display: inline-block;
+        padding: 14px 28px;
+        font-size: 1rem;
+        color: white;
+        background-color: #10b981;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: background-color 0.2s;
+        margin-top: 12px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .nav-button:hover { background-color: #059669; }
 
-.item-card h3 {
-	font-size: 1em; 
-	margin: 0; 
-	font-weight: 700; 
-	color: #007acc; 
-}
+    .nav-button.gallery-btn {
+        background-color: #8b5cf6;
+    }
+    .nav-button.gallery-btn:hover { background-color: #7c3aed; }
 
-/* Modal */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(0,0,0,0.7);
-    overflow-y: auto;
-}
-.modal-content {
-    background-color: #fefefe;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-}
-.close-button {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-.close-button:hover { color: #000; }
+    .user-info { 
+        background: #f8fafc; 
+        padding: 15px; 
+        border-radius: 8px; 
+        border: 1px solid #e2e8f0; 
+        margin-bottom: 20px; 
+        word-break: break-all;
+    }
+    .user-email { font-weight: bold; color: #1e293b; }
 
-/* Carousel */
-.carousel-container {
-    display: flex;
-    transition: transform 0.4s ease-in-out;
-    width: 100%;
-    overflow: hidden;
-    margin-bottom: 10px;
-}
-.carousel-viewport {
-    width: 100%;
-    overflow: hidden;
-    position: relative;
-}
-
-.carousel-track {
-    display: flex;
-    transition: transform 0.4s ease-in-out;
-}
-.carousel-slide {
-    min-width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.carousel-slide img {
-    width: 100%;
-    max-height: 70vh;
-    object-fit: contain;
-}
-.carousel-controls button {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    padding: 10px 15px;
-    background-color: rgba(0,0,0,0.5);
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-size: 1.5em;
-    user-select: none;
-}
-
-
-#prev-slide { left: 10px; }
-#next-slide { right: 10px; }
-
-/* Slide counter */
-#slide-counter {
-    text-align: center;
-    margin-bottom: 10px;
-    font-weight: bold;
-    color: #333;
-}
-</style>
+    .logout-btn {
+        background-color: #dc3545;
+        margin-top: 15px;
+    }
+    .logout-btn:hover { background-color: #bb2d3b; }
+    </style>
 </head>
 <body>
 
-<header>
-    <h1>Funko Pop!</h1>
-</header>
+<div class="portal-card">
+    <h1>Coleção de Pops & Hot Wheels</h1>
+    <p>Bem-vindo ao portal de gestão e consulta do inventário de colecionáveis.</p>
 
-<div class="item-container" id="itemContainer"></div>
-
-<!-- Modal -->
-<div id="pop-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-button" onclick="closeModal()">&times;</span>
-        <h2 id="modal-title"></h2>
-        <div id="modal-image-gallery">
-            <div id="slide-counter"></div>
-            <div class="carousel-track" id="carousel-track"></div>
-            <div class="carousel-controls">
-                <button id="prev-slide" onclick="changeSlide(-1)">&#10094;</button>
-                <button id="next-slide" onclick="changeSlide(1)">&#10095;</button>
+    <div id="auth-section">
+        <button id="login-btn" class="auth-button" onclick="login()">Entrar com Google</button>
+        
+        <div id="user-details" style="display:none;">
+            <div class="user-info">
+                <span>Sessão iniciada como:</span><br>
+                <span class="user-email" id="user-email"></span>
             </div>
+
+            <!-- OPÇÕES DE NAVEGAÇÃO -->
+            <a href="inventario.html" class="nav-button">&rarr; Ver Tabela de Inventário</a>
+            <a href="galeria.html" class="nav-button gallery-btn">&rarr; Ver Galeria Visual Funko</a>
+
+            <button class="auth-button logout-btn" onclick="logout()">Sair</button>
         </div>
-        <div id="modal-details"></div>
-        <p class="modal-source-link"><span id="modal-source-status"></span></p>
     </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
 <script>
 const firebaseConfig = {
@@ -221,120 +120,45 @@ const firebaseConfig = {
     messagingSenderId: "277968569414",
     appId: "1:277968569414:web:04884bc1932c2c7dbb6b647"
 };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
 
-const itemContainer = document.getElementById('itemContainer');
-let currentSlideIndex = 0;
-let slideCount = 0;
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 
-// Carregar cards
-// Pega os dados do Firestore
-db.collection("inventario").where("Marca", "==", "Funko Pop").get()
-.then(snapshot => {
-    const items = [];
-    snapshot.forEach(doc => {
-        const data = doc.data();
-        data.id = doc.id; // guarda o ID do documento
-        items.push(data);
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+const authorizedEmails = [
+    "ulisses.dos.santos@gmail.com",
+    "urbino.sousa@gmail.com",
+    "miguelabrantesdossantos@gmail.com"
+];
+
+function login() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider).catch((error) => {
+        auth.signInWithRedirect(provider);
     });
+}
 
-    // Ordena os itens: primeiro por Colecao (alfabética), depois por NumeroNaColecao (numérico)
-    items.sort((a, b) => {
-        const colA = (a.Colecao || '').toLowerCase();
-        const colB = (b.Colecao || '').toLowerCase();
-        if (colA < colB) return -1;
-        if (colA > colB) return 1;
+function logout() {
+    auth.signOut().then(() => { location.reload(); });
+}
 
-        const numA = a.NumeroNaColecao || 0;
-        const numB = b.NumeroNaColecao || 0;
-        return numA - numB;
-    });
-
-    // Criar os cards ordenados
-    items.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'item-card';
-        const title = `${item.Colecao || 'Item'} (#${item.NumeroNaColecao || 'N/A'})`;
-        card.onclick = () => openModal(item.id, title);
-
-        const mainImage = item.Imagem && item.Imagem.length > 0 ? item.Imagem[0] : 'https://via.placeholder.com/200';
-        card.innerHTML = `
-            <img src="${mainImage}" alt="${item.Colecao}">
-            <h3>${item.Colecao}</h3>
-            <h3>${item.NumeroNaColecao || ''}</h3>
-        `;
-        itemContainer.appendChild(card);
-    });
-}).catch(console.error);
-
-// Abrir modal
-function openModal(itemId, itemName) {
-    const track = document.getElementById('carousel-track');
-    track.innerHTML = '';
-    currentSlideIndex = 0;
-
-    db.collection("inventario").doc(itemId).get()
-    .then(doc => {
-        if (!doc.exists) return;
-
-        const item = doc.data();
-        const images = Array.isArray(item.Imagem) ? item.Imagem : [];
-
-        if (images.length > 0) {
-            slideCount = images.length;
-
-            images.forEach((url, index) => {
-                const slide = document.createElement('div');
-                slide.className = 'carousel-slide';
-                slide.innerHTML = `<img src="${url}" alt="${itemName} ${index+1}">`;
-                track.appendChild(slide);
-            });
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        const userEmail = (user.email || "").toLowerCase().trim();
+        if (authorizedEmails.includes(userEmail)) {
+            document.getElementById('login-btn').style.display = 'none';
+            document.getElementById('user-details').style.display = 'block';
+            document.getElementById('user-email').innerText = user.email;
         } else {
-            slideCount = 1;
-            track.innerHTML = `
-                <div class="carousel-slide">
-                    <p>Nenhuma imagem disponível</p>
-                </div>`;
+            alert("Acesso Negado!\n\nO email (" + user.email + ") não tem permissão de acesso.");
+            auth.signOut();
         }
-
-        document.getElementById('modal-title').innerText = itemName;
-        document.getElementById('pop-modal').style.display = 'flex';
-
-        updateCarousel();
-    });
-}
-
-function updateCarousel() {
-    const track = document.getElementById('carousel-track');
-    track.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
-
-    document.getElementById('prev-slide').style.display =
-        slideCount > 1 ? 'block' : 'none';
-    document.getElementById('next-slide').style.display =
-        slideCount > 1 ? 'block' : 'none';
-}
-
-function changeSlide(step) {
-    currentSlideIndex += step;
-
-    if (currentSlideIndex < 0) currentSlideIndex = slideCount - 1;
-    if (currentSlideIndex >= slideCount) currentSlideIndex = 0;
-
-    updateCarousel();
-}
-
-function closeModal() {
-    document.getElementById('pop-modal').style.display = 'none';
-    document.getElementById('carousel-track').innerHTML = '';
-    currentSlideIndex = 0;
-    slideCount = 0;
-}
-
-// Fechar ao clicar fora
-window.onclick = function(e) {
-    if (e.target.id === 'pop-modal') closeModal();
-};
+    } else {
+        document.getElementById('login-btn').style.display = 'block';
+        document.getElementById('user-details').style.display = 'none';
+    }
+});
 </script>
 
 </body>
