@@ -13,16 +13,19 @@
         color: #333; 
     }
     
+    /* CABEÇALHO PARA DESKTOP */
     .header-bar {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 25px;
-        flex-wrap: wrap;
-        gap: 10px;
+        margin-bottom: 30px;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 0 10px;
     }
 
-    h1 { color: #007acc; margin: 0; }
+    h1 { color: #007acc; margin: 0; font-size: 1.8rem; }
     
     .back-btn {
         background-color: #64748b;
@@ -34,13 +37,14 @@
         font-size: 0.9rem;
         display: inline-block;
         text-align: center;
+        transition: background-color 0.2s;
     }
     .back-btn:hover { background-color: #475569; }
 
     /* RODAPÉ FINAL DA PÁGINA */
     .footer-section {
-        margin-top: 40px;
-        margin-bottom: 20px;
+        margin-top: 50px;
+        margin-bottom: 30px;
         text-align: center;
         display: flex;
         flex-direction: column;
@@ -141,7 +145,7 @@
     .nav-item-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
     .item-counter { font-size: 0.85rem; color: #64748b; font-weight: bold; }
 
-    /* TELEMÓVEL */
+    /* MODO TELEMÓVEL */
     @media (max-width: 600px) {
         body { margin: 10px; }
         
@@ -403,4 +407,20 @@ function changeCardImage(direction) {
 
 function navigateItem(direction) {
     const newIndex = currentItemIndex + direction;
-    if (newIndex >= 0 && newIndex < fun
+    if (newIndex >= 0 && newIndex < funkoItems.length) {
+        currentItemIndex = newIndex;
+        displayCardData();
+    }
+}
+
+function closeCardModal() {
+    document.getElementById('card-modal').style.display = 'none';
+}
+
+window.onclick = (e) => {
+    if (e.target.className === 'modal') closeCardModal();
+};
+</script>
+
+</body>
+</html>
