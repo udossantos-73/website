@@ -37,21 +37,7 @@
     }
     .back-btn:hover { background-color: #475569; }
 
-    .user-info { font-weight: bold; margin-right: 15px; }
-    
-    .logout-btn { 
-        padding: 8px 16px; 
-        font-size: 0.9rem; 
-        color: white; 
-        background-color: #dc3545; 
-        border: none; 
-        border-radius: 5px; 
-        cursor: pointer; 
-        font-weight: bold; 
-    }
-    .logout-btn:hover { background-color: #bb2d3b; }
-
-    /* LIXO/RODAPÉ FINAL DA PÁGINA */
+    /* RODAPÉ FINAL DA PÁGINA */
     .footer-section {
         margin-top: 40px;
         margin-bottom: 20px;
@@ -155,7 +141,7 @@
     .nav-item-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
     .item-counter { font-size: 0.85rem; color: #64748b; font-weight: bold; }
 
-    /* AJUSTES ESPECÍFICOS PARA MODO TELEMÓVEL */
+    /* TELEMÓVEL */
     @media (max-width: 600px) {
         body { margin: 10px; }
         
@@ -168,28 +154,24 @@
 
         h1 { 
             font-size: 1.5rem; 
-            order: 1; /* Título em 1º lugar */
+            order: 1; 
         }
         
         .back-btn { 
-            order: 2; /* Botão de voltar abaixo do título */
+            order: 2; 
             width: 100%;
             max-width: 300px;
             box-sizing: border-box;
         }
 
-        .header-user-details {
-            display: none !important; /* Esconde o painel do topo no telemóvel */
-        }
-
         .gallery-grid {
-            grid-template-columns: 1fr !important; /* 1 coluna no telemóvel */
+            grid-template-columns: 1fr !important; 
             gap: 15px;
             padding: 0;
         }
 
         .top-btn {
-            display: inline-block; /* Mostra o botão para ir para o início no telemóvel */
+            display: inline-block; 
         }
     }
     </style>
@@ -199,11 +181,6 @@
 <div class="header-bar">
     <h1>Galeria Funko Pop</h1>
     <a href="index.html" class="back-btn">&larr; Voltar ao Portal</a>
-    
-    <div class="header-user-details" id="user-details" style="display:none;">
-        <span class="user-info" id="user-email" style="font-size:0.85rem;"></span>
-        <button class="logout-btn" onclick="logout()">Sair</button>
-    </div>
 </div>
 
 <!-- GRELHA VISUAL -->
@@ -211,7 +188,7 @@
     <p style="text-align: center; grid-column: 1 / -1; color: #64748b;">A carregar coleção de Funko Pops...</p>
 </div>
 
-<!-- SECÇÃO FINAL DA PÁGINA (PÁGINA MEIO / RODAPÉ) -->
+<!-- SECÇÃO FINAL DA PÁGINA -->
 <div class="footer-section">
     <button class="top-btn" onclick="scrollToTop()">&uarr; Ir para o Início da Página</button>
     <button class="bottom-logout-btn" onclick="logout()">Terminar Sessão</button>
@@ -315,12 +292,6 @@ auth.onAuthStateChanged((user) => {
     if (user) {
         const userEmail = (user.email || "").toLowerCase().trim();
         if (authorizedEmails.includes(userEmail)) {
-            const userDetailsEl = document.getElementById('user-details');
-            const userEmailEl = document.getElementById('user-email');
-            
-            if (userDetailsEl) userDetailsEl.style.display = 'block';
-            if (userEmailEl) userEmailEl.innerText = user.email;
-            
             loadFunkoGallery();
         } else {
             alert("Acesso Negado! O e-mail (" + user.email + ") não tem permissão.");
@@ -432,20 +403,4 @@ function changeCardImage(direction) {
 
 function navigateItem(direction) {
     const newIndex = currentItemIndex + direction;
-    if (newIndex >= 0 && newIndex < funkoItems.length) {
-        currentItemIndex = newIndex;
-        displayCardData();
-    }
-}
-
-function closeCardModal() {
-    document.getElementById('card-modal').style.display = 'none';
-}
-
-window.onclick = (e) => {
-    if (e.target.className === 'modal') closeCardModal();
-};
-</script>
-
-</body>
-</html>
+    if (newIndex >= 0 && newIndex < fun
