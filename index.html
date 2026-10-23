@@ -19,7 +19,7 @@
     .filters-container { display: flex; gap: 15px; margin-bottom: 20px; justify-content: center; }
     .filters-container input, .filters-container select { padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 1rem; }
 
-    /* --- ESTILOS DA TABELA (DESKTOP) --- */
+    /* --- ESTILOS DA TABELA --- */
     .pop-inventory { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background-color: white; }
     .pop-inventory th, .pop-inventory td { border: 1px solid #ddd; padding: 12px 8px; text-align: left; }
     .pop-inventory th { background-color: #007acc; color: white; font-weight: bold; text-transform: uppercase; }
@@ -27,19 +27,44 @@
     .pop-inventory tbody tr:hover { background-color: #e9e9e9; }
     
     .pop-main-image { width: 50px; height: auto; cursor: pointer; border-radius: 4px; display: block; margin: auto; }
-
-    /* --- ESTILOS DO MODAL --- */
-    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.7); padding: 20px; }
-    .modal-content { background-color: #fefefe; padding: 30px; border-radius: 8px; width: auto; max-width: 90%; max-height: 90vh; overflow-y: auto; position: relative; }
-    .close-button { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
     
-    /* --- CARROSSEL --- */
-    .carousel-container { display: flex; transition: transform 0.4s ease-in-out; width: 100%; }
-    .carousel-slide { flex: 0 0 100%; display: flex; justify-content: center; }
-    .carousel-slide img { width: 100%; max-height: 70vh; object-fit: contain; }
-    #modal-image-gallery { position: relative; width: 100%; overflow: hidden; }
-    .carousel-controls button { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; padding: 15px; cursor: pointer; z-index: 10; }
-    #prev-slide { left: 10px; } #next-slide { right: 10px; }
+    /* LINK NO NOME DO ITEM */
+    .item-name-link { color: #007acc; font-weight: bold; cursor: pointer; text-decoration: underline; }
+    .item-name-link:hover { color: #005999; }
+
+    /* --- ESTILOS DO MODAL / CARTÃO --- */
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.75); padding: 15px; box-sizing: border-box; }
+    .card-modal-content { background-color: #fff; padding: 25px; border-radius: 12px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+    .close-button { position: absolute; top: 15px; right: 20px; color: #888; font-size: 28px; font-weight: bold; cursor: pointer; }
+    .close-button:hover { color: #000; }
+
+    /* ESTRUTURA DO CARTÃO DETALHADO */
+    .card-header { text-align: center; margin-bottom: 15px; padding-right: 20px; }
+    .card-header h2 { margin: 5px 0; color: #007acc; font-size: 1.4rem; }
+    .card-badge { display: inline-block; background: #e0f2fe; color: #0369a1; font-size: 0.85rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; margin-bottom: 5px; }
+
+    /* IMAGEM E CARROSSEL NO CARTÃO */
+    .card-image-wrapper { position: relative; width: 100%; height: 260px; background: #fafafa; border-radius: 8px; border: 1px solid #eee; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
+    .card-image-wrapper img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    
+    .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); color: white; border: none; font-size: 1.2rem; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; z-index: 5; }
+    .nav-arrow:hover { background: rgba(0,0,0,0.9); }
+    .nav-arrow.prev { left: 10px; }
+    .nav-arrow.next { right: 10px; }
+
+    /* DETALHES TÉCNICOS NO CARTÃO */
+    .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.9rem; }
+    .card-grid-item { display: flex; flex-direction: column; }
+    .card-grid-item.full-width { grid-column: span 2; }
+    .card-label { font-size: 0.75rem; color: #64748b; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
+    .card-value { color: #1e293b; font-weight: 500; }
+
+    /* NAVEGAÇÃO ENTRE ITENS DO INVENTÁRIO */
+    .card-item-navigation { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; }
+    .nav-item-btn { background: #007acc; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
+    .nav-item-btn:hover { background: #005999; }
+    .nav-item-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+    .item-counter { font-size: 0.85rem; color: #64748b; font-weight: bold; }
 
     @media (max-width: 850px) {
         h1 { font-size: 1.5rem; }
@@ -66,7 +91,7 @@
 
 <h1>Inventário Detalhado da Coleção</h1>
 
-<!-- SEÇAO DE AUTENTICAÇÃO -->
+<!-- SEÇÃO DE AUTENTICAÇÃO -->
 <div class="auth-container" id="auth-section">
     <button id="login-btn" class="auth-button" onclick="login()">Entrar com Google</button>
     <div id="user-details" style="display:none;">
@@ -105,16 +130,59 @@
     </tbody>
 </table>
 
-<div id="pop-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-button" onclick="closeModal()">&times;</span>
-        <h2 id="modal-title"></h2>
-        <div id="modal-image-gallery">
-            <div class="carousel-container" id="carousel-container"></div>
-            <div class="carousel-controls">
-                <button id="prev-slide" onclick="changeSlide(-1)">&#10094;</button>
-                <button id="next-slide" onclick="changeSlide(1)">&#10095;</button>
+<!-- MODAL EM FORMATO DE CARTÃO DE DETALHES -->
+<div id="card-modal" class="modal">
+    <div class="card-modal-content">
+        <span class="close-button" onclick="closeCardModal()">&times;</span>
+        
+        <div class="card-header">
+            <span class="card-badge" id="card-marca">Marca</span>
+            <h2 id="card-nome">Nome do Item</h2>
+            <div style="font-size: 0.9rem; color: #64748b;">
+                <span id="card-colecao">Coleção</span> #<span id="card-numero">00</span>
             </div>
+        </div>
+
+        <!-- CARROSSEL DE IMAGENS DO CARTÃO -->
+        <div class="card-image-wrapper">
+            <button class="nav-arrow prev" id="img-prev-btn" onclick="changeCardImage(-1)">&#10094;</button>
+            <img id="card-img-display" src="" alt="Imagem do Item">
+            <button class="nav-arrow next" id="img-next-btn" onclick="changeCardImage(1)">&#10095;</button>
+        </div>
+
+        <!-- INFORMAÇÕES DETALHADAS -->
+        <div class="card-grid">
+            <div class="card-grid-item full-width">
+                <span class="card-label">Descrição</span>
+                <span class="card-value" id="card-descricao">N/A</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Origem</span>
+                <span class="card-value" id="card-origem">N/A</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Loja</span>
+                <span class="card-value" id="card-loja">N/A</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Preço</span>
+                <span class="card-value" id="card-preco">0,00 €</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Data de Compra</span>
+                <span class="card-value" id="card-data">N/A</span>
+            </div>
+            <div class="card-grid-item full-width">
+                <span class="card-label">Na Coleção?</span>
+                <span class="card-value" id="card-colecionado">Sim</span>
+            </div>
+        </div>
+
+        <!-- CONTROLO DE NAVEGAÇÃO ENTRE ITENS DA TABELA -->
+        <div class="card-item-navigation">
+            <button class="nav-item-btn" id="prev-item-btn" onclick="navigateItem(-1)">&larr; Anterior</button>
+            <span class="item-counter" id="item-counter">Item 1 de 10</span>
+            <button class="nav-item-btn" id="next-item-btn" onclick="navigateItem(1)">Seguinte &rarr;</button>
         </div>
     </div>
 </div>
@@ -126,8 +194,10 @@
 
 <script>
 let allItems = [];
-let currentSlideIndex = 0;
-let slideCount = 0;
+let currentFilteredItems = [];
+let currentItemIndex = 0;
+let currentCardImages = [];
+let currentCardImageIndex = 0;
 
 const firebaseConfig = {
     apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
@@ -150,32 +220,22 @@ const authorizedEmails = [
     "miguelabrantesdossantos@gmail.com"
 ];
 
-// Login por redirecionamento (resolve erros de COOP e pop-ups bloqueados)
 function login() {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithRedirect(provider);
 }
 
 function logout() {
-    auth.signOut().then(() => {
-        location.reload();
-    });
+    auth.signOut().then(() => { location.reload(); });
 }
 
-// Processar o resultado do redirecionamento ao carregar a página
 auth.getRedirectResult().then((result) => {
-    if (result.user) {
-        console.log("Login por redirecionamento concluído:", result.user.email);
-    }
-}).catch((error) => {
-    console.error("Erro no redirecionamento do Auth:", error);
-});
+    if (result.user) console.log("Login por redirecionamento concluído:", result.user.email);
+}).catch((error) => console.error("Erro no Auth:", error));
 
-// Monitorizar sessão do utilizador
 auth.onAuthStateChanged((user) => {
     if (user) {
         const userEmail = (user.email || "").toLowerCase().trim();
-        
         if (authorizedEmails.includes(userEmail)) {
             document.getElementById('login-btn').style.display = 'none';
             document.getElementById('user-details').style.display = 'block';
@@ -205,10 +265,11 @@ function loadInventory() {
         allItems = [];
         snap.forEach(doc => { let d = doc.data(); d.id = doc.id; allItems.push(d); });
         allItems.sort((a,b) => (a.Colecao || '').localeCompare(b.Colecao || '') || (a.NumeroNaColecao - b.NumeroNaColecao));
-        renderTable(allItems);
+        currentFilteredItems = [...allItems];
+        renderTable(currentFilteredItems);
     }).catch(err => {
         console.error("Erro ao carregar Firestore:", err);
-        document.getElementById('inventory-body').innerHTML = '<tr><td colspan="11">Erro nas permissões da base de dados. Confirme as Regras do Firestore.</td></tr>';
+        document.getElementById('inventory-body').innerHTML = '<tr><td colspan="11">Erro nas permissões da base de dados.</td></tr>';
     });
 }
 
@@ -221,17 +282,18 @@ function renderTable(data) {
         return;
     }
 
-    data.forEach(item => {
+    data.forEach((item, index) => {
         const row = body.insertRow();
         const img = (item.Imagem && item.Imagem[0]) ? item.Imagem[0] : 'https://via.placeholder.com/50';
         const valorLoja = item.Loja || item.loja;
         const valorPreco = item.Preço || item.Preco || item.preço || 0;
+        
         row.innerHTML = `
             <td data-label="Marca">${item.Marca || 'N/A'}</td>
-            <td data-label="Imagem"><img src="${img}" class="pop-main-image" onclick="openModal('${item.id}', '${(item.Colecao || '').replace(/'/g, "\\'")}')"></td>
+            <td data-label="Imagem"><img src="${img}" class="pop-main-image" onclick="openCardModal(${index})"></td>
             <td data-label="Numero">${item.NumeroNaColecao || 'N/A'}</td>
             <td data-label="Colecao">${item.Colecao || 'N/A'}</td>
-            <td data-label="Nome">${item.NomeNaColecao || 'N/A'}</td>
+            <td data-label="Nome"><span class="item-name-link" onclick="openCardModal(${index})">${item.NomeNaColecao || 'Sem Nome'}</span></td>
             <td data-label="Descricao">${item.Descricao || 'N/A'}</td>
             <td data-label="Origem">${translateOrigem(item.Origem)}</td>
             <td data-label="Loja">${translateLoja(valorLoja)}</td>
@@ -245,38 +307,75 @@ function renderTable(data) {
 function filterData() {
     const txt = document.getElementById('searchColecao').value.toLowerCase();
     const marca = document.getElementById('searchMarca').value;
-    const filtered = allItems.filter(i => (i.Colecao || '').toLowerCase().includes(txt) && (marca === "" || i.Marca === marca));
-    renderTable(filtered);
+    currentFilteredItems = allItems.filter(i => (i.Colecao || '').toLowerCase().includes(txt) && (marca === "" || i.Marca === marca));
+    renderTable(currentFilteredItems);
 }
 
-function openModal(id, name) {
-    db.collection(COLLECTION_NAME).doc(id).get().then(doc => {
-        const item = doc.data();
-        document.getElementById('modal-title').innerText = item.Colecao || 'Detalhes';
-        const cont = document.getElementById('carousel-container');
-        cont.innerHTML = '';
-        const imgs = item.Imagem || [];
-        slideCount = imgs.length;
-        imgs.forEach(url => {
-            const d = document.createElement('div'); d.className = 'carousel-slide';
-            d.innerHTML = `<img src="${url}">`; cont.appendChild(d);
-        });
-        currentSlideIndex = 0; showSlide(0);
-        document.getElementById('pop-modal').style.display = 'flex';
-    });
+/* --- LÓGICA DO CARTÃO / MODAL --- */
+function openCardModal(index) {
+    currentItemIndex = index;
+    displayCardData();
+    document.getElementById('card-modal').style.display = 'flex';
 }
 
-function showSlide(n) {
-    slideCount = document.querySelectorAll('.carousel-slide').length;
-    if (n >= slideCount) currentSlideIndex = 0;
-    if (n < 0) currentSlideIndex = slideCount - 1;
-    document.getElementById('carousel-container').style.transform = `translateX(-${currentSlideIndex * 100}%)`;
+function displayCardData() {
+    const item = currentFilteredItems[currentItemIndex];
+    if (!item) return;
+
+    // Preencher textos do cartão
+    document.getElementById('card-marca').innerText = item.Marca || 'Geral';
+    document.getElementById('card-nome').innerText = item.NomeNaColecao || 'Sem Nome';
+    document.getElementById('card-colecao').innerText = item.Colecao || 'N/A';
+    document.getElementById('card-numero').innerText = item.NumeroNaColecao || 'N/A';
+    document.getElementById('card-descricao').innerText = item.Descricao || 'Sem descrição disponível.';
+    document.getElementById('card-origem').innerText = translateOrigem(item.Origem);
+    document.getElementById('card-loja').innerText = translateLoja(item.Loja || item.loja);
+    document.getElementById('card-preco').innerText = formatCurrency(item.Preço || item.Preco || item.preço);
+    document.getElementById('card-data').innerText = formatDate(item.DatadeCompra);
+    document.getElementById('card-colecionado').innerText = translateColecionado(item.Colecionado);
+
+    // Configurar carrossel de fotos do próprio item
+    currentCardImages = (item.Imagem && item.Imagem.length > 0) ? item.Imagem : ['https://via.placeholder.com/300?text=Sem+Imagem'];
+    currentCardImageIndex = 0;
+    updateCardImageDisplay();
+
+    // Atualizar botões de navegação entre itens da tabela
+    document.getElementById('item-counter').innerText = `${currentItemIndex + 1} de ${currentFilteredItems.length}`;
+    document.getElementById('prev-item-btn').disabled = (currentItemIndex === 0);
+    document.getElementById('next-item-btn').disabled = (currentItemIndex === currentFilteredItems.length - 1);
 }
 
-function changeSlide(n) { currentSlideIndex += n; showSlide(currentSlideIndex); }
-function closeModal() { document.getElementById('pop-modal').style.display = 'none'; }
+function updateCardImageDisplay() {
+    document.getElementById('card-img-display').src = currentCardImages[currentCardImageIndex];
+    
+    // Esconder setas de imagem se o item só tiver 1 foto
+    const showArrows = currentCardImages.length > 1;
+    document.getElementById('img-prev-btn').style.display = showArrows ? 'flex' : 'none';
+    document.getElementById('img-next-btn').style.display = showArrows ? 'flex' : 'none';
+}
 
-window.onclick = (e) => { if (e.target.className === 'modal') closeModal(); };
+function changeCardImage(direction) {
+    currentCardImageIndex += direction;
+    if (currentCardImageIndex >= currentCardImages.length) currentCardImageIndex = 0;
+    if (currentCardImageIndex < 0) currentCardImageIndex = currentCardImages.length - 1;
+    updateCardImageDisplay();
+}
+
+function navigateItem(direction) {
+    const newIndex = currentItemIndex + direction;
+    if (newIndex >= 0 && newIndex < currentFilteredItems.length) {
+        currentItemIndex = newIndex;
+        displayCardData();
+    }
+}
+
+function closeCardModal() {
+    document.getElementById('card-modal').style.display = 'none';
+}
+
+window.onclick = (e) => {
+    if (e.target.className === 'modal') closeCardModal();
+};
 </script>
 
 </body>
