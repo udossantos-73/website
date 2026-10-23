@@ -95,7 +95,6 @@
                 <span class="user-email" id="user-email"></span>
             </div>
 
-            <!-- LINK DIRETO PARA O INVENTÁRIO -->
             <a href="inventario.html" class="nav-button">&rarr; Aceder ao Inventário</a>
 
             <button class="auth-button logout-btn" onclick="logout()">Sair</button>
@@ -103,7 +102,6 @@
     </div>
 </div>
 
-<!-- LIBRARIES DO FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
@@ -120,6 +118,9 @@ const firebaseConfig = {
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
+// Garante que a sessão fica gravada localmente no telemóvel
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
 const authorizedEmails = [
     "ulisses.dos.santos@gmail.com",
     "urbino.sousa@gmail.com",
@@ -128,16 +129,22 @@ const authorizedEmails = [
 
 function login() {
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithRedirect(provider);
+    
+    // Tenta primeiro via Pop-up; se falhar/bloquear em mobile, faz Redirect
+    auth.signInWithPopup(provider).catch((error) => {
+        console.warn("Pop-up falhou, a tentar via Redirect...", error);
+        auth.signInWithRedirect(provider);
+    });
 }
 
 function logout() {
     auth.signOut().then(() => { location.reload(); });
 }
 
+// Trata o resultado caso tenha sido feito por redirect
 auth.getRedirectResult().then((result) => {
-    if (result.user) console.log("Login concluído:", result.user.email);
-}).catch((error) => console.error("Erro no Auth:", error));
+    if (result.user) console.log("Login por redirecionamento concluído:", result.user.email);
+}).catch((error) => console.error("Erro no Auth Redirect:", error));
 
 auth.onAuthStateChanged((user) => {
     if (user) {
