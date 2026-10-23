@@ -11,7 +11,7 @@
     h1 { color: #007acc; text-align: center; margin-bottom: 10px; }
     
     /* --- PAINEL DE AUTENTICAÇÃO --- */
-    .auth-container { text-align: center; margin-bottom: 20px; padding: 10px; background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .auth-container { text-align: center; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
     .auth-button { padding: 10px 20px; font-size: 1rem; color: white; background-color: #007acc; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
     .auth-button:hover { background-color: #005999; }
     .user-info { font-weight: bold; margin-right: 15px; }
@@ -66,7 +66,7 @@
 
 <h1>Inventário Detalhado da Coleção</h1>
 
-<!-- SEÇAO DE LOGIN / UTILIZADOR -->
+<!-- SEÇAO DE AUTENTICAÇÃO -->
 <div class="auth-container" id="auth-section">
     <button id="login-btn" class="auth-button" onclick="login()">Entrar com Google</button>
     <div id="user-details" style="display:none;">
@@ -80,185 +80,4 @@
     <select id="searchMarca" onchange="filterData()">
         <option value="">Todas as Marcas</option>
         <option value="Funko Pop">Funko Pop</option>
-        <option value="Hot Wheels">Hot Wheels</option>
-    </select>
-</div>
-
-<table class="pop-inventory">
-    <thead>
-        <tr>
-            <th>Marca</th>
-            <th>Imagem</th>
-            <th>Numero</th>
-            <th>Coleção</th>
-            <th>Nome</th>
-            <th>Descrição</th>
-            <th>Origem</th>
-            <th>Loja</th> 
-            <th>Preço</th>
-            <th>Data Compra</th>
-            <th>Colecionado</th>
-        </tr>
-    </thead>
-    <tbody id="inventory-body">
-        <tr><td colspan="11">Por favor, inicie sessão para carregar o inventário...</td></tr>
-    </tbody>
-</table>
-
-<div id="pop-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-button" onclick="closeModal()">&times;</span>
-        <h2 id="modal-title"></h2>
-        <div id="modal-image-gallery">
-            <div class="carousel-container" id="carousel-container"></div>
-            <div class="carousel-controls">
-                <button id="prev-slide" onclick="changeSlide(-1)">&#10094;</button>
-                <button id="next-slide" onclick="changeSlide(1)">&#10095;</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- LIBRARIES DO FIREBASE (Serao carregadas as versoes compativeis) -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-
-<script>
-let allItems = [];
-let currentSlideIndex = 0;
-let slideCount = 0;
-
-const firebaseConfig = {
-    apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
-    authDomain: "miguel-inventory.firebaseapp.com",
-    projectId: "miguel-inventory",
-    storageBucket: "miguel-inventory.firebasestorage.app",
-    messagingSenderId: "277968569414",
-    appId: "1:277968569414:web:04884bc1932c2c7dbb6b647"
-};
-
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
-const COLLECTION_NAME = "inventario";
-
-// Lista de emails com permissao
-const authorizedEmails = [
-    "ulisses.dos.santos@gmail.com",
-    "urbino.sousa@gmail.com",
-    "miguelabrantesdossantos@gmail.com"
-];
-
-// FUNÇÕES DE AUTENTICAÇÃO COM REDIRECCIONAMENTO (Evita o erro "missing initial state")
-function login() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithRedirect(provider);
-}
-
-function logout() {
-    auth.signOut().then(() => {
-        location.reload();
-    });
-}
-
-// MONITORIZAR ESTADO DA SESSÃO
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        if (authorizedEmails.includes(user.email)) {
-            document.getElementById('login-btn').style.display = 'none';
-            document.getElementById('user-details').style.display = 'block';
-            document.getElementById('user-email').innerText = "Sessão: " + user.email;
-            loadInventory();
-        } else {
-            alert("A conta (" + user.email + ") não tem permissão para aceder.");
-            auth.signOut();
-        }
-    } else {
-        document.getElementById('login-btn').style.display = 'inline-block';
-        document.getElementById('user-details').style.display = 'none';
-        document.getElementById('inventory-body').innerHTML = '<tr><td colspan="11">Faça login com uma conta autorizada para visualizar os dados.</td></tr>';
-    }
-});
-
-function formatCurrency(v) { return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(v || 0); }
-function formatDate(t) { return (t && t.toDate) ? new Intl.DateTimeFormat('pt-PT', { day: '2-digit', month: 'short', year: 'numeric' }).format(t.toDate()) : 'Desconhecida'; }
-function translateOrigem(v) { return v === false ? 'Oferecido' : 'Adquirido'; }
-function translateColecionado(v) { return v === true ? 'Sim' : 'Não'; }
-function translateLoja(v) { return v ? v : 'Desconhecida'; }
-
-function loadInventory() {
-    db.collection(COLLECTION_NAME).get().then((snap) => {
-        allItems = [];
-        snap.forEach(doc => { let d = doc.data(); d.id = doc.id; allItems.push(d); });
-        allItems.sort((a,b) => (a.Colecao || '').localeCompare(b.Colecao || '') || (a.NumeroNaColecao - b.NumeroNaColecao));
-        renderTable(allItems);
-    }).catch(err => {
-        console.error("Erro ao carregar dados:", err);
-        document.getElementById('inventory-body').innerHTML = '<tr><td colspan="11">Erro nas permissões de leitura da base de dados.</td></tr>';
-    });
-}
-
-function renderTable(data) {
-    const body = document.getElementById('inventory-body');
-    body.innerHTML = '';
-    data.forEach(item => {
-        const row = body.insertRow();
-        const img = (item.Imagem && item.Imagem[0]) ? item.Imagem[0] : 'https://via.placeholder.com/50';
-        const valorLoja = item.Loja || item.loja;
-        const valorPreco = item.Preço || item.Preco || item.preço || 0;
-        row.innerHTML = `
-            <td data-label="Marca">${item.Marca || 'N/A'}</td>
-            <td data-label="Imagem"><img src="${img}" class="pop-main-image" onclick="openModal('${item.id}', '${(item.Colecao || '').replace(/'/g, "\\'")}')"></td>
-            <td data-label="Numero">${item.NumeroNaColecao || 'N/A'}</td>
-            <td data-label="Colecao">${item.Colecao || 'N/A'}</td>
-            <td data-label="Nome">${item.NomeNaColecao || 'N/A'}</td>
-            <td data-label="Descricao">${item.Descricao || 'N/A'}</td>
-            <td data-label="Origem">${translateOrigem(item.Origem)}</td>
-            <td data-label="Loja">${translateLoja(valorLoja)}</td>
-            <td data-label="Preco">${formatCurrency(valorPreco)}</td>
-            <td data-label="Data">${formatDate(item.DatadeCompra)}</td>
-            <td data-label="Colecionado">${translateColecionado(item.Colecionado)}</td>
-        `;
-    });
-}
-
-function filterData() {
-    const txt = document.getElementById('searchColecao').value.toLowerCase();
-    const marca = document.getElementById('searchMarca').value;
-    const filtered = allItems.filter(i => (i.Colecao || '').toLowerCase().includes(txt) && (marca === "" || i.Marca === marca));
-    renderTable(filtered);
-}
-
-function openModal(id, name) {
-    db.collection(COLLECTION_NAME).doc(id).get().then(doc => {
-        const item = doc.data();
-        document.getElementById('modal-title').innerText = item.Colecao || 'Detalhes';
-        const cont = document.getElementById('carousel-container');
-        cont.innerHTML = '';
-        const imgs = item.Imagem || [];
-        slideCount = imgs.length;
-        imgs.forEach(url => {
-            const d = document.createElement('div'); d.className = 'carousel-slide';
-            d.innerHTML = `<img src="${url}">`; cont.appendChild(d);
-        });
-        currentSlideIndex = 0; showSlide(0);
-        document.getElementById('pop-modal').style.display = 'flex';
-    });
-}
-
-function showSlide(n) {
-    slideCount = document.querySelectorAll('.carousel-slide').length;
-    if (n >= slideCount) currentSlideIndex = 0;
-    if (n < 0) currentSlideIndex = slideCount - 1;
-    document.getElementById('carousel-container').style.transform = `translateX(-${currentSlideIndex * 100}%)`;
-}
-
-function changeSlide(n) { currentSlideIndex += n; showSlide(currentSlideIndex); }
-function closeModal() { document.getElementById('pop-modal').style.display = 'none'; }
-
-window.onclick = (e) => { if (e.target.className === 'modal') closeModal(); };
-</script>
-
-</body>
-</html>
+        <option value="Hot Wheels">Hot Wheels</option
