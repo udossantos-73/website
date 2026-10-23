@@ -49,18 +49,28 @@
     .nav-button {
         display: inline-block;
         padding: 14px 28px;
-        font-size: 1.1rem;
+        font-size: 1rem;
         color: white;
         background-color: #10b981;
         border-radius: 6px;
         text-decoration: none;
         font-weight: bold;
         transition: background-color 0.2s;
-        margin-top: 15px;
+        margin-top: 12px;
         width: 100%;
         box-sizing: border-box;
     }
     .nav-button:hover { background-color: #059669; }
+
+    .nav-button.gallery-btn {
+        background-color: #8b5cf6;
+    }
+    .nav-button.gallery-btn:hover { background-color: #7c3aed; }
+
+    .nav-button.stats-btn {
+        background-color: #0284c7;
+    }
+    .nav-button.stats-btn:hover { background-color: #0369a1; }
 
     .user-info { 
         background: #f8fafc; 
@@ -74,7 +84,7 @@
 
     .logout-btn {
         background-color: #dc3545;
-        margin-top: 10px;
+        margin-top: 15px;
     }
     .logout-btn:hover { background-color: #bb2d3b; }
     </style>
@@ -95,9 +105,12 @@
                 <span class="user-email" id="user-email"></span>
             </div>
 
-            <!-- BOTÕES DE NAVEGAÇÃO -->
-            <a href="inventario.html" class="nav-button">&rarr; Aceder ao Inventário</a>
-            <a href="funko.html" class="nav-button gallery-btn">&rarr; Aceder à Galeria Funko</a>
+            <!-- OPÇÕES DE NAVEGAÇÃO -->
+            <a href="inventario.html" class="nav-button">&rarr; Ver Tabela de Inventário</a>
+            <a href="funko.html" class="nav-button gallery-btn">&rarr; Ver Galeria Visual Funko</a>
+            
+            <!-- BOTÃO DE ESTATÍSTICAS (OCULTO POR OMISSÃO, VISÍVEL APENAS PARA O ULISSES) -->
+            <a href="estatisticas.html" id="admin-stats-btn" class="nav-button stats-btn" style="display:none;">&rarr; Ver Valor & Estatísticas</a>
 
             <button class="auth-button logout-btn" onclick="logout()">Sair</button>
         </div>
@@ -120,7 +133,6 @@ const firebaseConfig = {
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
-// Garante que a sessão fica gravada localmente no telemóvel
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
 const authorizedEmails = [
@@ -129,12 +141,12 @@ const authorizedEmails = [
     "miguelabrantesdossantos@gmail.com"
 ];
 
+// E-mail do Administrador (Ulisses)
+const ADMIN_EMAIL = "ulisses.dos.santos@gmail.com";
+
 function login() {
     const provider = new firebase.auth.GoogleAuthProvider();
-    
-    // Tenta primeiro via Pop-up; se falhar/bloquear em mobile, faz Redirect
     auth.signInWithPopup(provider).catch((error) => {
-        console.warn("Pop-up falhou, a tentar via Redirect...", error);
         auth.signInWithRedirect(provider);
     });
 }
@@ -143,11 +155,6 @@ function logout() {
     auth.signOut().then(() => { location.reload(); });
 }
 
-// Trata o resultado caso tenha sido feito por redirect
-auth.getRedirectResult().then((result) => {
-    if (result.user) console.log("Login por redirecionamento concluído:", result.user.email);
-}).catch((error) => console.error("Erro no Auth Redirect:", error));
-
 auth.onAuthStateChanged((user) => {
     if (user) {
         const userEmail = (user.email || "").toLowerCase().trim();
@@ -155,6 +162,13 @@ auth.onAuthStateChanged((user) => {
             document.getElementById('login-btn').style.display = 'none';
             document.getElementById('user-details').style.display = 'block';
             document.getElementById('user-email').innerText = user.email;
+
+            // Mostra o botão de estatísticas EXCLUSIVAMENTE para o e-mail do Ulisses
+            if (userEmail === ADMIN_EMAIL) {
+                document.getElementById('admin-stats-btn').style.display = 'block';
+            } else {
+                document.getElementById('admin-stats-btn').style.display = 'none';
+            }
         } else {
             alert("Acesso Negado!\n\nO email (" + user.email + ") não tem permissão de acesso.");
             auth.signOut();
@@ -162,6 +176,7 @@ auth.onAuthStateChanged((user) => {
     } else {
         document.getElementById('login-btn').style.display = 'block';
         document.getElementById('user-details').style.display = 'none';
+        document.getElementById('admin-stats-btn').style.display = 'none';
     }
 });
 </script>
