@@ -8,8 +8,14 @@
     <style>
     /* --- ESTILOS GERAIS --- */
     body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 20px; color: #333; }
-    h1 { color: #007acc; text-align: center; margin-bottom: 30px; }
+    h1 { color: #007acc; text-align: center; margin-bottom: 10px; }
     
+    /* --- PAINEL DE AUTENTICAÇÃO --- */
+    .auth-container { text-align: center; margin-bottom: 20px; padding: 10px; background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .auth-button { padding: 10px 20px; font-size: 1rem; color: white; background-color: #007acc; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    .auth-button:hover { background-color: #005999; }
+    .user-info { font-weight: bold; margin-right: 15px; }
+
     .filters-container { display: flex; gap: 15px; margin-bottom: 20px; justify-content: center; }
     .filters-container input, .filters-container select { padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 1rem; }
 
@@ -35,54 +41,39 @@
     .carousel-controls button { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; padding: 15px; cursor: pointer; z-index: 10; }
     #prev-slide { left: 10px; } #next-slide { right: 10px; }
 
-@media (max-width: 850px) {
-    h1 { font-size: 1.5rem; }
-    .filters-container { flex-direction: column; align-items: stretch; }
+    @media (max-width: 850px) {
+        h1 { font-size: 1.5rem; }
+        .filters-container { flex-direction: column; align-items: stretch; }
 
-    /* 1. Manter o comportamento de tabela, mas garantir que ocupa a largura total */
-    .pop-inventory {
-        display: table !important; /* Reverte o 'block' */
-        width: 100% !important;
-        border-collapse: collapse;
-        font-size: 13px; /* Diminuir um pouco a fonte para caber tudo */
+        .pop-inventory { display: table !important; width: 100% !important; border-collapse: collapse; font-size: 13px; }
+        .pop-inventory thead { display: table-header-group !important; }
+        .pop-inventory tr { display: table-row !important; }
+        .pop-inventory th, .pop-inventory td { display: none !important; padding: 8px 4px; text-align: center; border-bottom: 1px solid #ddd; }
+
+        .pop-inventory th[data-label="Imagem"], .pop-inventory td[data-label="Imagem"],
+        .pop-inventory th[data-label="Marca"],  .pop-inventory td[data-label="Marca"],
+        .pop-inventory th[data-label="Numero"], .pop-inventory td[data-label="Numero"],
+        .pop-inventory th[data-label="Colecao"], .pop-inventory td[data-label="Colecao"] {
+            display: table-cell !important;
+        }
+
+        .pop-main-image { width: 50px; height: auto; }
+        .pop-inventory td::before { content: none !important; }
     }
-
-    /* 2. Garantir que o cabeçalho e linhas continuam a ser da tabela */
-    .pop-inventory thead { display: table-header-group !important; }
-    .pop-inventory tr { display: table-row !important; }
-    
-    /* 3. ESCONDER TODAS AS COLUNAS POR DEFEITO */
-    .pop-inventory th, 
-    .pop-inventory td { 
-        display: none !important; 
-        padding: 8px 4px;
-        text-align: center;
-        border-bottom: 1px solid #ddd;
-    }
-
-    /* 4. MOSTRAR APENAS AS COLUNAS ESSENCIAIS */
-    /* Ajustamos a largura de cada uma para caberem bem lado a lado */
-    .pop-inventory th[data-label="Imagem"], .pop-inventory td[data-label="Imagem"],
-    .pop-inventory th[data-label="Marca"],  .pop-inventory td[data-label="Marca"],
-    .pop-inventory th[data-label="Numero"], .pop-inventory td[data-label="Numero"],
-    .pop-inventory th[data-label="Colecao"], .pop-inventory td[data-label="Colecao"] {
-        display: table-cell !important;
-    }
-
-    /* 5. Ajustes específicos para as colunas visíveis */
-    .pop-main-image {
-        width: 50px; /* Imagem muito menor para caber na linha */
-        height: auto;
-    }
-
-    /* Remover o 'before' que criava os títulos repetidos nos cards */
-    .pop-inventory td::before { content: none !important; }
-}
     </style>
 </head>
 <body>
 
 <h1>Inventário Detalhado da Coleção</h1>
+
+<!-- SEÇAO DE LOGIN / UTILIZADOR -->
+<div class="auth-container" id="auth-section">
+    <button id="login-btn" class="auth-button" onclick="login()">Entrar com Google</button>
+    <div id="user-details" style="display:none;">
+        <span class="user-info" id="user-email"></span>
+        <button class="auth-button" style="background-color: #dc3545;" onclick="logout()">Sair</button>
+    </div>
+</div>
 	
 <div class="filters-container">
     <input type="text" id="searchColecao" placeholder="Filtrar por Coleção..." onkeyup="filterData()">
@@ -110,7 +101,7 @@
         </tr>
     </thead>
     <tbody id="inventory-body">
-        <tr><td colspan="11">A carregar dados...</td></tr>
+        <tr><td colspan="11">Por favor, inicie sessão para carregar o inventário...</td></tr>
     </tbody>
 </table>
 
@@ -128,8 +119,10 @@
     </div>
 </div>
 
+<!-- LIBRARIES DO FIREBASE (Serao carregadas as versoes compativeis) -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
 <script>
 let allItems = [];
@@ -147,8 +140,46 @@ const firebaseConfig = {
 
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
 const COLLECTION_NAME = "inventario";
 
+// Lista de emails com permissao
+const authorizedEmails = [
+    "ulisses.dos.santos@gmail.com",
+    "urbino.sousa@gmail.com",
+    "miguelabrantesdossantos@gmail.com"
+];
+
+// FUNÇÕES DE AUTENTICAÇÃO COM REDIRECCIONAMENTO (Evita o erro "missing initial state")
+function login() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithRedirect(provider);
+}
+
+function logout() {
+    auth.signOut().then(() => {
+        location.reload();
+    });
+}
+
+// MONITORIZAR ESTADO DA SESSÃO
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        if (authorizedEmails.includes(user.email)) {
+            document.getElementById('login-btn').style.display = 'none';
+            document.getElementById('user-details').style.display = 'block';
+            document.getElementById('user-email').innerText = "Sessão: " + user.email;
+            loadInventory();
+        } else {
+            alert("A conta (" + user.email + ") não tem permissão para aceder.");
+            auth.signOut();
+        }
+    } else {
+        document.getElementById('login-btn').style.display = 'inline-block';
+        document.getElementById('user-details').style.display = 'none';
+        document.getElementById('inventory-body').innerHTML = '<tr><td colspan="11">Faça login com uma conta autorizada para visualizar os dados.</td></tr>';
+    }
+});
 
 function formatCurrency(v) { return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(v || 0); }
 function formatDate(t) { return (t && t.toDate) ? new Intl.DateTimeFormat('pt-PT', { day: '2-digit', month: 'short', year: 'numeric' }).format(t.toDate()) : 'Desconhecida'; }
@@ -162,6 +193,9 @@ function loadInventory() {
         snap.forEach(doc => { let d = doc.data(); d.id = doc.id; allItems.push(d); });
         allItems.sort((a,b) => (a.Colecao || '').localeCompare(b.Colecao || '') || (a.NumeroNaColecao - b.NumeroNaColecao));
         renderTable(allItems);
+    }).catch(err => {
+        console.error("Erro ao carregar dados:", err);
+        document.getElementById('inventory-body').innerHTML = '<tr><td colspan="11">Erro nas permissões de leitura da base de dados.</td></tr>';
     });
 }
 
@@ -171,8 +205,8 @@ function renderTable(data) {
     data.forEach(item => {
         const row = body.insertRow();
         const img = (item.Imagem && item.Imagem[0]) ? item.Imagem[0] : 'https://via.placeholder.com/50';
-		const valorLoja = item.Loja || item.loja;
-		const valorPreco = item.Preço || item.Preco || item.preço || 0;
+        const valorLoja = item.Loja || item.loja;
+        const valorPreco = item.Preço || item.Preco || item.preço || 0;
         row.innerHTML = `
             <td data-label="Marca">${item.Marca || 'N/A'}</td>
             <td data-label="Imagem"><img src="${img}" class="pop-main-image" onclick="openModal('${item.id}', '${(item.Colecao || '').replace(/'/g, "\\'")}')"></td>
@@ -223,7 +257,6 @@ function showSlide(n) {
 function changeSlide(n) { currentSlideIndex += n; showSlide(currentSlideIndex); }
 function closeModal() { document.getElementById('pop-modal').style.display = 'none'; }
 
-window.onload = loadInventory;
 window.onclick = (e) => { if (e.target.className === 'modal') closeModal(); };
 </script>
 
