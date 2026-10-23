@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estatísticas & Valor da Coleção</title>
+    
+    <style>
+    body { 
+        font-family: Arial, sans-serif; 
+        background-color: #f4f4f4; 
+        margin: 20px 10px; 
+        color: #333; 
+    }
+    
+    .header-bar {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 25px;
+        gap: 12px;
+    }
+
+    h1 { 
+        color: #007acc; 
+        margin: 0; 
+        font-size: 1.6rem; 
+    }
+    
+    .back-btn {
+        background-color: #64748b;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 0.95rem;
+        display: inline-block;
+        width: 100%;
+        max-width: 320px;
+        box-sizing: border-box;
+        text-align: center;
+        transition: background-color 0.2s;
+    }
+    .back-btn:hover { background-color: #475569; }
+
+    .stats-container {
+        max-width: 600px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    /* CARTÃO GLOBAL DE VALOR TOTAL */
+    .total-card {
+        background: linear-gradient(135deg, #007acc, #0284c7);
+        color: white;
+        padding: 25px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0, 122, 204, 0.25);
+    }
+
+    .total-card h2 {
+        margin: 0 0 10px 0;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        opacity: 0.9;
+    }
+
+    .total-card .total-value {
+        font-size: 2.2rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .total-card .total-count {
+        font-size: 0.95rem;
+        opacity: 0.85;
+    }
+
+    /* SEÇÕES E CARTÕES POR MARCA */
+    .section-title {
+        color: #007acc;
+        font-size: 1.2rem;
+        margin: 15px 0 10px 0;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 5px;
+    }
+
+    .brand-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+    }
+
+    .brand-card {
+        background: white;
+        padding: 18px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+        border-left: 5px solid #007acc;
+    }
+
+    .brand-card h3 {
+        margin: 0 0 8px 0;
+        color: #1e293b;
+        font-size: 1.1rem;
+    }
+
+    .brand-metrics {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .brand-price {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #0284c7;
+    }
+
+    .brand-items {
+        font-size: 0.85rem;
+        color: #64748b;
+        font-weight: bold;
+    }
+
+    /* TABELA RESUMO POR COLEÇÃO */
+    .summary-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+    }
+
+    .summary-table th, .summary-table td {
+        padding: 12px 10px;
+        text-align: left;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.9rem;
+    }
+
+    .summary-table th {
+        background-color: #f8fafc;
+        color: #64748b;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+    }
+
+    /* RODAPÉ FINAL DA PÁGINA */
+    .footer-section {
+        margin-top: 40px;
+        margin-bottom: 30px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .top-btn {
+        background-color: #007acc;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 6px;
+        border: none;
+        font-weight: bold;
+        font-size: 0.95rem;
+        cursor: pointer;
+        width: 100%;
+        max-width: 320px;
+        box-sizing: border-box;
+    }
+    .top-btn:hover { background-color: #005999; }
+
+    .bottom-logout-btn {
+        padding: 12px 20px;
+        font-size: 0.95rem;
+        color: white;
+        background-color: #dc3545;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        width: 100%;
+        max-width: 320px;
+        box-sizing: border-box;
+        transition: background-color 0.2s;
+    }
+    .bottom-logout-btn:hover { background-color: #bb2d3b; }
+    </style>
+</head>
+<body>
+
+<div class="header-bar">
+    <h1>Estatísticas & Valor da Coleção</h1>
+    <a href="index.html" class="back-btn">&larr; Voltar ao Portal</a>
+</div>
+
+<div class="stats-container" id="stats-content">
+    <p style="text-align: center; color: #64748b;" id="loading-msg">A calcular totais do inventário...</p>
+</div>
+
+<div class="footer-section">
+    <button class="top-btn" onclick="scrollToTop()">&uarr; Ir para o Início da Página</button>
+    <button class="bottom-logout-btn" onclick="logout()">Terminar Sessão</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
+    authDomain: "miguel-inventory.firebaseapp.com",
+    projectId: "miguel-inventory",
+    storageBucket: "miguel-inventory.firebasestorage.app",
+    messagingSenderId: "277968569414",
+    appId: "1:277968569414:web:04884bc1932c2c7dbb6b647"
+};
+
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+const COLLECTION_NAME = "inventario";
+
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+// PERMISSÃO EXCLUSIVA APENAS PARA O TEU E-MAIL
+const ADMIN_EMAIL = "ulisses.dos.santos@gmail.com";
+
+function logout() {
+    auth.signOut().then(() => { window.location.href = "index.html"; });
+}
+
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function formatCurrency(v) { 
+    return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(v || 0); 
+}
+
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        const userEmail = (user.email || "").toLowerCase().trim();
+        if (userEmail === ADMIN_EMAIL) {
+            loadStatistics();
+        } else {
+            alert("Acesso Restrito!\n\nEsta página de relatórios financeiros é exclusiva para o administrador.");
+            window.location.href = "index.html";
+        }
+    } else {
+        setTimeout(() => {
+            if (!auth.currentUser) {
+                window.location.href = "index.html";
+            }
+        }, 1000);
+    }
+});
+
+function loadStatistics() {
+    db.collection(COLLECTION_NAME).get().then((snap) => {
+        let totalValor = 0;
+        let totalItens = 0;
+        let marcasMap = {};
+        let colecoesMap = {};
+
+        snap.forEach(doc => {
+            let item = doc.data();
+            let preco = parseFloat(item.Preço || item.Preco || item.preço || 0);
+            let marca = item.Marca || 'Outros';
+            let colecao = item.Colecao || 'Sem Coleção';
+
+            totalValor += preco;
+            totalItens++;
+
+            // Agrupamento por Marca
+            if (!marcasMap[marca]) marcasMap[marca] = { valor: 0, count: 0 };
+            marcasMap[marca].valor += preco;
+            marcasMap[marca].count++;
+
+            // Agrupamento por Coleção
+            if (!colecoesMap[colecao]) colecoesMap[colecao] = { valor: 0, count: 0, marca: marca };
+            colecoesMap[colecao].valor += preco;
+            colecoesMap[colecao].count++;
+        });
+
+        renderStatisticsHTML(totalValor, totalItens, marcasMap, colecoesMap);
+    }).catch(err => {
+        console.error("Erro ao carregar estatísticas:", err);
+        document.getElementById('stats-content').innerHTML = '<p style="text-align: center; color: #dc3545;">Erro ao carregar dados do Firestore.</p>';
+    });
+}
+
+function renderStatisticsHTML(totalValor, totalItens, marcasMap, colecoesMap) {
+    const container = document.getElementById('stats-content');
+    container.innerHTML = '';
+
+    // 1. CARTÃO DO VALOR TOTAL GLOBAL
+    const totalCard = `
+        <div class="total-card">
+            <h2>Valor Total da Coleção</h2>
+            <div class="total-value">${formatCurrency(totalValor)}</div>
+            <div class="total-count">${totalItens} artigos registados</div>
+        </div>
+    `;
+
+    // 2. CARTÕES DE VALOR POR MARCA
+    let brandCardsHTML = '<div class="section-title">Resumo por Marca</div><div class="brand-grid">';
+    for (const [marca, data] of Object.entries(marcasMap)) {
+        brandCardsHTML += `
+            <div class="brand-card">
+                <h3>${marca}</h3>
+                <div class="brand-metrics">
+                    <span class="brand-price">${formatCurrency(data.valor)}</span>
+                    <span class="brand-items">${data.count} ${data.count === 1 ? 'item' : 'itens'}</span>
+                </div>
+            </div>
+        `;
+    }
+    brandCardsHTML += '</div>';
+
+    // 3. TABELA DETALHADA POR COLEÇÃO
+    let collectionTableHTML = `
+        <div class="section-title">Resumo por Coleção</div>
+        <table class="summary-table">
+            <thead>
+                <tr>
+                    <th>Coleção</th>
+                    <th style="text-align: center;">Qtd</th>
+                    <th style="text-align: right;">Total (€)</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    // Ordenar coleções por valor mais elevado
+    const sortedColecoes = Object.entries(colecoesMap).sort((a, b) => b[1].valor - a[1].valor);
+
+    for (const [colecao, data] of sortedColecoes) {
+        collectionTableHTML += `
+            <tr>
+                <td><strong>${colecao}</strong></td>
+                <td style="text-align: center;">${data.count}</td>
+                <td style="text-align: right; color: #0284c7; font-weight: bold;">${formatCurrency(data.valor)}</td>
+            </tr>
+        `;
+    }
+
+    collectionTableHTML += '</tbody></table>';
+
+    container.innerHTML = totalCard + brandCardsHTML + collectionTableHTML;
+}
+</script>
+
+</body>
+</html>
