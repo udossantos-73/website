@@ -24,26 +24,34 @@
     .pop-inventory th, .pop-inventory td { border: 1px solid #ddd; padding: 12px 8px; text-align: left; }
     .pop-inventory th { background-color: #007acc; color: white; font-weight: bold; text-transform: uppercase; }
     .pop-inventory tbody tr:nth-child(even) { background-color: #f9f9f9; }
-    .pop-inventory tbody tr:hover { background-color: #e9e9e9; }
+    .pop-inventory tbody tr:hover { background-color: #f1f5f9; }
     
-    .pop-main-image { width: 50px; height: auto; cursor: pointer; border-radius: 4px; display: block; margin: auto; }
+    .pop-main-image { width: 50px; height: auto; border-radius: 4px; display: block; margin: auto; }
     
-    /* LINK NO NOME DO ITEM */
-    .item-name-link { color: #007acc; font-weight: bold; cursor: pointer; text-decoration: underline; }
-    .item-name-link:hover { color: #005999; }
+    /* ESTILO EXCLUSIVO DO NOME CLICÁVEL */
+    .item-name-link { 
+        color: #007acc; 
+        font-weight: bold; 
+        cursor: pointer; 
+        text-decoration: underline; 
+        transition: color 0.2s ease;
+    }
+    .item-name-link:hover { 
+        color: #005999; 
+    }
 
-    /* --- ESTILOS DO MODAL / CARTÃO --- */
+    /* --- ESTILOS DO MODAL / CARTÃO DETALHADO --- */
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.75); padding: 15px; box-sizing: border-box; }
     .card-modal-content { background-color: #fff; padding: 25px; border-radius: 12px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
     .close-button { position: absolute; top: 15px; right: 20px; color: #888; font-size: 28px; font-weight: bold; cursor: pointer; }
     .close-button:hover { color: #000; }
 
-    /* ESTRUTURA DO CARTÃO DETALHADO */
+    /* CABEÇALHO DO CARTÃO */
     .card-header { text-align: center; margin-bottom: 15px; padding-right: 20px; }
     .card-header h2 { margin: 5px 0; color: #007acc; font-size: 1.4rem; }
     .card-badge { display: inline-block; background: #e0f2fe; color: #0369a1; font-size: 0.85rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; margin-bottom: 5px; }
 
-    /* IMAGEM E CARROSSEL NO CARTÃO */
+    /* FOTOS / CARROSSEL NO CARTÃO */
     .card-image-wrapper { position: relative; width: 100%; height: 260px; background: #fafafa; border-radius: 8px; border: 1px solid #eee; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
     .card-image-wrapper img { max-width: 100%; max-height: 100%; object-fit: contain; }
     
@@ -52,331 +60,8 @@
     .nav-arrow.prev { left: 10px; }
     .nav-arrow.next { right: 10px; }
 
-    /* DETALHES TÉCNICOS NO CARTÃO */
+    /* CAMPOS DE DADOS NO CARTÃO */
     .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.9rem; }
     .card-grid-item { display: flex; flex-direction: column; }
     .card-grid-item.full-width { grid-column: span 2; }
-    .card-label { font-size: 0.75rem; color: #64748b; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
-    .card-value { color: #1e293b; font-weight: 500; }
-
-    /* NAVEGAÇÃO ENTRE ITENS DO INVENTÁRIO */
-    .card-item-navigation { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; }
-    .nav-item-btn { background: #007acc; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
-    .nav-item-btn:hover { background: #005999; }
-    .nav-item-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
-    .item-counter { font-size: 0.85rem; color: #64748b; font-weight: bold; }
-
-    @media (max-width: 850px) {
-        h1 { font-size: 1.5rem; }
-        .filters-container { flex-direction: column; align-items: stretch; }
-
-        .pop-inventory { display: table !important; width: 100% !important; border-collapse: collapse; font-size: 13px; }
-        .pop-inventory thead { display: table-header-group !important; }
-        .pop-inventory tr { display: table-row !important; }
-        .pop-inventory th, .pop-inventory td { display: none !important; padding: 8px 4px; text-align: center; border-bottom: 1px solid #ddd; }
-
-        .pop-inventory th[data-label="Imagem"], .pop-inventory td[data-label="Imagem"],
-        .pop-inventory th[data-label="Marca"],  .pop-inventory td[data-label="Marca"],
-        .pop-inventory th[data-label="Numero"], .pop-inventory td[data-label="Numero"],
-        .pop-inventory th[data-label="Colecao"], .pop-inventory td[data-label="Colecao"] {
-            display: table-cell !important;
-        }
-
-        .pop-main-image { width: 50px; height: auto; }
-        .pop-inventory td::before { content: none !important; }
-    }
-    </style>
-</head>
-<body>
-
-<h1>Inventário Detalhado da Coleção</h1>
-
-<!-- SEÇÃO DE AUTENTICAÇÃO -->
-<div class="auth-container" id="auth-section">
-    <button id="login-btn" class="auth-button" onclick="login()">Entrar com Google</button>
-    <div id="user-details" style="display:none;">
-        <span class="user-info" id="user-email"></span>
-        <button class="auth-button" style="background-color: #dc3545;" onclick="logout()">Sair</button>
-    </div>
-</div>
-	
-<div class="filters-container">
-    <input type="text" id="searchColecao" placeholder="Filtrar por Coleção..." onkeyup="filterData()">
-    <select id="searchMarca" onchange="filterData()">
-        <option value="">Todas as Marcas</option>
-        <option value="Funko Pop">Funko Pop</option>
-        <option value="Hot Wheels">Hot Wheels</option>
-    </select>
-</div>
-
-<table class="pop-inventory">
-    <thead>
-        <tr>
-            <th>Marca</th>
-            <th>Imagem</th>
-            <th>Numero</th>
-            <th>Coleção</th>
-            <th>Nome</th>
-            <th>Descrição</th>
-            <th>Origem</th>
-            <th>Loja</th> 
-            <th>Preço</th>
-            <th>Data Compra</th>
-            <th>Colecionado</th>
-        </tr>
-    </thead>
-    <tbody id="inventory-body">
-        <tr><td colspan="11">A aguardar autenticação...</td></tr>
-    </tbody>
-</table>
-
-<!-- MODAL EM FORMATO DE CARTÃO DE DETALHES -->
-<div id="card-modal" class="modal">
-    <div class="card-modal-content">
-        <span class="close-button" onclick="closeCardModal()">&times;</span>
-        
-        <div class="card-header">
-            <span class="card-badge" id="card-marca">Marca</span>
-            <h2 id="card-nome">Nome do Item</h2>
-            <div style="font-size: 0.9rem; color: #64748b;">
-                <span id="card-colecao">Coleção</span> #<span id="card-numero">00</span>
-            </div>
-        </div>
-
-        <!-- CARROSSEL DE IMAGENS DO CARTÃO -->
-        <div class="card-image-wrapper">
-            <button class="nav-arrow prev" id="img-prev-btn" onclick="changeCardImage(-1)">&#10094;</button>
-            <img id="card-img-display" src="" alt="Imagem do Item">
-            <button class="nav-arrow next" id="img-next-btn" onclick="changeCardImage(1)">&#10095;</button>
-        </div>
-
-        <!-- INFORMAÇÕES DETALHADAS -->
-        <div class="card-grid">
-            <div class="card-grid-item full-width">
-                <span class="card-label">Descrição</span>
-                <span class="card-value" id="card-descricao">N/A</span>
-            </div>
-            <div class="card-grid-item">
-                <span class="card-label">Origem</span>
-                <span class="card-value" id="card-origem">N/A</span>
-            </div>
-            <div class="card-grid-item">
-                <span class="card-label">Loja</span>
-                <span class="card-value" id="card-loja">N/A</span>
-            </div>
-            <div class="card-grid-item">
-                <span class="card-label">Preço</span>
-                <span class="card-value" id="card-preco">0,00 €</span>
-            </div>
-            <div class="card-grid-item">
-                <span class="card-label">Data de Compra</span>
-                <span class="card-value" id="card-data">N/A</span>
-            </div>
-            <div class="card-grid-item full-width">
-                <span class="card-label">Na Coleção?</span>
-                <span class="card-value" id="card-colecionado">Sim</span>
-            </div>
-        </div>
-
-        <!-- CONTROLO DE NAVEGAÇÃO ENTRE ITENS DA TABELA -->
-        <div class="card-item-navigation">
-            <button class="nav-item-btn" id="prev-item-btn" onclick="navigateItem(-1)">&larr; Anterior</button>
-            <span class="item-counter" id="item-counter">Item 1 de 10</span>
-            <button class="nav-item-btn" id="next-item-btn" onclick="navigateItem(1)">Seguinte &rarr;</button>
-        </div>
-    </div>
-</div>
-
-<!-- LIBRARIES DO FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-
-<script>
-let allItems = [];
-let currentFilteredItems = [];
-let currentItemIndex = 0;
-let currentCardImages = [];
-let currentCardImageIndex = 0;
-
-const firebaseConfig = {
-    apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
-    authDomain: "miguel-inventory.firebaseapp.com",
-    projectId: "miguel-inventory",
-    storageBucket: "miguel-inventory.firebasestorage.app",
-    messagingSenderId: "277968569414",
-    appId: "1:277968569414:web:04884bc1932c2c7dbb6b647"
-};
-
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
-const COLLECTION_NAME = "inventario";
-
-// Lista de emails autorizados (em minúsculas)
-const authorizedEmails = [
-    "ulisses.dos.santos@gmail.com",
-    "urbino.sousa@gmail.com",
-    "miguelabrantesdossantos@gmail.com"
-];
-
-function login() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithRedirect(provider);
-}
-
-function logout() {
-    auth.signOut().then(() => { location.reload(); });
-}
-
-auth.getRedirectResult().then((result) => {
-    if (result.user) console.log("Login por redirecionamento concluído:", result.user.email);
-}).catch((error) => console.error("Erro no Auth:", error));
-
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        const userEmail = (user.email || "").toLowerCase().trim();
-        if (authorizedEmails.includes(userEmail)) {
-            document.getElementById('login-btn').style.display = 'none';
-            document.getElementById('user-details').style.display = 'block';
-            document.getElementById('user-email').innerText = "Sessão iniciada: " + user.email;
-            loadInventory();
-        } else {
-            alert("Acesso Negado!\n\nO email (" + user.email + ") não tem permissão de acesso ao inventário.");
-            auth.signOut();
-        }
-    } else {
-        document.getElementById('login-btn').style.display = 'inline-block';
-        document.getElementById('user-details').style.display = 'none';
-        document.getElementById('inventory-body').innerHTML = '<tr><td colspan="11">Faça login com uma conta autorizada para visualizar os dados.</td></tr>';
-    }
-});
-
-function formatCurrency(v) { return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(v || 0); }
-function formatDate(t) { return (t && t.toDate) ? new Intl.DateTimeFormat('pt-PT', { day: '2-digit', month: 'short', year: 'numeric' }).format(t.toDate()) : 'Desconhecida'; }
-function translateOrigem(v) { return v === false ? 'Oferecido' : 'Adquirido'; }
-function translateColecionado(v) { return v === true ? 'Sim' : 'Não'; }
-function translateLoja(v) { return v ? v : 'Desconhecida'; }
-
-function loadInventory() {
-    document.getElementById('inventory-body').innerHTML = '<tr><td colspan="11">A carregar dados do inventário...</td></tr>';
-    
-    db.collection(COLLECTION_NAME).get().then((snap) => {
-        allItems = [];
-        snap.forEach(doc => { let d = doc.data(); d.id = doc.id; allItems.push(d); });
-        allItems.sort((a,b) => (a.Colecao || '').localeCompare(b.Colecao || '') || (a.NumeroNaColecao - b.NumeroNaColecao));
-        currentFilteredItems = [...allItems];
-        renderTable(currentFilteredItems);
-    }).catch(err => {
-        console.error("Erro ao carregar Firestore:", err);
-        document.getElementById('inventory-body').innerHTML = '<tr><td colspan="11">Erro nas permissões da base de dados.</td></tr>';
-    });
-}
-
-function renderTable(data) {
-    const body = document.getElementById('inventory-body');
-    body.innerHTML = '';
-    
-    if (data.length === 0) {
-        body.innerHTML = '<tr><td colspan="11">Nenhum item encontrado.</td></tr>';
-        return;
-    }
-
-    data.forEach((item, index) => {
-        const row = body.insertRow();
-        const img = (item.Imagem && item.Imagem[0]) ? item.Imagem[0] : 'https://via.placeholder.com/50';
-        const valorLoja = item.Loja || item.loja;
-        const valorPreco = item.Preço || item.Preco || item.preço || 0;
-        
-        row.innerHTML = `
-            <td data-label="Marca">${item.Marca || 'N/A'}</td>
-            <td data-label="Imagem"><img src="${img}" class="pop-main-image" onclick="openCardModal(${index})"></td>
-            <td data-label="Numero">${item.NumeroNaColecao || 'N/A'}</td>
-            <td data-label="Colecao">${item.Colecao || 'N/A'}</td>
-            <td data-label="Nome"><span class="item-name-link" onclick="openCardModal(${index})">${item.NomeNaColecao || 'Sem Nome'}</span></td>
-            <td data-label="Descricao">${item.Descricao || 'N/A'}</td>
-            <td data-label="Origem">${translateOrigem(item.Origem)}</td>
-            <td data-label="Loja">${translateLoja(valorLoja)}</td>
-            <td data-label="Preco">${formatCurrency(valorPreco)}</td>
-            <td data-label="Data">${formatDate(item.DatadeCompra)}</td>
-            <td data-label="Colecionado">${translateColecionado(item.Colecionado)}</td>
-        `;
-    });
-}
-
-function filterData() {
-    const txt = document.getElementById('searchColecao').value.toLowerCase();
-    const marca = document.getElementById('searchMarca').value;
-    currentFilteredItems = allItems.filter(i => (i.Colecao || '').toLowerCase().includes(txt) && (marca === "" || i.Marca === marca));
-    renderTable(currentFilteredItems);
-}
-
-/* --- LÓGICA DO CARTÃO / MODAL --- */
-function openCardModal(index) {
-    currentItemIndex = index;
-    displayCardData();
-    document.getElementById('card-modal').style.display = 'flex';
-}
-
-function displayCardData() {
-    const item = currentFilteredItems[currentItemIndex];
-    if (!item) return;
-
-    // Preencher textos do cartão
-    document.getElementById('card-marca').innerText = item.Marca || 'Geral';
-    document.getElementById('card-nome').innerText = item.NomeNaColecao || 'Sem Nome';
-    document.getElementById('card-colecao').innerText = item.Colecao || 'N/A';
-    document.getElementById('card-numero').innerText = item.NumeroNaColecao || 'N/A';
-    document.getElementById('card-descricao').innerText = item.Descricao || 'Sem descrição disponível.';
-    document.getElementById('card-origem').innerText = translateOrigem(item.Origem);
-    document.getElementById('card-loja').innerText = translateLoja(item.Loja || item.loja);
-    document.getElementById('card-preco').innerText = formatCurrency(item.Preço || item.Preco || item.preço);
-    document.getElementById('card-data').innerText = formatDate(item.DatadeCompra);
-    document.getElementById('card-colecionado').innerText = translateColecionado(item.Colecionado);
-
-    // Configurar carrossel de fotos do próprio item
-    currentCardImages = (item.Imagem && item.Imagem.length > 0) ? item.Imagem : ['https://via.placeholder.com/300?text=Sem+Imagem'];
-    currentCardImageIndex = 0;
-    updateCardImageDisplay();
-
-    // Atualizar botões de navegação entre itens da tabela
-    document.getElementById('item-counter').innerText = `${currentItemIndex + 1} de ${currentFilteredItems.length}`;
-    document.getElementById('prev-item-btn').disabled = (currentItemIndex === 0);
-    document.getElementById('next-item-btn').disabled = (currentItemIndex === currentFilteredItems.length - 1);
-}
-
-function updateCardImageDisplay() {
-    document.getElementById('card-img-display').src = currentCardImages[currentCardImageIndex];
-    
-    // Esconder setas de imagem se o item só tiver 1 foto
-    const showArrows = currentCardImages.length > 1;
-    document.getElementById('img-prev-btn').style.display = showArrows ? 'flex' : 'none';
-    document.getElementById('img-next-btn').style.display = showArrows ? 'flex' : 'none';
-}
-
-function changeCardImage(direction) {
-    currentCardImageIndex += direction;
-    if (currentCardImageIndex >= currentCardImages.length) currentCardImageIndex = 0;
-    if (currentCardImageIndex < 0) currentCardImageIndex = currentCardImages.length - 1;
-    updateCardImageDisplay();
-}
-
-function navigateItem(direction) {
-    const newIndex = currentItemIndex + direction;
-    if (newIndex >= 0 && newIndex < currentFilteredItems.length) {
-        currentItemIndex = newIndex;
-        displayCardData();
-    }
-}
-
-function closeCardModal() {
-    document.getElementById('card-modal').style.display = 'none';
-}
-
-window.onclick = (e) => {
-    if (e.target.className === 'modal') closeCardModal();
-};
-</script>
-
-</body>
-</html>
+    .card-label { font-size: 0.75rem
