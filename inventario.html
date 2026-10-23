@@ -1,3 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventário Detalhado - Pops & Hot Wheels</title>
+    
+    <style>
+    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 20px; color: #333; }
+    
+    .header-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    h1 { color: #007acc; margin: 0; }
+    
+    .back-btn {
+        background-color: #64748b;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+    .back-btn:hover { background-color: #475569; }
+
+    .user-info { font-weight: bold; margin-right: 15px; }
+    .logout-btn { padding: 8px 16px; font-size: 0.9rem; color: white; background-color: #dc3545; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    .logout-btn:hover { background-color: #bb2d3b; }
+
+    .filters-container { display: flex; gap: 15px; margin-bottom: 20px; justify-content: center; }
+    .filters-container input, .filters-container select { padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 1rem; }
+
+    .pop-inventory { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background-color: white; }
+    .pop-inventory th, .pop-inventory td { border: 1px solid #ddd; padding: 12px 8px; text-align: left; }
+    .pop-inventory th { background-color: #007acc; color: white; font-weight: bold; text-transform: uppercase; }
+    .pop-inventory tbody tr:nth-child(even) { background-color: #f9f9f9; }
+    .pop-inventory tbody tr:hover { background-color: #f1f5f9; }
+    
+    .pop-main-image { width: 50px; height: auto; border-radius: 4px; display: block; margin: auto; }
+
+    .item-name-link { 
+        color: #007acc !important; 
+        font-weight: bold !important; 
+        cursor: pointer !important; 
+        text-decoration: underline !important; 
+        display: inline-block;
+    }
+    .item-name-link:hover { 
+        color: #005999 !important; 
+        background-color: #e0f2fe;
+    }
+
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.75); padding: 15px; box-sizing: border-box; }
+    .card-modal-content { background-color: #fff; padding: 25px; border-radius: 12px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+    .close-button { position: absolute; top: 15px; right: 20px; color: #888; font-size: 28px; font-weight: bold; cursor: pointer; }
+    .close-button:hover { color: #000; }
+
+    .card-header { text-align: center; margin-bottom: 15px; padding-right: 20px; }
+    .card-header h2 { margin: 5px 0; color: #007acc; font-size: 1.4rem; }
+    .card-badge { display: inline-block; background: #e0f2fe; color: #0369a1; font-size: 0.85rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; margin-bottom: 5px; }
+
+    .card-image-wrapper { position: relative; width: 100%; height: 260px; background: #fafafa; border-radius: 8px; border: 1px solid #eee; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
+    .card-image-wrapper img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    
+    .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); color: white; border: none; font-size: 1.2rem; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; z-index: 5; }
+    .nav-arrow:hover { background: rgba(0,0,0,0.9); }
+    .nav-arrow.prev { left: 10px; }
+    .nav-arrow.next { right: 10px; }
+
+    .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.9rem; }
+    .card-grid-item { display: flex; flex-direction: column; }
+    .card-grid-item.full-width { grid-column: span 2; }
+    .card-label { font-size: 0.75rem; color: #64748b; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
+    .card-value { color: #1e293b; font-weight: 500; }
+
+    .card-item-navigation { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; }
+    .nav-item-btn { background: #007acc; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
+    .nav-item-btn:hover { background: #005999; }
+    .nav-item-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+    .item-counter { font-size: 0.85rem; color: #64748b; font-weight: bold; }
+
+    @media (max-width: 850px) {
+        h1 { font-size: 1.3rem; }
+        .filters-container { flex-direction: column; align-items: stretch; }
+
+        .pop-inventory { display: table !important; width: 100% !important; border-collapse: collapse; font-size: 13px; }
+        .pop-inventory thead { display: table-header-group !important; }
+        .pop-inventory tr { display: table-row !important; }
+        .pop-inventory th, .pop-inventory td { display: none !important; padding: 8px 4px; text-align: center; border-bottom: 1px solid #ddd; }
+
+        .pop-inventory th[data-label="Imagem"], .pop-inventory td[data-label="Imagem"],
+        .pop-inventory th[data-label="Marca"],  .pop-inventory td[data-label="Marca"],
+        .pop-inventory th[data-label="Numero"], .pop-inventory td[data-label="Numero"],
+        .pop-inventory th[data-label="Nome"],   .pop-inventory td[data-label="Nome"] {
+            display: table-cell !important;
+        }
+
+        .pop-main-image { width: 50px; height: auto; }
+        .pop-inventory td::before { content: none !important; }
+    }
+    </style>
+</head>
+<body>
+
+<div class="header-bar">
+    <a href="index.html" class="back-btn">&larr; Voltar ao Portal</a>
+    <h1>Inventário da Coleção</h1>
+    <div id="user-details" style="display:none;">
+        <span class="user-info" id="user-email" style="font-size:0.85rem;"></span>
+        <button class="logout-btn" onclick="logout()">Sair</button>
+    </div>
+</div>
+
+<div class="filters-container">
+    <input type="text" id="searchColecao" placeholder="Filtrar por Coleção..." onkeyup="filterData()">
+    <select id="searchMarca" onchange="filterData()">
+        <option value="">Todas as Marcas</option>
+        <option value="Funko Pop">Funko Pop</option>
+        <option value="Hot Wheels">Hot Wheels</option>
+    </select>
+</div>
+
+<table class="pop-inventory">
+    <thead>
+        <tr>
+            <th>Marca</th>
+            <th>Imagem</th>
+            <th>Numero</th>
+            <th>Coleção</th>
+            <th>Nome</th>
+            <th>Descrição</th>
+            <th>Origem</th>
+            <th>Loja</th> 
+            <th>Preço</th>
+            <th>Data Compra</th>
+            <th>Colecionado</th>
+        </tr>
+    </thead>
+    <tbody id="inventory-body">
+        <tr><td colspan="11">A verificar autenticação...</td></tr>
+    </tbody>
+</table>
+
+<div id="card-modal" class="modal">
+    <div class="card-modal-content">
+        <span class="close-button" onclick="closeCardModal()">&times;</span>
+        
+        <div class="card-header">
+            <span class="card-badge" id="card-marca">Marca</span>
+            <h2 id="card-nome">Nome do Item</h2>
+            <div style="font-size: 0.9rem; color: #64748b;">
+                <span id="card-colecao">Coleção</span> #<span id="card-numero">00</span>
+            </div>
+        </div>
+
+        <div class="card-image-wrapper">
+            <button class="nav-arrow prev" id="img-prev-btn" onclick="changeCardImage(-1)">&#10094;</button>
+            <img id="card-img-display" src="" alt="Imagem do Item">
+            <button class="nav-arrow next" id="img-next-btn" onclick="changeCardImage(1)">&#10095;</button>
+        </div>
+
+        <div class="card-grid">
+            <div class="card-grid-item full-width">
+                <span class="card-label">Descrição</span>
+                <span class="card-value" id="card-descricao">N/A</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Origem</span>
+                <span class="card-value" id="card-origem">N/A</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Loja</span>
+                <span class="card-value" id="card-loja">N/A</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Preço</span>
+                <span class="card-value" id="card-preco">0,00 €</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Data de Compra</span>
+                <span class="card-value" id="card-data">N/A</span>
+            </div>
+            <div class="card-grid-item full-width">
+                <span class="card-label">Na Coleção?</span>
+                <span class="card-value" id="card-colecionado">Sim</span>
+            </div>
+        </div>
+
+        <div class="card-item-navigation">
+            <button class="nav-item-btn" id="prev-item-btn" onclick="navigateItem(-1)">&larr; Anterior</button>
+            <span class="item-counter" id="item-counter">Item 1 de 10</span>
+            <button class="nav-item-btn" id="next-item-btn" onclick="navigateItem(1)">Seguinte &rarr;</button>
+        </div>
+    </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -23,7 +226,6 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 const COLLECTION_NAME = "inventario";
 
-// Forçar a persistência local para ler a sessão guardada no index.html
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
 const authorizedEmails = [
@@ -36,20 +238,22 @@ function logout() {
     auth.signOut().then(() => { window.location.href = "index.html"; });
 }
 
-// Monitorizar e validar a sessão iniciada no portal
 auth.onAuthStateChanged((user) => {
     if (user) {
         const userEmail = (user.email || "").toLowerCase().trim();
         if (authorizedEmails.includes(userEmail)) {
-            document.getElementById('user-details').style.display = 'block';
-            document.getElementById('user-email').innerText = user.email;
+            const userDetailsEl = document.getElementById('user-details');
+            const userEmailEl = document.getElementById('user-email');
+            
+            if (userDetailsEl) userDetailsEl.style.display = 'block';
+            if (userEmailEl) userEmailEl.innerText = user.email;
+            
             loadInventory();
         } else {
             alert("Acesso Negado! O e-mail (" + user.email + ") não tem permissão.");
             window.location.href = "index.html";
         }
     } else {
-        // Aguarda um pequeno instante antes de redirecionar para garantir que não é um atraso de leitura da sessão
         setTimeout(() => {
             if (!auth.currentUser) {
                 window.location.href = "index.html";
@@ -178,3 +382,6 @@ window.onclick = (e) => {
     if (e.target.className === 'modal') closeCardModal();
 };
 </script>
+
+</body>
+</html>
