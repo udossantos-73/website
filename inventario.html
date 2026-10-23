@@ -3,16 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventário de Colecionáveis - Pops & Hot Wheels</title>
+    <title>Inventário Detalhado - Pops & Hot Wheels</title>
     
     <style>
     body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 20px; color: #333; }
-    h1 { color: #007acc; text-align: center; margin-bottom: 10px; }
     
-    .auth-container { text-align: center; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .auth-button { padding: 10px 20px; font-size: 1rem; color: white; background-color: #007acc; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-    .auth-button:hover { background-color: #005999; }
+    .header-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    h1 { color: #007acc; margin: 0; }
+    
+    .back-btn {
+        background-color: #64748b;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+    .back-btn:hover { background-color: #475569; }
+
     .user-info { font-weight: bold; margin-right: 15px; }
+    .logout-btn { padding: 8px 16px; font-size: 0.9rem; color: white; background-color: #dc3545; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    .logout-btn:hover { background-color: #bb2d3b; }
 
     .filters-container { display: flex; gap: 15px; margin-bottom: 20px; justify-content: center; }
     .filters-container input, .filters-container select { padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 1rem; }
@@ -24,8 +44,7 @@
     .pop-inventory tbody tr:hover { background-color: #f1f5f9; }
     
     .pop-main-image { width: 50px; height: auto; border-radius: 4px; display: block; margin: auto; }
-    
-    /* ESTILO DO LINK NO NOME */
+
     .item-name-link { 
         color: #007acc !important; 
         font-weight: bold !important; 
@@ -68,7 +87,7 @@
     .item-counter { font-size: 0.85rem; color: #64748b; font-weight: bold; }
 
     @media (max-width: 850px) {
-        h1 { font-size: 1.5rem; }
+        h1 { font-size: 1.3rem; }
         .filters-container { flex-direction: column; align-items: stretch; }
 
         .pop-inventory { display: table !important; width: 100% !important; border-collapse: collapse; font-size: 13px; }
@@ -79,7 +98,7 @@
         .pop-inventory th[data-label="Imagem"], .pop-inventory td[data-label="Imagem"],
         .pop-inventory th[data-label="Marca"],  .pop-inventory td[data-label="Marca"],
         .pop-inventory th[data-label="Numero"], .pop-inventory td[data-label="Numero"],
-        .pop-inventory th[data-label="Nome"], .pop-inventory td[data-label="Nome"] {
+        .pop-inventory th[data-label="Nome"],   .pop-inventory td[data-label="Nome"] {
             display: table-cell !important;
         }
 
@@ -90,13 +109,12 @@
 </head>
 <body>
 
-<h1>Inventário Detalhado da Coleção</h1>
-
-<div class="auth-container" id="auth-section">
-    <button id="login-btn" class="auth-button" onclick="login()">Entrar com Google</button>
+<div class="header-bar">
+    <a href="index.html" class="back-btn">&larr; Voltar ao Portal</a>
+    <h1>Inventário da Coleção</h1>
     <div id="user-details" style="display:none;">
-        <span class="user-info" id="user-email"></span>
-        <button class="auth-button" style="background-color: #dc3545;" onclick="logout()">Sair</button>
+        <span class="user-info" id="user-email" style="font-size:0.85rem;"></span>
+        <button class="logout-btn" onclick="logout()">Sair</button>
     </div>
 </div>
 
@@ -126,7 +144,7 @@
         </tr>
     </thead>
     <tbody id="inventory-body">
-        <tr><td colspan="11">A aguardar autenticação...</td></tr>
+        <tr><td colspan="11">A verificar autenticação...</td></tr>
     </tbody>
 </table>
 
@@ -208,41 +226,34 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 const COLLECTION_NAME = "inventario";
 
+// Lista de e-mails autorizados
 const authorizedEmails = [
     "ulisses.dos.santos@gmail.com",
     "urbino.sousa@gmail.com",
     "miguelabrantesdossantos@gmail.com"
 ];
 
-function login() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithRedirect(provider);
-}
-
 function logout() {
-    auth.signOut().then(() => { location.reload(); });
+    auth.signOut().then(() => { window.location.href = "index.html"; });
 }
 
-auth.getRedirectResult().then((result) => {
-    if (result.user) console.log("Login por redirecionamento concluído:", result.user.email);
-}).catch((error) => console.error("Erro no Auth:", error));
-
+// VALIDAÇÃO DE AUTENTICAÇÃO
 auth.onAuthStateChanged((user) => {
     if (user) {
         const userEmail = (user.email || "").toLowerCase().trim();
         if (authorizedEmails.includes(userEmail)) {
-            document.getElementById('login-btn').style.display = 'none';
+            // Utilizador autenticado e autorizado
             document.getElementById('user-details').style.display = 'block';
-            document.getElementById('user-email').innerText = "Sessão iniciada: " + user.email;
+            document.getElementById('user-email').innerText = user.email;
             loadInventory();
         } else {
-            alert("Acesso Negado!\n\nO email (" + user.email + ") não tem permissão de acesso ao inventário.");
-            auth.signOut();
+            // E-mail não autorizado
+            alert("Acesso Negado! O e-mail não tem permissão.");
+            window.location.href = "index.html";
         }
     } else {
-        document.getElementById('login-btn').style.display = 'inline-block';
-        document.getElementById('user-details').style.display = 'none';
-        document.getElementById('inventory-body').innerHTML = '<tr><td colspan="11">Faça login com uma conta autorizada para visualizar os dados.</td></tr>';
+        // Sem sessão ativa: redireciona imediatamente para o portal (index.html)
+        window.location.href = "index.html";
     }
 });
 
@@ -281,8 +292,6 @@ function renderTable(data) {
         const img = (item.Imagem && item.Imagem[0]) ? item.Imagem[0] : 'https://via.placeholder.com/50';
         const valorLoja = item.Loja || item.loja;
         const valorPreco = item.Preço || item.Preco || item.preço || 0;
-        
-        // Lê qualquer variação de nome da base de dados
         const nomeItem = item.NomeNaColecao || item.Nome || item.nome || item.Colecao || 'Ver Detalhes';
         
         row.innerHTML = `
@@ -305,70 +314,3 @@ function filterData() {
     const txt = document.getElementById('searchColecao').value.toLowerCase();
     const marca = document.getElementById('searchMarca').value;
     currentFilteredItems = allItems.filter(i => (i.Colecao || '').toLowerCase().includes(txt) && (marca === "" || i.Marca === marca));
-    renderTable(currentFilteredItems);
-}
-
-function openCardModal(index) {
-    currentItemIndex = index;
-    displayCardData();
-    document.getElementById('card-modal').style.display = 'flex';
-}
-
-function displayCardData() {
-    const item = currentFilteredItems[currentItemIndex];
-    if (!item) return;
-
-    document.getElementById('card-marca').innerText = item.Marca || 'Geral';
-    document.getElementById('card-nome').innerText = item.NomeNaColecao || item.Nome || item.nome || 'Sem Nome';
-    document.getElementById('card-colecao').innerText = item.Colecao || 'N/A';
-    document.getElementById('card-numero').innerText = item.NumeroNaColecao || item.Numero || 'N/A';
-    document.getElementById('card-descricao').innerText = item.Descricao || 'Sem descrição disponível.';
-    document.getElementById('card-origem').innerText = translateOrigem(item.Origem);
-    document.getElementById('card-loja').innerText = translateLoja(item.Loja || item.loja);
-    document.getElementById('card-preco').innerText = formatCurrency(item.Preço || item.Preco || item.preço);
-    document.getElementById('card-data').innerText = formatDate(item.DatadeCompra);
-    document.getElementById('card-colecionado').innerText = translateColecionado(item.Colecionado);
-
-    currentCardImages = (item.Imagem && item.Imagem.length > 0) ? item.Imagem : ['https://via.placeholder.com/300?text=Sem+Imagem'];
-    currentCardImageIndex = 0;
-    updateCardImageDisplay();
-
-    document.getElementById('item-counter').innerText = `${currentItemIndex + 1} de ${currentFilteredItems.length}`;
-    document.getElementById('prev-item-btn').disabled = (currentItemIndex === 0);
-    document.getElementById('next-item-btn').disabled = (currentItemIndex === currentFilteredItems.length - 1);
-}
-
-function updateCardImageDisplay() {
-    document.getElementById('card-img-display').src = currentCardImages[currentCardImageIndex];
-    const showArrows = currentCardImages.length > 1;
-    document.getElementById('img-prev-btn').style.display = showArrows ? 'flex' : 'none';
-    document.getElementById('img-next-btn').style.display = showArrows ? 'flex' : 'none';
-}
-
-function changeCardImage(direction) {
-    currentCardImageIndex += direction;
-    if (currentCardImageIndex >= currentCardImages.length) currentCardImageIndex = 0;
-    if (currentCardImageIndex < 0) currentCardImageIndex = currentCardImages.length - 1;
-    updateCardImageDisplay();
-}
-
-function navigateItem(direction) {
-    const newIndex = currentItemIndex + direction;
-    if (newIndex >= 0 && newIndex < currentFilteredItems.length) {
-        currentItemIndex = newIndex;
-        displayCardData();
-    }
-}
-
-function closeCardModal() {
-    document.getElementById('card-modal').style.display = 'none';
-}
-
-window.onclick = (e) => {
-    if (e.target.className === 'modal') closeCardModal();
-};
-</script>
-
-</body>
-</html>
-EOF
