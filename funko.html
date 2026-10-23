@@ -3,115 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal da Coleção - Pops & Hot Wheels</title>
+    <title>Galeria Funko Pop</title>
     
     <style>
     body { 
         font-family: Arial, sans-serif; 
         background-color: #f4f4f4; 
-        margin: 0; 
-        padding: 0; 
-        display: flex; 
-        justify-content: center; 
-        align-items: center; 
-        min-height: 100vh; 
+        margin: 20px; 
         color: #333; 
     }
-
-    .portal-card { 
-        background: #ffffff; 
-        padding: 40px; 
-        border-radius: 12px; 
-        box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
-        text-align: center; 
-        max-width: 450px; 
-        width: 90%; 
+    
+    .header-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 10px;
     }
 
-    h1 { color: #007acc; margin-bottom: 10px; font-size: 1.8rem; }
-    p { color: #64748b; margin-bottom: 25px; line-height: 1.5; }
-
-    .auth-button { 
-        padding: 12px 24px; 
-        font-size: 1rem; 
-        color: white; 
-        background-color: #007acc; 
-        border: none; 
-        border-radius: 6px; 
-        cursor: pointer; 
-        font-weight: bold; 
-        transition: background-color 0.2s;
-        width: 100%;
-        box-sizing: border-box;
-    }
-    .auth-button:hover { background-color: #005999; }
-
-    .nav-button {
-        display: inline-block;
-        padding: 14px 28px;
-        font-size: 1rem;
+    h1 { color: #007acc; margin: 0; }
+    
+    .back-btn {
+        background-color: #64748b;
         color: white;
-        background-color: #10b981;
+        padding: 8px 16px;
         border-radius: 6px;
         text-decoration: none;
         font-weight: bold;
-        transition: background-color 0.2s;
-        margin-top: 12px;
-        width: 100%;
-        box-sizing: border-box;
+        font-size: 0.9rem;
     }
-    .nav-button:hover { background-color: #059669; }
+    .back-btn:hover { background-color: #475569; }
 
-    .nav-button.gallery-btn {
-        background-color: #8b5cf6;
-    }
-    .nav-button.gallery-btn:hover { background-color: #7c3aed; }
-
-    .user-info { 
-        background: #f8fafc; 
-        padding: 15px; 
-        border-radius: 8px; 
-        border: 1px solid #e2e8f0; 
-        margin-bottom: 20px; 
-        word-break: break-all;
-    }
-    .user-email { font-weight: bold; color: #1e293b; }
-
-    .logout-btn {
-        background-color: #dc3545;
-        margin-top: 15px;
-    }
+    .user-info { font-weight: bold; margin-right: 15px; }
+    .logout-btn { padding: 8px 16px; font-size: 0.9rem; color: white; background-color: #dc3545; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
     .logout-btn:hover { background-color: #bb2d3b; }
+
+    /* LAYOUT DA GRELHA (DESKTOP: MULTI-COLUNAS) */
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 10px;
+    }
+
+    .gallery-item {
+        background: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        aspect-ratio: 1 / 1; /* Garante formato quadrado perfeito */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .gallery-item:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+
+    .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Recorta suavemente para preencher o quadrado */
+        display: block;
+    }
+
+    /* ESTILOS DO MODAL DE DETALHES DO FUNKO */
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.75); padding: 15px; box-sizing: border-box; }
+    .card-modal-content { background-color: #fff; padding: 25px; border-radius: 12px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+    .close-button { position: absolute; top: 15px; right: 20px; color: #888; font-size: 28px; font-weight: bold; cursor: pointer; }
+    .close-button:hover { color: #000; }
+
+    .card-header { text-align: center; margin-bottom: 15px; padding-right: 20px; }
+    .card-header h2 { margin: 5px 0; color: #007acc; font-size: 1.4rem; }
+    .card-badge { display: inline-block; background: #e0f2fe; color: #0369a1; font-size: 0.85rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; margin-bottom: 5px; }
+
+    .card-image-wrapper { position: relative; width: 100%; height: 260px; background: #fafafa; border-radius: 8px; border: 1px solid #eee; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
+    .card-image-wrapper img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    
+    .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); color: white; border: none; font-size: 1.2rem; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; z-index: 5; }
+    .nav-arrow:hover { background: rgba(0,0,0,0.9); }
+    .nav-arrow.prev { left: 10px; }
+    .nav-arrow.next { right: 10px; }
+
+    .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.9rem; }
+    .card-grid-item { display: flex; flex-direction: column; }
+    .card-grid-item.full-width { grid-column: span 2; }
+    .card-label { font-size: 0.75rem; color: #64748b; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
+    .card-value { color: #1e293b; font-weight: 500; }
+
+    .card-item-navigation { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; }
+    .nav-item-btn { background: #007acc; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
+    .nav-item-btn:hover { background: #005999; }
+    .nav-item-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+    .item-counter { font-size: 0.85rem; color: #64748b; font-weight: bold; }
+
+    /* MODO TELEMÓVEL: APENAS 1 COLUNA */
+    @media (max-width: 600px) {
+        body { margin: 10px; }
+        h1 { font-size: 1.4rem; }
+        
+        .gallery-grid {
+            grid-template-columns: 1fr !important; /* Força 1 coluna no telemóvel */
+            gap: 15px;
+            padding: 0;
+        }
+    }
     </style>
 </head>
 <body>
 
-<div class="portal-card">
-    <h1>Coleção de Pops & Hot Wheels</h1>
-    <p>Bem-vindo ao portal de gestão e consulta do inventário de colecionáveis.</p>
+<div class="header-bar">
+    <a href="index.html" class="back-btn">&larr; Voltar ao Portal</a>
+    <h1>Galeria Funko Pop</h1>
+    <div id="user-details" style="display:none;">
+        <span class="user-info" id="user-email" style="font-size:0.85rem;"></span>
+        <button class="logout-btn" onclick="logout()">Sair</button>
+    </div>
+</div>
 
-    <div id="auth-section">
-        <button id="login-btn" class="auth-button" onclick="login()">Entrar com Google</button>
+<!-- CONTAINER DA GRELHA DE IMAGENS -->
+<div class="gallery-grid" id="gallery-container">
+    <p style="text-align: center; grid-column: 1 / -1; color: #64748b;">A carregar coleção de Funko Pops...</p>
+</div>
+
+<!-- MODAL DE CARTÃO DETALHADO -->
+<div id="card-modal" class="modal">
+    <div class="card-modal-content">
+        <span class="close-button" onclick="closeCardModal()">&times;</span>
         
-        <div id="user-details" style="display:none;">
-            <div class="user-info">
-                <span>Sessão iniciada como:</span><br>
-                <span class="user-email" id="user-email"></span>
+        <div class="card-header">
+            <span class="card-badge" id="card-marca">Funko Pop</span>
+            <h2 id="card-nome">Nome do Item</h2>
+            <div style="font-size: 0.9rem; color: #64748b;">
+                <span id="card-colecao">Coleção</span> #<span id="card-numero">00</span>
             </div>
+        </div>
 
-            <!-- OPÇÕES DE NAVEGAÇÃO -->
-            <a href="inventario.html" class="nav-button">&rarr; Ver Tabela de Inventário</a>
-            <a href="galeria.html" class="nav-button gallery-btn">&rarr; Ver Galeria Visual Funko</a>
+        <div class="card-image-wrapper">
+            <button class="nav-arrow prev" id="img-prev-btn" onclick="changeCardImage(-1)">&#10094;</button>
+            <img id="card-img-display" src="" alt="Imagem do Item">
+            <button class="nav-arrow next" id="img-next-btn" onclick="changeCardImage(1)">&#10095;</button>
+        </div>
 
-            <button class="auth-button logout-btn" onclick="logout()">Sair</button>
+        <div class="card-grid">
+            <div class="card-grid-item full-width">
+                <span class="card-label">Descrição</span>
+                <span class="card-value" id="card-descricao">N/A</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Origem</span>
+                <span class="card-value" id="card-origem">N/A</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Loja</span>
+                <span class="card-value" id="card-loja">N/A</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Preço</span>
+                <span class="card-value" id="card-preco">0,00 €</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Data de Compra</span>
+                <span class="card-value" id="card-data">N/A</span>
+            </div>
+            <div class="card-grid-item full-width">
+                <span class="card-label">Na Coleção?</span>
+                <span class="card-value" id="card-colecionado">Sim</span>
+            </div>
+        </div>
+
+        <div class="card-item-navigation">
+            <button class="nav-item-btn" id="prev-item-btn" onclick="navigateItem(-1)">&larr; Anterior</button>
+            <span class="item-counter" id="item-counter">Item 1 de 10</span>
+            <button class="nav-item-btn" id="next-item-btn" onclick="navigateItem(1)">Seguinte &rarr;</button>
         </div>
     </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
 <script>
+let funkoItems = [];
+let currentItemIndex = 0;
+let currentCardImages = [];
+let currentCardImageIndex = 0;
+
 const firebaseConfig = {
     apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
     authDomain: "miguel-inventory.firebaseapp.com",
@@ -122,7 +207,9 @@ const firebaseConfig = {
 };
 
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 const auth = firebase.auth();
+const COLLECTION_NAME = "inventario";
 
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
@@ -132,33 +219,148 @@ const authorizedEmails = [
     "miguelabrantesdossantos@gmail.com"
 ];
 
-function login() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).catch((error) => {
-        auth.signInWithRedirect(provider);
-    });
-}
-
 function logout() {
-    auth.signOut().then(() => { location.reload(); });
+    auth.signOut().then(() => { window.location.href = "index.html"; });
 }
 
 auth.onAuthStateChanged((user) => {
     if (user) {
         const userEmail = (user.email || "").toLowerCase().trim();
         if (authorizedEmails.includes(userEmail)) {
-            document.getElementById('login-btn').style.display = 'none';
-            document.getElementById('user-details').style.display = 'block';
-            document.getElementById('user-email').innerText = user.email;
+            const userDetailsEl = document.getElementById('user-details');
+            const userEmailEl = document.getElementById('user-email');
+            
+            if (userDetailsEl) userDetailsEl.style.display = 'block';
+            if (userEmailEl) userEmailEl.innerText = user.email;
+            
+            loadFunkoGallery();
         } else {
-            alert("Acesso Negado!\n\nO email (" + user.email + ") não tem permissão de acesso.");
-            auth.signOut();
+            alert("Acesso Negado! O e-mail (" + user.email + ") não tem permissão.");
+            window.location.href = "index.html";
         }
     } else {
-        document.getElementById('login-btn').style.display = 'block';
-        document.getElementById('user-details').style.display = 'none';
+        setTimeout(() => {
+            if (!auth.currentUser) {
+                window.location.href = "index.html";
+            }
+        }, 1000);
     }
 });
+
+function formatCurrency(v) { return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(v || 0); }
+function formatDate(t) { return (t && t.toDate) ? new Intl.DateTimeFormat('pt-PT', { day: '2-digit', month: 'short', year: 'numeric' }).format(t.toDate()) : 'Desconhecida'; }
+function translateOrigem(v) { return v === false ? 'Oferecido' : 'Adquirido'; }
+function translateColecionado(v) { return v === true ? 'Sim' : 'Não'; }
+function translateLoja(v) { return v ? v : 'Desconhecida'; }
+
+function loadFunkoGallery() {
+    const container = document.getElementById('gallery-container');
+    container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #64748b;">A carregar dados do inventário...</p>';
+    
+    db.collection(COLLECTION_NAME).get().then((snap) => {
+        funkoItems = [];
+        snap.forEach(doc => { 
+            let d = doc.data(); 
+            d.id = doc.id; 
+            
+            // Filtra exclusivamente para os itens da marca Funko Pop
+            if ((d.Marca || '').toLowerCase().includes('funko')) {
+                funkoItems.push(d); 
+            }
+        });
+
+        // Ordena por Coleção e por Número
+        funkoItems.sort((a,b) => (a.Colecao || '').localeCompare(b.Colecao || '') || (a.NumeroNaColecao - b.NumeroNaColecao));
+        renderGallery(funkoItems);
+    }).catch(err => {
+        console.error("Erro ao carregar Firestore:", err);
+        container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #dc3545;">Erro ao carregar dados da coleção.</p>';
+    });
+}
+
+function renderGallery(items) {
+    const container = document.getElementById('gallery-container');
+    container.innerHTML = '';
+
+    if (items.length === 0) {
+        container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #64748b;">Nenhum Funko Pop encontrado na coleção.</p>';
+        return;
+    }
+
+    items.forEach((item, index) => {
+        // Extrai apenas a PRIMEIRA imagem do array
+        const firstImg = (item.Imagem && item.Imagem[0]) ? item.Imagem[0] : 'https://via.placeholder.com/200?text=Sem+Imagem';
+        const titleText = item.NomeNaColecao || item.Nome || item.Colecao || 'Funko Pop';
+
+        const card = document.createElement('div');
+        card.className = 'gallery-item';
+        card.title = titleText;
+        card.onclick = () => openCardModal(index);
+        
+        card.innerHTML = `<img src="${firstImg}" alt="${titleText}" loading="lazy">`;
+        container.appendChild(card);
+    });
+}
+
+function openCardModal(index) {
+    currentItemIndex = index;
+    displayCardData();
+    document.getElementById('card-modal').style.display = 'flex';
+}
+
+function displayCardData() {
+    const item = funkoItems[currentItemIndex];
+    if (!item) return;
+
+    document.getElementById('card-marca').innerText = item.Marca || 'Funko Pop';
+    document.getElementById('card-nome').innerText = item.NomeNaColecao || item.Nome || item.nome || 'Sem Nome';
+    document.getElementById('card-colecao').innerText = item.Colecao || 'N/A';
+    document.getElementById('card-numero').innerText = item.NumeroNaColecao || item.Numero || 'N/A';
+    document.getElementById('card-descricao').innerText = item.Descricao || 'Sem descrição disponível.';
+    document.getElementById('card-origem').innerText = translateOrigem(item.Origem);
+    document.getElementById('card-loja').innerText = translateLoja(item.Loja || item.loja);
+    document.getElementById('card-preco').innerText = formatCurrency(item.Preço || item.Preco || item.preço);
+    document.getElementById('card-data').innerText = formatDate(item.DatadeCompra);
+    document.getElementById('card-colecionado').innerText = translateColecionado(item.Colecionado);
+
+    currentCardImages = (item.Imagem && item.Imagem.length > 0) ? item.Imagem : ['https://via.placeholder.com/300?text=Sem+Imagem'];
+    currentCardImageIndex = 0;
+    updateCardImageDisplay();
+
+    document.getElementById('item-counter').innerText = `${currentItemIndex + 1} de ${funkoItems.length}`;
+    document.getElementById('prev-item-btn').disabled = (currentItemIndex === 0);
+    document.getElementById('next-item-btn').disabled = (currentItemIndex === funkoItems.length - 1);
+}
+
+function updateCardImageDisplay() {
+    document.getElementById('card-img-display').src = currentCardImages[currentCardImageIndex];
+    const showArrows = currentCardImages.length > 1;
+    document.getElementById('img-prev-btn').style.display = showArrows ? 'flex' : 'none';
+    document.getElementById('img-next-btn').style.display = showArrows ? 'flex' : 'none';
+}
+
+function changeCardImage(direction) {
+    currentCardImageIndex += direction;
+    if (currentCardImageIndex >= currentCardImages.length) currentCardImageIndex = 0;
+    if (currentCardImageIndex < 0) currentCardImageIndex = currentCardImages.length - 1;
+    updateCardImageDisplay();
+}
+
+function navigateItem(direction) {
+    const newIndex = currentItemIndex + direction;
+    if (newIndex >= 0 && newIndex < funkoItems.length) {
+        currentItemIndex = newIndex;
+        displayCardData();
+    }
+}
+
+function closeCardModal() {
+    document.getElementById('card-modal').style.display = 'none';
+}
+
+window.onclick = (e) => {
+    if (e.target.className === 'modal') closeCardModal();
+};
 </script>
 
 </body>
