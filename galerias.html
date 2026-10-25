@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galerias por Tema - Coleção Privada</title>
+    
+    <style>
+    body { 
+        font-family: Arial, sans-serif; 
+        background-color: #f4f4f4; 
+        margin: 0; 
+        padding: 20px 0; 
+        display: flex; 
+        flex-direction: column;
+        justify-content: center; 
+        align-items: center; 
+        min-height: 100vh; 
+        color: #333; 
+        box-sizing: border-box;
+    }
+
+    .portal-card { 
+        background: #ffffff; 
+        padding: 40px 30px; 
+        border-radius: 12px; 
+        box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
+        text-align: center; 
+        max-width: 480px; 
+        width: 90%; 
+        position: relative;
+        box-sizing: border-box;
+    }
+
+    /* Menu Hambúrguer alinhado à Esquerda */
+    .menu-container {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+    }
+
+    .hamburger-btn {
+        background: transparent;
+        border: none;
+        font-size: 1.6rem;
+        cursor: pointer;
+        color: #333;
+        padding: 5px;
+        line-height: 1;
+    }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        left: 0;
+        top: 35px;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        border: 1px solid #e2e8f0;
+        width: 220px;
+        z-index: 100;
+        overflow: hidden;
+        text-align: left;
+    }
+
+    .dropdown-menu a {
+        display: block;
+        padding: 12px 16px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: bold;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background-color 0.2s;
+    }
+
+    .dropdown-menu a:hover {
+        background-color: #f8fafc;
+    }
+
+    .dropdown-menu a.blue-link { color: #007acc; }
+    .dropdown-menu a.add-link { color: #64748b; }
+
+    h1 { color: #007acc; margin-top: 15px; margin-bottom: 10px; font-size: 1.8rem; }
+    p { color: #64748b; margin-bottom: 25px; line-height: 1.5; font-size: 0.95rem; }
+
+    /* Lista de Botões de Galerias por Tema */
+    .gallery-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        margin-bottom: 25px;
+    }
+
+    .theme-button {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        font-size: 1rem;
+        font-weight: bold;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .theme-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+    }
+
+    /* Cores Temáticas dos Botões */
+    .btn-funko { background-color: #8b5cf6; }
+    .btn-funko:hover { background-color: #7c3aed; }
+
+    .btn-hotwheels { background-color: #f59e0b; }
+    .btn-hotwheels:hover { background-color: #d97706; }
+
+    .btn-lego { background-color: #ef4444; }
+    .btn-lego:hover { background-color: #dc2626; }
+
+    .btn-outros { background-color: #0284c7; }
+    .btn-outros:hover { background-color: #0369a1; }
+
+    .badge-count {
+        background: rgba(255, 255, 255, 0.25);
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: normal;
+    }
+
+    .back-btn {
+        display: inline-block;
+        padding: 12px 24px;
+        font-size: 0.95rem;
+        color: #64748b;
+        background-color: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: background-color 0.2s;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .back-btn:hover { background-color: #e2e8f0; color: #334155; }
+    </style>
+</head>
+<body>
+
+<div class="portal-card">
+
+    <!-- MENU HAMBÚRGUER (À Esquerda, apenas visível se autenticado) -->
+    <div id="menu-container" class="menu-container" style="display:none;">
+        <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
+        <div id="dropdown-menu" class="dropdown-menu">
+            <a href="inventario.html" class="blue-link">Tabela de Inventário</a>
+            <a href="galerias.html" class="blue-link">Galerias</a>
+            <!-- BOTÃO DE ESTATÍSTICAS EXCLUSIVO PARA O ULISSES -->
+            <a href="estatisticas.html" id="admin-stats-btn" class="blue-link" style="display:none;">Valor & Estatísticas</a>
+            <a href="formulario.html" class="add-link">Adicionar Item</a>
+        </div>
+    </div>
+
+    <h1>Galerias por Tema</h1>
+    <p>Escolha um tema para visualizar a galeria visual dos itens da coleção.</p>
+
+    <!-- LISTA DE BOTÕES DE TEMAS -->
+    <div id="gallery-options" class="gallery-list" style="display:none;">
+        <a href="funko.html" class="theme-button btn-funko">
+            <span>🧸 Funko Pop</span>
+            <span class="badge-count" id="count-funko">...</span>
+        </a>
+
+        <a href="hotwheels.html" class="theme-button btn-hotwheels">
+            <span>🏎️ Hot Wheels</span>
+            <span class="badge-count" id="count-hotwheels">...</span>
+        </a>
+
+        <a href="lego.html" class="theme-button btn-lego">
+            <span>🧱 LEGO</span>
+            <span class="badge-count" id="count-lego">...</span>
+        </a>
+
+        <a href="inventario.html" class="theme-button btn-outros">
+            <span>📦 Ver Todos na Tabela</span>
+            <span class="badge-count" id="count-total">...</span>
+        </a>
+    </div>
+
+    <a href="index.html" class="back-btn">&larr; Voltar ao Início</a>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
+    authDomain: "miguel-inventory.firebaseapp.com",
+    projectId: "miguel-inventory",
+    storageBucket: "miguel-inventory.firebasestorage.app",
+    messagingSenderId: "277968569414",
+    appId: "1:277968569414:web:04884bc1932c2c7dbb6b647"
+};
+
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+const authorizedEmails = [
+    "ulisses.dos.santos@gmail.com",
+    "urbino.sousa@gmail.com",
+    "miguelabrantesdossantos@gmail.com"
+];
+
+const ADMIN_EMAIL = "ulisses.dos.santos@gmail.com";
+
+function toggleMenu() {
+    const menu = document.getElementById('dropdown-menu');
+    menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+}
+
+document.addEventListener('click', function(event) {
+    const container = document.getElementById('menu-container');
+    if (container && !container.contains(event.target)) {
+        document.getElementById('dropdown-menu').style.display = 'none';
+    }
+});
+
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        const userEmail = (user.email || "").toLowerCase().trim();
+        if (authorizedEmails.includes(userEmail)) {
+            document.getElementById('menu-container').style.display = 'block';
+            document.getElementById('gallery-options').style.display = 'flex';
+
+            if (userEmail === ADMIN_EMAIL) {
+                document.getElementById('admin-stats-btn').style.display = 'block';
+            } else {
+                document.getElementById('admin-stats-btn').style.display = 'none';
+            }
+
+            carregarContagens();
+        } else {
+            alert("Acesso Negado!\n\nO email (" + user.email + ") não tem permissão de acesso.");
+            auth.signOut();
+            window.location.href = 'index.html';
+        }
+    } else {
+        window.location.href = 'index.html';
+    }
+});
+
+async function carregarContagens() {
+    try {
+        const snapshot = await db.collection('inventario').get();
+        let total = 0;
+        let funkoCount = 0;
+        let hwCount = 0;
+        let legoCount = 0;
+
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            total++;
+
+            const marca = (data.Marca || '').toLowerCase();
+            const tipo = (data.Tipo || '').toLowerCase();
+
+            if (marca.includes('funko') || tipo.includes('pop')) {
+                funkoCount++;
+            } else if (marca.includes('hot wheels') || marca.includes('mattel') || tipo.includes('carro')) {
+                hwCount++;
+            } else if (marca.includes('lego')) {
+                legoCount++;
+            }
+        });
+
+        document.getElementById('count-funko').innerText = `${funkoCount} itens`;
+        document.getElementById('count-hotwheels').innerText = `${hwCount} itens`;
+        document.getElementById('count-lego').innerText = `${legoCount} itens`;
+        document.getElementById('count-total').innerText = `${total} itens`;
+
+    } catch (err) {
+        console.error("Erro ao carregar contagens de temas:", err);
+    }
+}
+</script>
+
+</body>
+</html>
