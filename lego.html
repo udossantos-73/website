@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galeria Lego</title>
+    <title>Galeria LEGO</title>
     
     <style>
     body { 
@@ -123,7 +123,7 @@
 
     .card-header { text-align: center; margin-bottom: 15px; padding-right: 20px; }
     .card-header h2 { margin: 5px 0; color: #007acc; font-size: 1.4rem; }
-    .card-badge { display: inline-block; background: #e0f2fe; color: #0369a1; font-size: 0.85rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; margin-bottom: 5px; }
+    .card-badge { display: inline-block; background: #fee2e2; color: #dc2626; font-size: 0.85rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; margin-bottom: 5px; }
 
     .card-image-wrapper { position: relative; width: 100%; height: 260px; background: #fafafa; border-radius: 8px; border: 1px solid #eee; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
     .card-image-wrapper img { max-width: 100%; max-height: 100%; object-fit: contain; }
@@ -183,13 +183,13 @@
 <body>
 
 <div class="header-bar">
-    <h1>Galeria Funko Pop</h1>
-    <a href="index.html" class="back-btn">&larr; Voltar ao Portal</a>
+    <h1>Galeria LEGO</h1>
+    <a href="galerias.html" class="back-btn">&larr; Voltar às Galerias</a>
 </div>
 
 <!-- GRELHA VISUAL -->
 <div class="gallery-grid" id="gallery-container">
-    <p style="text-align: center; grid-column: 1 / -1; color: #64748b;">A carregar coleção de Funko Pops...</p>
+    <p style="text-align: center; grid-column: 1 / -1; color: #64748b;">A carregar coleção de LEGO...</p>
 </div>
 
 <!-- SECÇÃO FINAL DA PÁGINA -->
@@ -204,10 +204,10 @@
         <span class="close-button" onclick="closeCardModal()">&times;</span>
         
         <div class="card-header">
-            <span class="card-badge" id="card-marca">Funko Pop</span>
-            <h2 id="card-nome">Nome do Item</h2>
+            <span class="card-badge" id="card-marca">LEGO</span>
+            <h2 id="card-nome">Nome do Set</h2>
             <div style="font-size: 0.9rem; color: #64748b;">
-                <span id="card-colecao">Coleção</span> #<span id="card-numero">00</span>
+                <span id="card-colecao">Tema</span> #<span id="card-numero">00</span>
             </div>
         </div>
 
@@ -257,7 +257,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
 <script>
-let funkoItems = [];
+let legoItems = [];
 let currentItemIndex = 0;
 let currentCardImages = [];
 let currentCardImageIndex = 0;
@@ -296,7 +296,7 @@ auth.onAuthStateChanged((user) => {
     if (user) {
         const userEmail = (user.email || "").toLowerCase().trim();
         if (authorizedEmails.includes(userEmail)) {
-            loadFunkoGallery();
+            loadLegoGallery();
         } else {
             alert("Acesso Negado! O e-mail (" + user.email + ") não tem permissão.");
             window.location.href = "index.html";
@@ -316,22 +316,46 @@ function translateOrigem(v) { return v === false ? 'Oferecido' : 'Adquirido'; }
 function translateColecionado(v) { return v === true ? 'Sim' : 'Não'; }
 function translateLoja(v) { return v ? v : 'Desconhecida'; }
 
-function loadFunkoGallery() {
+function extrairImagens(data) {
+    if (!data) return [];
+    
+    // Suporta arrays ou strings no campo Imagem/foto
+    const chavesComuns = ['imagem', 'Imagem', 'foto', 'Foto', 'FotoUrl', 'URL', 'url'];
+    for (const chave of chavesComuns) {
+        const val = data[chave];
+        if (!val) continue;
+
+        if (Array.isArray(val) && val.length > 0) {
+            return val.filter(item => typeof item === 'string' && item.trim().startsWith('http'));
+        }
+        
+        if (typeof val === 'string' && val.trim().startsWith('http')) {
+            return [val.trim()];
+        }
+    }
+    return [];
+}
+
+function loadLegoGallery() {
     const container = document.getElementById('gallery-container');
     container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #64748b;">A carregar dados do inventário...</p>';
     
     db.collection(COLLECTION_NAME).get().then((snap) => {
-        funkoItems = [];
+        legoItems = [];
         snap.forEach(doc => { 
             let d = doc.data(); 
             d.id = doc.id; 
-            if ((d.Marca || '').toLowerCase().includes('funko')) {
-                funkoItems.push(d); 
+            const marca = (d.Marca || '').toLowerCase();
+            const tipo = (d.Tipo || '').toLowerCase();
+
+            // Filtra exclusivamente por Lego
+            if (marca.includes('lego') || tipo.includes('lego') || tipo.includes('set')) {
+                legoItems.push(d); 
             }
         });
 
-        funkoItems.sort((a,b) => (a.Colecao || '').localeCompare(b.Colecao || '') || (a.NumeroNaColecao - b.NumeroNaColecao));
-        renderGallery(funkoItems);
+        legoItems.sort((a,b) => (a.Colecao || a.Marca || '').localeCompare(b.Colecao || b.Marca || '') || (a.NumeroNaColecao - b.NumeroNaColecao));
+        renderGallery(legoItems);
     }).catch(err => {
         console.error("Erro ao carregar Firestore:", err);
         container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #dc3545;">Erro ao carregar dados da coleção.</p>';
@@ -343,13 +367,14 @@ function renderGallery(items) {
     container.innerHTML = '';
 
     if (items.length === 0) {
-        container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #64748b;">Nenhum Funko Pop encontrado na coleção.</p>';
+        container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #64748b;">Nenhum Set LEGO encontrado na coleção.</p>';
         return;
     }
 
     items.forEach((item, index) => {
-        const firstImg = (item.Imagem && item.Imagem[0]) ? item.Imagem[0] : 'https://via.placeholder.com/200?text=Sem+Imagem';
-        const titleText = item.NomeNaColecao || item.Nome || item.Colecao || 'Funko Pop';
+        const imgs = extrairImagens(item);
+        const firstImg = imgs.length > 0 ? imgs[0] : 'https://via.placeholder.com/200?text=Sem+Imagem';
+        const titleText = item.NomeNaColecao || item.Nome || item.Modelo || 'Set LEGO';
 
         const card = document.createElement('div');
         card.className = 'gallery-item';
@@ -368,12 +393,12 @@ function openCardModal(index) {
 }
 
 function displayCardData() {
-    const item = funkoItems[currentItemIndex];
+    const item = legoItems[currentItemIndex];
     if (!item) return;
 
-    document.getElementById('card-marca').innerText = item.Marca || 'Funko Pop';
-    document.getElementById('card-nome').innerText = item.NomeNaColecao || item.Nome || item.nome || 'Sem Nome';
-    document.getElementById('card-colecao').innerText = item.Colecao || 'N/A';
+    document.getElementById('card-marca').innerText = item.Marca || 'LEGO';
+    document.getElementById('card-nome').innerText = item.NomeNaColecao || item.Nome || item.Modelo || 'Sem Nome';
+    document.getElementById('card-colecao').innerText = item.Colecao || item.Tipo || 'LEGO';
     document.getElementById('card-numero').innerText = item.NumeroNaColecao || item.Numero || 'N/A';
     document.getElementById('card-descricao').innerText = item.Descricao || 'Sem descrição disponível.';
     document.getElementById('card-origem').innerText = translateOrigem(item.Origem);
@@ -382,13 +407,14 @@ function displayCardData() {
     document.getElementById('card-data').innerText = formatDate(item.DatadeCompra);
     document.getElementById('card-colecionado').innerText = translateColecionado(item.Colecionado);
 
-    currentCardImages = (item.Imagem && item.Imagem.length > 0) ? item.Imagem : ['https://via.placeholder.com/300?text=Sem+Imagem'];
+    const imgs = extrairImagens(item);
+    currentCardImages = imgs.length > 0 ? imgs : ['https://via.placeholder.com/300?text=Sem+Imagem'];
     currentCardImageIndex = 0;
     updateCardImageDisplay();
 
-    document.getElementById('item-counter').innerText = `${currentItemIndex + 1} de ${funkoItems.length}`;
+    document.getElementById('item-counter').innerText = `${currentItemIndex + 1} de ${legoItems.length}`;
     document.getElementById('prev-item-btn').disabled = (currentItemIndex === 0);
-    document.getElementById('next-item-btn').disabled = (currentItemIndex === funkoItems.length - 1);
+    document.getElementById('next-item-btn').disabled = (currentItemIndex === legoItems.length - 1);
 }
 
 function updateCardImageDisplay() {
@@ -407,7 +433,7 @@ function changeCardImage(direction) {
 
 function navigateItem(direction) {
     const newIndex = currentItemIndex + direction;
-    if (newIndex >= 0 && newIndex < funkoItems.length) {
+    if (newIndex >= 0 && newIndex < legoItems.length) {
         currentItemIndex = newIndex;
         displayCardData();
     }
