@@ -1,171 +1,425 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-PT">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Coleção & Inventário</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-  <script src="auth-guard.js"></script>
-</head>
-<body class="bg-gray-100 font-sans text-gray-800 antialiased min-h-screen flex flex-col">
-
-  <!-- Navegação Superior com Menu Hambúrguer -->
-  <nav class="bg-slate-900 text-white shadow-md relative z-50">
-    <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-      <h1 class="text-xl font-bold tracking-wide flex items-center gap-2">
-        📦 Coleção Privada
-      </h1>
-
-      <!-- Botão Hambúrguer -->
-      <button id="menu-btn" class="p-2 rounded-lg text-gray-300 hover:text-white hover:bg-slate-800 focus:outline-none transition">
-        <svg id="icon-open" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-        <svg id="icon-close" class="w-7 h-7 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-      </button>
-    </div>
-
-    <!-- Dropdown do Menu Hambúrguer com o Esquema de Cores Original -->
-    <div id="dropdown-menu" class="hidden bg-slate-800 border-t border-slate-700 w-full absolute top-full left-0 shadow-xl">
-      <div class="max-w-md mx-auto px-4 py-4 flex flex-col gap-3">
-        <a href="inventario.html" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-center font-semibold py-3 px-4 rounded-xl shadow transition">
-          → Ver Tabela de Inventário
-        </a>
-        <a href="funko.html" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-center font-semibold py-3 px-4 rounded-xl shadow transition">
-          → Ver Galeria Visual Funko
-        </a>
-        <a href="hotwheels.html" class="w-full bg-amber-500 hover:bg-amber-600 text-white text-center font-semibold py-3 px-4 rounded-xl shadow transition">
-          → Ver Galeria Hot Wheels
-        </a>
-        <a href="estatisticas.html" class="w-full bg-sky-600 hover:bg-sky-700 text-white text-center font-semibold py-3 px-4 rounded-xl shadow transition">
-          → Ver Valor & Estatísticas
-        </a>
-        <a href="formulario.html" class="w-full bg-slate-700 hover:bg-slate-600 text-white text-center font-semibold py-3 px-4 rounded-xl shadow transition">
-          + Adicionar Novo Item
-        </a>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Conteúdo Principal -->
-  <main class="flex-grow max-w-2xl mx-auto px-4 py-8 flex flex-col items-center justify-center w-full gap-6">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal da Coleção - Pops & Hot Wheels</title>
     
-    <!-- Cartão da Coleção + Informação de Autenticação -->
-    <div class="w-full bg-white rounded-2xl shadow-lg border border-gray-200 p-6 text-center">
-      <h2 class="text-2xl font-bold text-sky-600">Coleção de Pops & Hot Wheels</h2>
-      <p class="text-sm text-gray-500 mt-1">Bem-vindo ao portal de gestão e consulta do inventário de colecionáveis.</p>
-      
-      <!-- Caixa do Utilizador Autenticado -->
-      <div class="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-xl">
-        <p class="text-xs text-gray-500">Sessão iniciada como:</p>
-        <p id="user-email" class="text-sm font-bold text-slate-800">A verificar...</p>
-      </div>
+    <style>
+    body { 
+        font-family: Arial, sans-serif; 
+        background-color: #f4f4f4; 
+        margin: 0; 
+        padding: 0; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        min-height: 100vh; 
+        color: #333; 
+    }
+
+    .portal-card { 
+        background: #ffffff; 
+        padding: 40px 30px; 
+        border-radius: 12px; 
+        box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
+        text-align: center; 
+        max-width: 480px; 
+        width: 90%; 
+        position: relative;
+        box-sizing: border-box;
+    }
+
+    /* Menu Hambúrguer */
+    .menu-container {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
+
+    .hamburger-btn {
+        background: transparent;
+        border: none;
+        font-size: 1.6rem;
+        cursor: pointer;
+        color: #333;
+        padding: 5px;
+        line-height: 1;
+    }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 35px;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        border: 1px solid #e2e8f0;
+        width: 220px;
+        z-index: 100;
+        overflow: hidden;
+        text-align: left;
+    }
+
+    .dropdown-menu a {
+        display: block;
+        padding: 12px 16px;
+        color: #333;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: bold;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background-color 0.2s;
+    }
+
+    .dropdown-menu a:hover {
+        background-color: #f8fafc;
+    }
+
+    .dropdown-menu a.inv-link { color: #10b981; }
+    .dropdown-menu a.funko-link { color: #8b5cf6; }
+    .dropdown-menu a.stats-link { color: #0284c7; }
+    .dropdown-menu a.add-link { color: #64748b; }
+
+    h1 { color: #007acc; margin-top: 10px; margin-bottom: 10px; font-size: 1.8rem; }
+    p { color: #64748b; margin-bottom: 20px; line-height: 1.5; font-size: 0.95rem; }
+
+    .auth-button { 
+        padding: 12px 24px; 
+        font-size: 1rem; 
+        color: white; 
+        background-color: #007acc; 
+        border: none; 
+        border-radius: 6px; 
+        cursor: pointer; 
+        font-weight: bold; 
+        transition: background-color 0.2s;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .auth-button:hover { background-color: #005999; }
+
+    .user-info { 
+        background: #f8fafc; 
+        padding: 12px; 
+        border-radius: 8px; 
+        border: 1px solid #e2e8f0; 
+        margin-bottom: 20px; 
+        word-break: break-all;
+        font-size: 0.85rem;
+    }
+    .user-email { font-weight: bold; color: #1e293b; }
+
+    .logout-btn {
+        background-color: #dc3545;
+        margin-top: 15px;
+    }
+    .logout-btn:hover { background-color: #bb2d3b; }
+
+    /* Estilos do Destaque da Imagem Aleatória */
+    .random-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .random-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .random-img-container {
+        width: 100%;
+        height: 220px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        border-radius: 8px;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+    }
+
+    .random-img-container img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .random-title {
+        font-weight: bold;
+        color: #1e293b;
+        margin-top: 10px;
+        margin-bottom: 2px;
+        font-size: 1rem;
+    }
+
+    .random-subtitle {
+        font-size: 0.85rem;
+        color: #64748b;
+    }
+
+    /* Modal / Pop-up de Detalhes do Item */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.6);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-card {
+        background: #ffffff;
+        padding: 25px;
+        border-radius: 12px;
+        max-width: 400px;
+        width: 90%;
+        text-align: left;
+        position: relative;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .close-modal-btn {
+        position: absolute;
+        top: 12px;
+        right: 15px;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #64748b;
+    }
+
+    .modal-detail {
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+    }
+
+    .modal-detail strong {
+        color: #1e293b;
+    }
+    </style>
+</head>
+<body>
+
+<div class="portal-card">
+
+    <!-- MENU HAMBÚRGUER (Apenas visível se autenticado) -->
+    <div id="menu-container" class="menu-container" style="display:none;">
+        <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
+        <div id="dropdown-menu" class="dropdown-menu">
+            <a href="inventario.html" class="inv-link">&rarr; Tabela de Inventário</a>
+            <a href="funko.html" class="funko-link">&rarr; Galeria Funko</a>
+            <!-- BOTÃO DE ESTATÍSTICAS EXCLUSIVO PARA O ULISSES -->
+            <a href="estatisticas.html" id="admin-stats-btn" class="stats-link" style="display:none;">&rarr; Valor & Estatísticas</a>
+            <a href="formulario.html" class="add-link">+ Adicionar Item</a>
+        </div>
     </div>
 
-    <!-- Contentor de Destaque Aleatório -->
-    <div class="w-full bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden flex flex-col items-center p-6">
-      
-      <div class="flex justify-between items-center w-full mb-4">
-        <h3 class="text-lg font-bold text-slate-800">Destaque Aleatório da Coleção</h3>
-        <button onclick="carregarImagemAleatoria()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1">
-          🔄 Outro item
-        </button>
-      </div>
+    <h1>Coleção de Pops & Hot Wheels</h1>
+    <p>Portal de gestão e consulta do inventário de colecionáveis.</p>
 
-      <!-- Moldura da Imagem -->
-      <div id="container-imagem" class="w-full h-72 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-center relative overflow-hidden">
-        <p id="status-carregamento" class="text-sm text-gray-400 font-medium">A escolher um item...</p>
-        <img id="imagem-destaque" class="w-full h-full object-contain hidden" alt="Destaque da coleção">
-      </div>
+    <!-- ÁREA DE AUTENTICAÇÃO -->
+    <div id="auth-section">
+        <button id="login-btn" class="auth-button" onclick="login()">Entrar com Google</button>
+        
+        <div id="user-details" style="display:none;">
+            <div class="user-info">
+                <span>Sessão iniciada como:</span><br>
+                <span class="user-email" id="user-email"></span>
+            </div>
 
-      <!-- Legenda do Item -->
-      <div id="detalhes-item" class="mt-4 text-center w-full">
-        <h4 id="nome-item" class="text-base font-bold text-slate-800">--</h4>
-        <p id="subtitulo-item" class="text-xs text-gray-500 mt-0.5">--</p>
-      </div>
+            <!-- CAIXA DE IMAGEM ALEATÓRIA -->
+            <div id="random-item-card" class="random-box" onclick="abrirModal()">
+                <div class="random-img-container">
+                    <span id="loading-txt" style="color:#94a3b8; font-size:0.85rem;">A carregar destaque...</span>
+                    <img id="random-img" src="" alt="Destaque" style="display:none;">
+                </div>
+                <div id="random-name" class="random-title">--</div>
+                <div id="random-sub" class="random-subtitle">--</div>
+            </div>
 
+            <button class="auth-button logout-btn" onclick="logout()">Sair</button>
+        </div>
     </div>
+</div>
 
-    <!-- Botão de Terminar Sessão -->
-    <button id="btn-logout" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 px-4 rounded-xl shadow transition">
-      Sair
-    </button>
+<!-- MODAL COM OS DETALHES DO ITEM -->
+<div id="item-modal" class="modal-overlay" onclick="fecharModalFora(event)">
+    <div class="modal-card">
+        <button class="close-modal-btn" onclick="fecharModal()">&times;</button>
+        <h3 id="modal-title" style="margin-top:0; color:#007acc;">Detalhes do Item</h3>
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 15px;">
+        
+        <div class="modal-detail"><strong>Nome:</strong> <span id="modal-nome">--</span></div>
+        <div class="modal-detail"><strong>Marca / Categoria:</strong> <span id="modal-marca">--</span></div>
+        <div class="modal-detail"><strong>Número na Coleção:</strong> <span id="modal-numero">--</span></div>
+        <div class="modal-detail"><strong>Quantidade:</strong> <span id="modal-qtd">--</span></div>
+        <div class="modal-detail"><strong>Preço de Compra:</strong> <span id="modal-preco">--</span></div>
+        <div class="modal-detail"><strong>Valor de Mercado:</strong> <span id="modal-valor-mercado">--</span></div>
+        <div class="modal-detail"><strong>Última Atualização:</strong> <span id="modal-atualizacao">--</span></div>
+    </div>
+</div>
 
-  </main>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-  <!-- Script de Controlo -->
-  <script>
-    // 1. Menu Hambúrguer
-    const menuBtn = document.getElementById('menu-btn');
-    const dropdownMenu = document.getElementById('dropdown-menu');
-    const iconOpen = document.getElementById('icon-open');
-    const iconClose = document.getElementById('icon-close');
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
+    authDomain: "miguel-inventory.firebaseapp.com",
+    projectId: "miguel-inventory",
+    storageBucket: "miguel-inventory.firebasestorage.app",
+    messagingSenderId: "277968569414",
+    appId: "1:277968569414:web:04884bc1932c2c7dbb6b647"
+};
 
-    menuBtn.addEventListener('click', () => {
-      const isOpen = !dropdownMenu.classList.contains('hidden');
-      if (isOpen) {
-        dropdownMenu.classList.add('hidden');
-        iconOpen.classList.remove('hidden');
-        iconClose.classList.add('hidden');
-      } else {
-        dropdownMenu.classList.remove('hidden');
-        iconOpen.classList.add('hidden');
-        iconClose.classList.remove('hidden');
-      }
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+const authorizedEmails = [
+    "ulisses.dos.santos@gmail.com",
+    "urbino.sousa@gmail.com",
+    "miguelabrantesdossantos@gmail.com"
+];
+
+const ADMIN_EMAIL = "ulisses.dos.santos@gmail.com";
+let currentItemSorteado = null;
+
+function login() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider).catch((error) => {
+        auth.signInWithRedirect(provider);
     });
+}
 
-    // 2. Autenticação e Sair
-    document.getElementById('btn-logout').addEventListener('click', () => {
-      firebase.auth().signOut().then(() => {
-        window.location.href = 'index.html';
-      });
-    });
+function logout() {
+    auth.signOut().then(() => { location.reload(); });
+}
 
-    // 3. Imagem Aleatória
-    async function carregarImagemAleatoria() {
-      const db = firebase.firestore();
-      const statusEl = document.getElementById('status-carregamento');
-      const imgEl = document.getElementById('imagem-destaque');
-      const nomeEl = document.getElementById('nome-item');
-      const subEl = document.getElementById('subtitulo-item');
+function toggleMenu() {
+    const menu = document.getElementById('dropdown-menu');
+    menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+}
 
-      statusEl.textContent = "A escolher um item...";
-      statusEl.classList.remove('hidden');
-      imgEl.classList.add('hidden');
+// Fecha o dropdown se clicar fora dele
+document.addEventListener('click', function(event) {
+    const container = document.getElementById('menu-container');
+    if (container && !container.contains(event.target)) {
+        document.getElementById('dropdown-menu').style.display = 'none';
+    }
+});
 
-      try {
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        const userEmail = (user.email || "").toLowerCase().trim();
+        if (authorizedEmails.includes(userEmail)) {
+            document.getElementById('login-btn').style.display = 'none';
+            document.getElementById('user-details').style.display = 'block';
+            document.getElementById('menu-container').style.display = 'block';
+            document.getElementById('user-email').innerText = user.email;
+
+            if (userEmail === ADMIN_EMAIL) {
+                document.getElementById('admin-stats-btn').style.display = 'block';
+            } else {
+                document.getElementById('admin-stats-btn').style.display = 'none';
+            }
+
+            carregarImagemAleatoria();
+        } else {
+            alert("Acesso Negado!\n\nO email (" + user.email + ") não tem permissão de acesso.");
+            auth.signOut();
+        }
+    } else {
+        document.getElementById('login-btn').style.display = 'block';
+        document.getElementById('user-details').style.display = 'none';
+        document.getElementById('menu-container').style.display = 'none';
+        document.getElementById('admin-stats-btn').style.display = 'none';
+    }
+});
+
+async function carregarImagemAleatoria() {
+    const loadingTxt = document.getElementById('loading-txt');
+    const randomImg = document.getElementById('random-img');
+    const nameEl = document.getElementById('random-name');
+    const subEl = document.getElementById('random-sub');
+
+    try {
         const snapshot = await db.collection('inventario').get();
         const itensComFoto = [];
 
         snapshot.forEach(doc => {
-          const data = doc.data();
-          const urlFoto = data.Imagem || data.Foto || data.FotoUrl;
-          if (urlFoto && typeof urlFoto === 'string' && urlFoto.trim() !== '') {
-            itensComFoto.push({ id: doc.id, ...data, urlFoto });
-          }
+            const data = doc.data();
+            const urlFoto = data.Imagem || data.Foto || data.FotoUrl;
+            if (urlFoto && typeof urlFoto === 'string' && urlFoto.trim() !== '') {
+                itensComFoto.push({ id: doc.id, ...data, urlFoto });
+            }
         });
 
         if (itensComFoto.length === 0) {
-          statusEl.textContent = "Nenhum item com imagem encontrado.";
-          nomeEl.textContent = "--";
-          subEl.textContent = "--";
-          return;
+            loadingTxt.textContent = "Nenhum item com imagem encontrado.";
+            return;
         }
 
-        const itemSorteado = itensComFoto[Math.floor(Math.random() * itensComFoto.length)];
+        currentItemSorteado = itensComFoto[Math.floor(Math.random() * itensComFoto.length)];
 
-        imgEl.src = itemSorteado.urlFoto;
-        imgEl.onload = () => {
-          statusEl.classList.add('hidden');
-          imgEl.classList.remove('hidden');
+        randomImg.src = currentItemSorteado.urlFoto;
+        randomImg.onload = () => {
+            loadingTxt.style.display = 'none';
+            randomImg.style.display = 'block';
         };
 
-        nomeEl.textContent = itemSorteado.NomeNaColecao || itemSorteado.Nome || itemSorteado.Modelo || 'Item sem nome';
-        
-        const marca = itemSorteado.Marca || 'Coleção
+        nameEl.textContent = currentItemSorteado.NomeNaColecao || currentItemSorteado.Nome || currentItemSorteado.Modelo || 'Item sem nome';
+        const marca = currentItemSorteado.Marca || currentItemSorteado.Tipo || 'Coleção';
+        const num = currentItemSorteado.NumeroNaColecao ? `#${currentItemSorteado.NumeroNaColecao}` : '';
+        subEl.textContent = `${marca} ${num}`.trim();
+
+    } catch (err) {
+        console.error("Erro ao carregar imagem aleatória:", err);
+        loadingTxt.textContent = "Erro ao carregar o destaque.";
+    }
+}
+
+function abrirModal() {
+    if (!currentItemSorteado) return;
+
+    document.getElementById('modal-nome').innerText = currentItemSorteado.NomeNaColecao || currentItemSorteado.Nome || '--';
+    document.getElementById('modal-marca').innerText = currentItemSorteado.Marca || currentItemSorteado.Tipo || '--';
+    document.getElementById('modal-numero').innerText = currentItemSorteado.NumeroNaColecao || '--';
+    document.getElementById('modal-qtd').innerText = currentItemSorteado.Quantidade || '1';
+    
+    const preco = Number(currentItemSorteado.Preco || 0).toFixed(2);
+    document.getElementById('modal-preco').innerText = `${preco} €`;
+
+    const valorMercado = currentItemSorteado.ValorMercado !== undefined ? Number(currentItemSorteado.ValorMercado).toFixed(2) : preco;
+    document.getElementById('modal-valor-mercado').innerText = `${valorMercado} €`;
+
+    document.getElementById('modal-atualizacao').innerText = currentItemSorteado.UltimaAtualizacaoValor || 'Pendente';
+
+    document.getElementById('item-modal').style.display = 'flex';
+}
+
+function fecharModal() {
+    document.getElementById('item-modal').style.display = 'none';
+}
+
+function fecharModalFora(event) {
+    if (event.target.id === 'item-modal') {
+        fecharModal();
+    }
+}
+</script>
+
+</body>
+</html>
