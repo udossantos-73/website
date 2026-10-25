@@ -67,7 +67,6 @@
     .dropdown-menu a {
         display: block;
         padding: 12px 16px;
-        color: #333;
         text-decoration: none;
         font-size: 0.9rem;
         font-weight: bold;
@@ -79,9 +78,8 @@
         background-color: #f8fafc;
     }
 
-    .dropdown-menu a.inv-link { color: #10b981; }
-    .dropdown-menu a.funko-link { color: #8b5cf6; }
-    .dropdown-menu a.stats-link { color: #0284c7; }
+    /* Cores atualizadas dos links do menu */
+    .dropdown-menu a.blue-link { color: #007acc; }
     .dropdown-menu a.add-link { color: #64748b; }
 
     h1 { color: #007acc; margin-top: 15px; margin-bottom: 10px; font-size: 1.8rem; }
@@ -217,11 +215,11 @@
     <div id="menu-container" class="menu-container" style="display:none;">
         <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
         <div id="dropdown-menu" class="dropdown-menu">
-            <a href="inventario.html" class="inv-link">&rarr; Tabela de Inventário</a>
-            <a href="funko.html" class="funko-link">&rarr; Galeria Funko</a>
+            <a href="inventario.html" class="blue-link">Tabela de Inventário</a>
+            <a href="funko.html" class="blue-link">Galeria Funko</a>
             <!-- BOTÃO DE ESTATÍSTICAS EXCLUSIVO PARA O ULISSES -->
-            <a href="estatisticas.html" id="admin-stats-btn" class="stats-link" style="display:none;">&rarr; Valor & Estatísticas</a>
-            <a href="formulario.html" class="add-link">+ Adicionar Item</a>
+            <a href="estatisticas.html" id="admin-stats-btn" class="blue-link" style="display:none;">Valor & Estatísticas</a>
+            <a href="formulario.html" class="add-link">Adicionar Item</a>
         </div>
     </div>
 
