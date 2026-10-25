@@ -1,185 +1,170 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal da Coleção - Pops & Hot Wheels</title>
-    
-    <style>
-    body { 
-        font-family: Arial, sans-serif; 
-        background-color: #f4f4f4; 
-        margin: 0; 
-        padding: 0; 
-        display: flex; 
-        justify-content: center; 
-        align-items: center; 
-        min-height: 100vh; 
-        color: #333; 
-    }
-
-    .portal-card { 
-        background: #ffffff; 
-        padding: 40px; 
-        border-radius: 12px; 
-        box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
-        text-align: center; 
-        max-width: 450px; 
-        width: 90%; 
-    }
-
-    h1 { color: #007acc; margin-bottom: 10px; font-size: 1.8rem; }
-    p { color: #64748b; margin-bottom: 25px; line-height: 1.5; }
-
-    .auth-button { 
-        padding: 12px 24px; 
-        font-size: 1rem; 
-        color: white; 
-        background-color: #007acc; 
-        border: none; 
-        border-radius: 6px; 
-        cursor: pointer; 
-        font-weight: bold; 
-        transition: background-color 0.2s;
-        width: 100%;
-        box-sizing: border-box;
-    }
-    .auth-button:hover { background-color: #005999; }
-
-    .nav-button {
-        display: inline-block;
-        padding: 14px 28px;
-        font-size: 1rem;
-        color: white;
-        background-color: #10b981;
-        border-radius: 6px;
-        text-decoration: none;
-        font-weight: bold;
-        transition: background-color 0.2s;
-        margin-top: 12px;
-        width: 100%;
-        box-sizing: border-box;
-    }
-    .nav-button:hover { background-color: #059669; }
-
-    .nav-button.gallery-btn {
-        background-color: #8b5cf6;
-    }
-    .nav-button.gallery-btn:hover { background-color: #7c3aed; }
-
-    .nav-button.stats-btn {
-        background-color: #0284c7;
-    }
-    .nav-button.stats-btn:hover { background-color: #0369a1; }
-
-    .user-info { 
-        background: #f8fafc; 
-        padding: 15px; 
-        border-radius: 8px; 
-        border: 1px solid #e2e8f0; 
-        margin-bottom: 20px; 
-        word-break: break-all;
-    }
-    .user-email { font-weight: bold; color: #1e293b; }
-
-    .logout-btn {
-        background-color: #dc3545;
-        margin-top: 15px;
-    }
-    .logout-btn:hover { background-color: #bb2d3b; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coleção & Inventário</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="auth-guard.js"></script>
 </head>
-<body>
+<body class="bg-gray-100 font-sans text-gray-800 antialiased min-h-screen flex flex-col">
 
-<div class="portal-card">
-    <h1>Coleção de Pops & Hot Wheels</h1>
-    <p>Bem-vindo ao portal de gestão e consulta do inventário de colecionáveis.</p>
+  <!-- Navegação Superior com Menu Hambúrguer -->
+  <nav class="bg-slate-900 text-white shadow-md relative z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold tracking-wide flex items-center gap-2">
+        📦 Coleção Privada
+      </h1>
 
-    <!-- ÁREA DE AUTENTICAÇÃO -->
-    <div id="auth-section">
-        <button id="login-btn" class="auth-button" onclick="login()">Entrar com Google</button>
-        
-        <div id="user-details" style="display:none;">
-            <div class="user-info">
-                <span>Sessão iniciada como:</span><br>
-                <span class="user-email" id="user-email"></span>
-            </div>
-
-            <!-- OPÇÕES DE NAVEGAÇÃO -->
-            <a href="inventario.html" class="nav-button">&rarr; Ver Tabela de Inventário</a>
-            <a href="funko.html" class="nav-button gallery-btn">&rarr; Ver Galeria Visual Funko</a>
-            
-            <!-- BOTÃO DE ESTATÍSTICAS (OCULTO POR OMISSÃO, VISÍVEL APENAS PARA O ULISSES) -->
-            <a href="estatisticas.html" id="admin-stats-btn" class="nav-button stats-btn" style="display:none;">&rarr; Ver Valor & Estatísticas</a>
-
-            <button class="auth-button logout-btn" onclick="logout()">Sair</button>
-        </div>
+      <!-- Botão Hambúrguer -->
+      <button id="menu-btn" class="p-2 rounded-lg text-gray-300 hover:text-white hover:bg-slate-800 focus:outline-none transition">
+        <svg id="icon-open" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+        <svg id="icon-close" class="w-7 h-7 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
     </div>
-</div>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <!-- Dropdown do Menu Hambúrguer -->
+    <div id="dropdown-menu" class="hidden bg-slate-800 border-t border-slate-700 w-full absolute top-full left-0 shadow-xl">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-2">
+        <a href="inventario.html" class="px-4 py-2.5 rounded-lg text-gray-200 hover:bg-slate-700 hover:text-white transition font-medium flex items-center gap-3">
+          📋 Ver Inventário
+        </a>
+        <a href="estatisticas.html" class="px-4 py-2.5 rounded-lg text-gray-200 hover:bg-slate-700 hover:text-white transition font-medium flex items-center gap-3">
+          📊 Estatísticas
+        </a>
+        <a href="funko.html" class="px-4 py-2.5 rounded-lg text-gray-200 hover:bg-slate-700 hover:text-white transition font-medium flex items-center gap-3">
+          🧸 Funko Pop
+        </a>
+        <a href="hotwheels.html" class="px-4 py-2.5 rounded-lg text-gray-200 hover:bg-slate-700 hover:text-white transition font-medium flex items-center gap-3">
+          🏎️ Hot Wheels
+        </a>
+        <a href="formulario.html" class="px-4 py-2.5 rounded-lg text-gray-200 hover:bg-slate-700 hover:text-white transition font-medium flex items-center gap-3">
+          ➕ Adicionar Item
+        </a>
+      </div>
+    </div>
+  </nav>
 
-<script>
-const firebaseConfig = {
-    apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
-    authDomain: "miguel-inventory.firebaseapp.com",
-    projectId: "miguel-inventory",
-    storageBucket: "miguel-inventory.firebasestorage.app",
-    messagingSenderId: "277968569414",
-    appId: "1:277968569414:web:04884bc1932c2c7dbb6b647"
-};
+  <!-- Conteúdo Principal com Imagem Aleatória -->
+  <main class="flex-grow max-w-5xl mx-auto px-4 py-8 flex flex-col items-center justify-center w-full">
+    
+    <div class="w-full bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden flex flex-col items-center p-6 sm:p-8">
+      
+      <div class="flex justify-between items-center w-full mb-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-800">Destaque Aleatório da Coleção</h2>
+        <button onclick="carregarImagemAleatoria()" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+          🔄 Outro item
+        </button>
+      </div>
 
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
+      <!-- Contentor da Imagem -->
+      <div id="container-imagem" class="w-full max-w-md h-80 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-center relative overflow-hidden">
+        <p id="status-carregamento" class="text-sm text-gray-400 font-medium">A escolher um item...</p>
+        <img id="imagem-destaque" class="w-full h-full object-contain hidden" alt="Destaque da coleção">
+      </div>
 
-auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+      <!-- Detalhes do Item Sortear -->
+      <div id="detalhes-item" class="mt-6 text-center w-full min-h-[60px] flex flex-col items-center justify-center">
+        <h3 id="nome-item" class="text-lg font-bold text-slate-800">--</h3>
+        <p id="subtitulo-item" class="text-sm text-gray-500 mt-1">--</p>
+      </div>
 
-const authorizedEmails = [
-    "ulisses.dos.santos@gmail.com",
-    "urbino.sousa@gmail.com",
-    "miguelabrantesdossantos@gmail.com"
-];
+    </div>
 
-// E-mail do Administrador (Ulisses)
-const ADMIN_EMAIL = "ulisses.dos.santos@gmail.com";
+  </main>
 
-function login() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).catch((error) => {
-        auth.signInWithRedirect(provider);
+  <!-- Script de Controlo -->
+  <script>
+    // 1. Lógica do Menu Hambúrguer
+    const menuBtn = document.getElementById('menu-btn');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    const iconOpen = document.getElementById('icon-open');
+    const iconClose = document.getElementById('icon-close');
+
+    menuBtn.addEventListener('click', () => {
+      const isOpen = !dropdownMenu.classList.contains('hidden');
+      if (isOpen) {
+        dropdownMenu.classList.add('hidden');
+        iconOpen.classList.remove('hidden');
+        iconClose.classList.add('hidden');
+      } else {
+        dropdownMenu.classList.remove('hidden');
+        iconOpen.classList.add('hidden');
+        iconClose.classList.remove('hidden');
+      }
     });
-}
 
-function logout() {
-    auth.signOut().then(() => { location.reload(); });
-}
+    // 2. Lógica de Obtenção da Imagem Aleatória
+    async function carregarImagemAleatoria() {
+      const db = firebase.firestore();
+      const statusEl = document.getElementById('status-carregamento');
+      const imgEl = document.getElementById('imagem-destaque');
+      const nomeEl = document.getElementById('nome-item');
+      const subEl = document.getElementById('subtitulo-item');
 
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        const userEmail = (user.email || "").toLowerCase().trim();
-        if (authorizedEmails.includes(userEmail)) {
-            document.getElementById('login-btn').style.display = 'none';
-            document.getElementById('user-details').style.display = 'block';
-            document.getElementById('user-email').innerText = user.email;
+      statusEl.textContent = "A escolher um item...";
+      statusEl.classList.remove('hidden');
+      imgEl.classList.add('hidden');
 
-            // Mostra o botão de estatísticas EXCLUSIVAMENTE para o e-mail do Ulisses
-            if (userEmail === ADMIN_EMAIL) {
-                document.getElementById('admin-stats-btn').style.display = 'block';
-            } else {
-                document.getElementById('admin-stats-btn').style.display = 'none';
-            }
-        } else {
-            alert("Acesso Negado!\n\nO email (" + user.email + ") não tem permissão de acesso.");
-            auth.signOut();
+      try {
+        const snapshot = await db.collection('inventario').get();
+        
+        // Filtrar apenas documentos que tenham o campo Imagem (ou Foto) preenchido
+        const itensComFoto = [];
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const urlFoto = data.Imagem || data.Foto || data.FotoUrl;
+          if (urlFoto && typeof urlFoto === 'string' && urlFoto.trim() !== '') {
+            itensComFoto.push({ id: doc.id, ...data, urlFoto });
+          }
+        });
+
+        if (itensComFoto.length === 0) {
+          statusEl.textContent = "Nenhum item com imagem encontrado no inventário.";
+          nomeEl.textContent = "--";
+          subEl.textContent = "--";
+          return;
         }
-    } else {
-        document.getElementById('login-btn').style.display = 'block';
-        document.getElementById('user-details').style.display = 'none';
-        document.getElementById('admin-stats-btn').style.display = 'none';
+
+        // Selecionar um elemento aleatório do array
+        const itemSorteado = itensComFoto[Math.floor(Math.random() * itensComFoto.length)];
+
+        // Atualizar os elementos na página
+        imgEl.src = itemSorteado.urlFoto;
+        imgEl.onload = () => {
+          statusEl.classList.add('hidden');
+          imgEl.classList.remove('hidden');
+        };
+
+        nomeEl.textContent = itemSorteado.NomeNaColecao || itemSorteado.Nome || itemSorteado.Modelo || 'Item sem nome';
+        
+        const marca = itemSorteado.Marca || 'Coleção';
+        const numero = itemSorteado.NumeroNaColecao ? `#${itemSorteado.NumeroNaColecao}` : '';
+        subEl.textContent = `${marca} ${numero}`.trim();
+
+      } catch (err) {
+        console.error("Erro ao carregar imagem aleatória:", err);
+        statusEl.textContent = "Erro ao carregar o destaque.";
+      }
     }
-});
-</script>
+
+    // Inicialização ao carregar a página
+    document.addEventListener('DOMContentLoaded', () => {
+      firebase.auth().onAuthStateChanged(user => {
+        if (user) {
+          carregarImagemAleatoria();
+        }
+      });
+    });
+  </script>
 
 </body>
 </html>
