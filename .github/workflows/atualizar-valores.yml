@@ -1,0 +1,29 @@
+name: Atualização Semanal do Inventário
+
+on:
+  schedule:
+    # Executa todos os domingos às 03:00 UTC
+    - cron: '0 3 * * 0'
+  workflow_dispatch: # Permite disparar manualmente no botão "Run workflow" se quiseres
+
+jobs:
+  update-inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v3
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Instalar Dependências
+        run: |
+          npm install
+
+      - name: Executar Script de Atualização
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          node atualizar_valores.js
