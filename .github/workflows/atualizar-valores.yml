@@ -25,5 +25,6 @@ jobs:
       - name: Executar Script de Atualização
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          REBRICKABLE_API_KEY: ${{ secrets.REBRICKABLE_API_KEY }}
         run: |
           node atualizar_valores.js
