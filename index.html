@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal da Coleção - Pops & Hot Wheels</title>
+    <title>Portal da Coleção Privada</title>
     
     <style>
     body { 
         font-family: Arial, sans-serif; 
         background-color: #f4f4f4; 
         margin: 0; 
-        padding: 0; 
+        padding: 20px 0; 
         display: flex; 
+        flex-direction: column;
         justify-content: center; 
         align-items: center; 
         min-height: 100vh; 
         color: #333; 
+        box-sizing: border-box;
     }
 
     .portal-card { 
@@ -30,11 +32,11 @@
         box-sizing: border-box;
     }
 
-    /* Menu Hambúrguer */
+    /* Menu Hambúrguer alinhado à Esquerda */
     .menu-container {
         position: absolute;
         top: 20px;
-        right: 20px;
+        left: 20px;
     }
 
     .hamburger-btn {
@@ -50,7 +52,7 @@
     .dropdown-menu {
         display: none;
         position: absolute;
-        right: 0;
+        left: 0;
         top: 35px;
         background: #ffffff;
         border-radius: 8px;
@@ -82,7 +84,7 @@
     .dropdown-menu a.stats-link { color: #0284c7; }
     .dropdown-menu a.add-link { color: #64748b; }
 
-    h1 { color: #007acc; margin-top: 10px; margin-bottom: 10px; font-size: 1.8rem; }
+    h1 { color: #007acc; margin-top: 15px; margin-bottom: 10px; font-size: 1.8rem; }
     p { color: #64748b; margin-bottom: 20px; line-height: 1.5; font-size: 0.95rem; }
 
     .auth-button { 
@@ -105,7 +107,8 @@
         padding: 12px; 
         border-radius: 8px; 
         border: 1px solid #e2e8f0; 
-        margin-bottom: 20px; 
+        margin-top: 15px;
+        margin-bottom: 15px; 
         word-break: break-all;
         font-size: 0.85rem;
     }
@@ -113,7 +116,6 @@
 
     .logout-btn {
         background-color: #dc3545;
-        margin-top: 15px;
     }
     .logout-btn:hover { background-color: #bb2d3b; }
 
@@ -211,7 +213,7 @@
 
 <div class="portal-card">
 
-    <!-- MENU HAMBÚRGUER (Apenas visível se autenticado) -->
+    <!-- MENU HAMBÚRGUER (À Esquerda, apenas visível se autenticado) -->
     <div id="menu-container" class="menu-container" style="display:none;">
         <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
         <div id="dropdown-menu" class="dropdown-menu">
@@ -223,19 +225,14 @@
         </div>
     </div>
 
-    <h1>Coleção de Pops & Hot Wheels</h1>
-    <p>Portal de gestão e consulta do inventário de colecionáveis.</p>
+    <h1>Portal da Coleção Privada</h1>
+    <p>Portal de gestão e consulta do inventário completo de colecionáveis.</p>
 
     <!-- ÁREA DE AUTENTICAÇÃO -->
     <div id="auth-section">
         <button id="login-btn" class="auth-button" onclick="login()">Entrar com Google</button>
         
         <div id="user-details" style="display:none;">
-            <div class="user-info">
-                <span>Sessão iniciada como:</span><br>
-                <span class="user-email" id="user-email"></span>
-            </div>
-
             <!-- CAIXA DE IMAGEM ALEATÓRIA -->
             <div id="random-item-card" class="random-box" onclick="abrirModal()">
                 <div class="random-img-container">
@@ -244,6 +241,12 @@
                 </div>
                 <div id="random-name" class="random-title">--</div>
                 <div id="random-sub" class="random-subtitle">--</div>
+            </div>
+
+            <!-- INFORMAÇÃO DA SESSÃO POR CIMA DO BOTÃO DE SAIR -->
+            <div class="user-info">
+                <span>Sessão iniciada como:</span><br>
+                <span class="user-email" id="user-email"></span>
             </div>
 
             <button class="auth-button logout-btn" onclick="logout()">Sair</button>
@@ -313,7 +316,6 @@ function toggleMenu() {
     menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
 }
 
-// Fecha o dropdown se clicar fora dele
 document.addEventListener('click', function(event) {
     const container = document.getElementById('menu-container');
     if (container && !container.contains(event.target)) {
@@ -349,11 +351,48 @@ auth.onAuthStateChanged((user) => {
     }
 });
 
+function extrairUrlImagem(data) {
+    if (!data) return null;
+    
+    const chavesComuns = ['imagem', 'Imagem', 'foto', 'Foto', 'FotoUrl', 'URL', 'url', 'Image', 'image'];
+    
+    for (const chave of chavesComuns) {
+        const val = data[chave];
+        if (!val) continue;
+
+        if (Array.isArray(val) && val.length > 0) {
+            const primeira = val.find(item => typeof item === 'string' && item.trim().startsWith('http'));
+            if (primeira) return primeira.trim();
+        }
+        
+        if (typeof val === 'string' && val.trim().startsWith('http')) {
+            return val.trim();
+        }
+    }
+
+    for (const key in data) {
+        const val = data[key];
+        if (Array.isArray(val) && val.length > 0) {
+            const primeira = val.find(item => typeof item === 'string' && item.trim().startsWith('http'));
+            if (primeira) return primeira.trim();
+        }
+        if (typeof val === 'string' && val.trim().startsWith('http')) {
+            return val.trim();
+        }
+    }
+
+    return null;
+}
+
 async function carregarImagemAleatoria() {
     const loadingTxt = document.getElementById('loading-txt');
     const randomImg = document.getElementById('random-img');
     const nameEl = document.getElementById('random-name');
     const subEl = document.getElementById('random-sub');
+
+    loadingTxt.style.display = 'block';
+    loadingTxt.textContent = "A carregar destaque...";
+    randomImg.style.display = 'none';
 
     try {
         const snapshot = await db.collection('inventario').get();
@@ -361,8 +400,8 @@ async function carregarImagemAleatoria() {
 
         snapshot.forEach(doc => {
             const data = doc.data();
-            const urlFoto = data.Imagem || data.Foto || data.FotoUrl;
-            if (urlFoto && typeof urlFoto === 'string' && urlFoto.trim() !== '') {
+            const urlFoto = extrairUrlImagem(data);
+            if (urlFoto) {
                 itensComFoto.push({ id: doc.id, ...data, urlFoto });
             }
         });
@@ -380,7 +419,9 @@ async function carregarImagemAleatoria() {
             randomImg.style.display = 'block';
         };
 
-        nameEl.textContent = currentItemSorteado.NomeNaColecao || currentItemSorteado.Nome || currentItemSorteado.Modelo || 'Item sem nome';
+        const nome = currentItemSorteado.NomeNaColecao || currentItemSorteado.Nome || currentItemSorteado.Modelo || currentItemSorteado.id;
+        nameEl.textContent = nome;
+
         const marca = currentItemSorteado.Marca || currentItemSorteado.Tipo || 'Coleção';
         const num = currentItemSorteado.NumeroNaColecao ? `#${currentItemSorteado.NumeroNaColecao}` : '';
         subEl.textContent = `${marca} ${num}`.trim();
@@ -394,7 +435,7 @@ async function carregarImagemAleatoria() {
 function abrirModal() {
     if (!currentItemSorteado) return;
 
-    document.getElementById('modal-nome').innerText = currentItemSorteado.NomeNaColecao || currentItemSorteado.Nome || '--';
+    document.getElementById('modal-nome').innerText = currentItemSorteado.NomeNaColecao || currentItemSorteado.Nome || currentItemSorteado.id;
     document.getElementById('modal-marca').innerText = currentItemSorteado.Marca || currentItemSorteado.Tipo || '--';
     document.getElementById('modal-numero').innerText = currentItemSorteado.NumeroNaColecao || '--';
     document.getElementById('modal-qtd').innerText = currentItemSorteado.Quantidade || '1';
