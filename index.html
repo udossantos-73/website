@@ -15,7 +15,7 @@
 
   <!-- Navegação Superior com Menu Hambúrguer -->
   <nav class="bg-slate-900 text-white shadow-md relative z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+    <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
       <h1 class="text-xl font-bold tracking-wide flex items-center gap-2">
         📦 Coleção Privada
       </h1>
@@ -31,59 +31,77 @@
       </button>
     </div>
 
-    <!-- Dropdown do Menu Hambúrguer -->
+    <!-- Dropdown do Menu Hambúrguer com o Esquema de Cores Original -->
     <div id="dropdown-menu" class="hidden bg-slate-800 border-t border-slate-700 w-full absolute top-full left-0 shadow-xl">
-      <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-2">
-        <a href="inventario.html" class="px-4 py-2.5 rounded-lg text-gray-200 hover:bg-slate-700 hover:text-white transition font-medium flex items-center gap-3">
-          📋 Ver Inventário
+      <div class="max-w-md mx-auto px-4 py-4 flex flex-col gap-3">
+        <a href="inventario.html" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-center font-semibold py-3 px-4 rounded-xl shadow transition">
+          → Ver Tabela de Inventário
         </a>
-        <a href="estatisticas.html" class="px-4 py-2.5 rounded-lg text-gray-200 hover:bg-slate-700 hover:text-white transition font-medium flex items-center gap-3">
-          📊 Estatísticas
+        <a href="funko.html" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-center font-semibold py-3 px-4 rounded-xl shadow transition">
+          → Ver Galeria Visual Funko
         </a>
-        <a href="funko.html" class="px-4 py-2.5 rounded-lg text-gray-200 hover:bg-slate-700 hover:text-white transition font-medium flex items-center gap-3">
-          🧸 Funko Pop
+        <a href="hotwheels.html" class="w-full bg-amber-500 hover:bg-amber-600 text-white text-center font-semibold py-3 px-4 rounded-xl shadow transition">
+          → Ver Galeria Hot Wheels
         </a>
-        <a href="hotwheels.html" class="px-4 py-2.5 rounded-lg text-gray-200 hover:bg-slate-700 hover:text-white transition font-medium flex items-center gap-3">
-          🏎️ Hot Wheels
+        <a href="estatisticas.html" class="w-full bg-sky-600 hover:bg-sky-700 text-white text-center font-semibold py-3 px-4 rounded-xl shadow transition">
+          → Ver Valor & Estatísticas
         </a>
-        <a href="formulario.html" class="px-4 py-2.5 rounded-lg text-gray-200 hover:bg-slate-700 hover:text-white transition font-medium flex items-center gap-3">
-          ➕ Adicionar Item
+        <a href="formulario.html" class="w-full bg-slate-700 hover:bg-slate-600 text-white text-center font-semibold py-3 px-4 rounded-xl shadow transition">
+          + Adicionar Novo Item
         </a>
       </div>
     </div>
   </nav>
 
-  <!-- Conteúdo Principal com Imagem Aleatória -->
-  <main class="flex-grow max-w-5xl mx-auto px-4 py-8 flex flex-col items-center justify-center w-full">
+  <!-- Conteúdo Principal -->
+  <main class="flex-grow max-w-2xl mx-auto px-4 py-8 flex flex-col items-center justify-center w-full gap-6">
     
-    <div class="w-full bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden flex flex-col items-center p-6 sm:p-8">
+    <!-- Cartão da Coleção + Informação de Autenticação -->
+    <div class="w-full bg-white rounded-2xl shadow-lg border border-gray-200 p-6 text-center">
+      <h2 class="text-2xl font-bold text-sky-600">Coleção de Pops & Hot Wheels</h2>
+      <p class="text-sm text-gray-500 mt-1">Bem-vindo ao portal de gestão e consulta do inventário de colecionáveis.</p>
       
-      <div class="flex justify-between items-center w-full mb-6">
-        <h2 class="text-xl sm:text-2xl font-bold text-slate-800">Destaque Aleatório da Coleção</h2>
-        <button onclick="carregarImagemAleatoria()" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+      <!-- Caixa do Utilizador Autenticado -->
+      <div class="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+        <p class="text-xs text-gray-500">Sessão iniciada como:</p>
+        <p id="user-email" class="text-sm font-bold text-slate-800">A verificar...</p>
+      </div>
+    </div>
+
+    <!-- Contentor de Destaque Aleatório -->
+    <div class="w-full bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden flex flex-col items-center p-6">
+      
+      <div class="flex justify-between items-center w-full mb-4">
+        <h3 class="text-lg font-bold text-slate-800">Destaque Aleatório da Coleção</h3>
+        <button onclick="carregarImagemAleatoria()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1">
           🔄 Outro item
         </button>
       </div>
 
-      <!-- Contentor da Imagem -->
-      <div id="container-imagem" class="w-full max-w-md h-80 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-center relative overflow-hidden">
+      <!-- Moldura da Imagem -->
+      <div id="container-imagem" class="w-full h-72 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-center relative overflow-hidden">
         <p id="status-carregamento" class="text-sm text-gray-400 font-medium">A escolher um item...</p>
         <img id="imagem-destaque" class="w-full h-full object-contain hidden" alt="Destaque da coleção">
       </div>
 
-      <!-- Detalhes do Item Sortear -->
-      <div id="detalhes-item" class="mt-6 text-center w-full min-h-[60px] flex flex-col items-center justify-center">
-        <h3 id="nome-item" class="text-lg font-bold text-slate-800">--</h3>
-        <p id="subtitulo-item" class="text-sm text-gray-500 mt-1">--</p>
+      <!-- Legenda do Item -->
+      <div id="detalhes-item" class="mt-4 text-center w-full">
+        <h4 id="nome-item" class="text-base font-bold text-slate-800">--</h4>
+        <p id="subtitulo-item" class="text-xs text-gray-500 mt-0.5">--</p>
       </div>
 
     </div>
+
+    <!-- Botão de Terminar Sessão -->
+    <button id="btn-logout" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 px-4 rounded-xl shadow transition">
+      Sair
+    </button>
 
   </main>
 
   <!-- Script de Controlo -->
   <script>
-    // 1. Lógica do Menu Hambúrguer
+    // 1. Menu Hambúrguer
     const menuBtn = document.getElementById('menu-btn');
     const dropdownMenu = document.getElementById('dropdown-menu');
     const iconOpen = document.getElementById('icon-open');
@@ -102,7 +120,14 @@
       }
     });
 
-    // 2. Lógica de Obtenção da Imagem Aleatória
+    // 2. Autenticação e Sair
+    document.getElementById('btn-logout').addEventListener('click', () => {
+      firebase.auth().signOut().then(() => {
+        window.location.href = 'index.html';
+      });
+    });
+
+    // 3. Imagem Aleatória
     async function carregarImagemAleatoria() {
       const db = firebase.firestore();
       const statusEl = document.getElementById('status-carregamento');
@@ -116,9 +141,8 @@
 
       try {
         const snapshot = await db.collection('inventario').get();
-        
-        // Filtrar apenas documentos que tenham o campo Imagem (ou Foto) preenchido
         const itensComFoto = [];
+
         snapshot.forEach(doc => {
           const data = doc.data();
           const urlFoto = data.Imagem || data.Foto || data.FotoUrl;
@@ -128,16 +152,14 @@
         });
 
         if (itensComFoto.length === 0) {
-          statusEl.textContent = "Nenhum item com imagem encontrado no inventário.";
+          statusEl.textContent = "Nenhum item com imagem encontrado.";
           nomeEl.textContent = "--";
           subEl.textContent = "--";
           return;
         }
 
-        // Selecionar um elemento aleatório do array
         const itemSorteado = itensComFoto[Math.floor(Math.random() * itensComFoto.length)];
 
-        // Atualizar os elementos na página
         imgEl.src = itemSorteado.urlFoto;
         imgEl.onload = () => {
           statusEl.classList.add('hidden');
@@ -146,25 +168,4 @@
 
         nomeEl.textContent = itemSorteado.NomeNaColecao || itemSorteado.Nome || itemSorteado.Modelo || 'Item sem nome';
         
-        const marca = itemSorteado.Marca || 'Coleção';
-        const numero = itemSorteado.NumeroNaColecao ? `#${itemSorteado.NumeroNaColecao}` : '';
-        subEl.textContent = `${marca} ${numero}`.trim();
-
-      } catch (err) {
-        console.error("Erro ao carregar imagem aleatória:", err);
-        statusEl.textContent = "Erro ao carregar o destaque.";
-      }
-    }
-
-    // Inicialização ao carregar a página
-    document.addEventListener('DOMContentLoaded', () => {
-      firebase.auth().onAuthStateChanged(user => {
-        if (user) {
-          carregarImagemAleatoria();
-        }
-      });
-    });
-  </script>
-
-</body>
-</html>
+        const marca = itemSorteado.Marca || 'Coleção
