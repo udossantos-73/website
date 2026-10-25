@@ -3,30 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- IMPEDE O BLOQUEIO DE IMAGENS DO IMGUR EM SITES EXTERNOS -->
-    <meta name="referrer" content="no-referrer">
-    <title>Galeria Funko Pop</title>
+    <title>Inventário Detalhado - Pops & Hot Wheels</title>
     
     <style>
-    body { 
-        font-family: Arial, sans-serif; 
-        background-color: #f4f4f4; 
-        margin: 20px; 
-        color: #333; 
-    }
+    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 20px; color: #333; }
     
     .header-bar {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 30px;
-        max-width: 1200px;
-        margin-left: auto;
-        margin-right: auto;
-        padding: 0 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
     }
 
-    h1 { color: #007acc; margin: 0; font-size: 1.8rem; }
+    h1 { color: #007acc; margin: 0; }
     
     .back-btn {
         background-color: #64748b;
@@ -36,81 +27,34 @@
         text-decoration: none;
         font-weight: bold;
         font-size: 0.9rem;
-        display: inline-block;
-        text-align: center;
-        transition: background-color 0.2s;
     }
     .back-btn:hover { background-color: #475569; }
 
-    .footer-section {
-        margin-top: 50px;
-        margin-bottom: 30px;
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
-    }
+    .user-info { font-weight: bold; margin-right: 15px; }
+    .logout-btn { padding: 8px 16px; font-size: 0.9rem; color: white; background-color: #dc3545; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    .logout-btn:hover { background-color: #bb2d3b; }
 
-    .bottom-logout-btn {
-        padding: 12px 28px;
-        font-size: 1rem;
-        color: white;
-        background-color: #dc3545;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.2s;
-    }
-    .bottom-logout-btn:hover { background-color: #bb2d3b; }
+    .filters-container { display: flex; gap: 15px; margin-bottom: 20px; justify-content: center; }
+    .filters-container input, .filters-container select { padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 1rem; }
 
-    .top-btn {
-        display: none;
-        background-color: #007acc;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 6px;
-        border: none;
-        font-weight: bold;
-        font-size: 0.9rem;
-        cursor: pointer;
-        width: 100%;
-        max-width: 300px;
-    }
+    .pop-inventory { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background-color: white; }
+    .pop-inventory th, .pop-inventory td { border: 1px solid #ddd; padding: 12px 8px; text-align: left; }
+    .pop-inventory th { background-color: #007acc; color: white; font-weight: bold; text-transform: uppercase; }
+    .pop-inventory tbody tr:nth-child(even) { background-color: #f9f9f9; }
+    .pop-inventory tbody tr:hover { background-color: #f1f5f9; }
+    
+    .pop-main-image { width: 50px; height: auto; border-radius: 4px; display: block; margin: auto; }
 
-    .gallery-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 20px;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 10px;
+    .item-name-link { 
+        color: #007acc !important; 
+        font-weight: bold !important; 
+        cursor: pointer !important; 
+        text-decoration: underline !important; 
+        display: inline-block;
     }
-
-    .gallery-item {
-        background: #ffffff;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        aspect-ratio: 1 / 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .gallery-item:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-    }
-
-    .gallery-item img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
+    .item-name-link:hover { 
+        color: #005999 !important; 
+        background-color: #e0f2fe;
     }
 
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.75); padding: 15px; box-sizing: border-box; }
@@ -142,45 +86,74 @@
     .nav-item-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
     .item-counter { font-size: 0.85rem; color: #64748b; font-weight: bold; }
 
-    @media (max-width: 600px) {
-        body { margin: 10px; }
-        
-        .header-bar {
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            gap: 12px;
+    @media (max-width: 850px) {
+        h1 { font-size: 1.3rem; }
+        .filters-container { flex-direction: column; align-items: stretch; }
+
+        .pop-inventory { display: table !important; width: 100% !important; border-collapse: collapse; font-size: 13px; }
+        .pop-inventory thead { display: table-header-group !important; }
+        .pop-inventory tr { display: table-row !important; }
+        .pop-inventory th, .pop-inventory td { display: none !important; padding: 8px 4px; text-align: center; border-bottom: 1px solid #ddd; }
+
+        .pop-inventory th[data-label="Imagem"], .pop-inventory td[data-label="Imagem"],
+        .pop-inventory th[data-label="Marca"],  .pop-inventory td[data-label="Marca"],
+        .pop-inventory th[data-label="Numero"], .pop-inventory td[data-label="Numero"],
+        .pop-inventory th[data-label="Nome"],   .pop-inventory td[data-label="Nome"] {
+            display: table-cell !important;
         }
 
-        h1 { font-size: 1.5rem; order: 1; }
-        .back-btn { order: 2; width: 100%; max-width: 300px; box-sizing: border-box; }
-        .gallery-grid { grid-template-columns: 1fr !important; gap: 15px; padding: 0; }
-        .top-btn { display: inline-block; }
+        .pop-main-image { width: 50px; height: auto; }
+        .pop-inventory td::before { content: none !important; }
     }
     </style>
 </head>
 <body>
 
 <div class="header-bar">
-    <h1>Galeria Funko Pop</h1>
     <a href="index.html" class="back-btn">&larr; Voltar ao Portal</a>
+    <h1>Inventário da Coleção</h1>
+    <div id="user-details" style="display:none;">
+        <span class="user-info" id="user-email" style="font-size:0.85rem;"></span>
+        <button class="logout-btn" onclick="logout()">Sair</button>
+    </div>
 </div>
 
-<div class="gallery-grid" id="gallery-container">
-    <p style="text-align: center; grid-column: 1 / -1; color: #64748b;">A carregar coleção de Funko Pops...</p>
+<div class="filters-container">
+    <input type="text" id="searchColecao" placeholder="Filtrar por Coleção..." onkeyup="filterData()">
+    <select id="searchMarca" onchange="filterData()">
+        <option value="">Todas as Marcas</option>
+        <option value="Funko Pop">Funko Pop</option>
+        <option value="Hot Wheels">Hot Wheels</option>
+    </select>
 </div>
 
-<div class="footer-section">
-    <button class="top-btn" onclick="scrollToTop()">&uarr; Ir para o Início da Página</button>
-    <button class="bottom-logout-btn" onclick="logout()">Terminar Sessão</button>
-</div>
+<table class="pop-inventory">
+    <thead>
+        <tr>
+            <th>Marca</th>
+            <th>Imagem</th>
+            <th>Numero</th>
+            <th>Coleção</th>
+            <th>Nome</th>
+            <th>Descrição</th>
+            <th>Origem</th>
+            <th>Loja</th> 
+            <th>Preço</th>
+            <th>Data Compra</th>
+            <th>Colecionado</th>
+        </tr>
+    </thead>
+    <tbody id="inventory-body">
+        <tr><td colspan="11">A verificar autenticação...</td></tr>
+    </tbody>
+</table>
 
 <div id="card-modal" class="modal">
     <div class="card-modal-content">
         <span class="close-button" onclick="closeCardModal()">&times;</span>
         
         <div class="card-header">
-            <span class="card-badge" id="card-marca">Funko Pop</span>
+            <span class="card-badge" id="card-marca">Marca</span>
             <h2 id="card-nome">Nome do Item</h2>
             <div style="font-size: 0.9rem; color: #64748b;">
                 <span id="card-colecao">Coleção</span> #<span id="card-numero">00</span>
@@ -189,7 +162,7 @@
 
         <div class="card-image-wrapper">
             <button class="nav-arrow prev" id="img-prev-btn" onclick="changeCardImage(-1)">&#10094;</button>
-            <img id="card-img-display" src="" alt="Imagem do Item" referrerpolicy="no-referrer">
+            <img id="card-img-display" src="" alt="Imagem do Item">
             <button class="nav-arrow next" id="img-next-btn" onclick="changeCardImage(1)">&#10095;</button>
         </div>
 
@@ -233,7 +206,8 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
 <script>
-let funkoItems = [];
+let allItems = [];
+let currentFilteredItems = [];
 let currentItemIndex = 0;
 let currentCardImages = [];
 let currentCardImageIndex = 0;
@@ -264,15 +238,17 @@ function logout() {
     auth.signOut().then(() => { window.location.href = "index.html"; });
 }
 
-function scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
 auth.onAuthStateChanged((user) => {
     if (user) {
         const userEmail = (user.email || "").toLowerCase().trim();
         if (authorizedEmails.includes(userEmail)) {
-            loadFunkoGallery();
+            const userDetailsEl = document.getElementById('user-details');
+            const userEmailEl = document.getElementById('user-email');
+            
+            if (userDetailsEl) userDetailsEl.style.display = 'block';
+            if (userEmailEl) userEmailEl.innerText = user.email;
+            
+            loadInventory();
         } else {
             alert("Acesso Negado! O e-mail (" + user.email + ") não tem permissão.");
             window.location.href = "index.html";
@@ -292,49 +268,58 @@ function translateOrigem(v) { return v === false ? 'Oferecido' : 'Adquirido'; }
 function translateColecionado(v) { return v === true ? 'Sim' : 'Não'; }
 function translateLoja(v) { return v ? v : 'Desconhecida'; }
 
-function loadFunkoGallery() {
-    const container = document.getElementById('gallery-container');
-    container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #64748b;">A carregar dados do inventário...</p>';
+function loadInventory() {
+    document.getElementById('inventory-body').innerHTML = '<tr><td colspan="11">A carregar dados do inventário...</td></tr>';
     
     db.collection(COLLECTION_NAME).get().then((snap) => {
-        funkoItems = [];
-        snap.forEach(doc => { 
-            let d = doc.data(); 
-            d.id = doc.id; 
-            if ((d.Marca || '').toLowerCase().includes('funko')) {
-                funkoItems.push(d); 
-            }
-        });
-
-        funkoItems.sort((a,b) => (a.Colecao || '').localeCompare(b.Colecao || '') || (a.NumeroNaColecao - b.NumeroNaColecao));
-        renderGallery(funkoItems);
+        allItems = [];
+        snap.forEach(doc => { let d = doc.data(); d.id = doc.id; allItems.push(d); });
+        allItems.sort((a,b) => (a.Colecao || '').localeCompare(b.Colecao || '') || (a.NumeroNaColecao - b.NumeroNaColecao));
+        currentFilteredItems = [...allItems];
+        renderTable(currentFilteredItems);
     }).catch(err => {
         console.error("Erro ao carregar Firestore:", err);
-        container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #dc3545;">Erro ao carregar dados da coleção.</p>';
+        document.getElementById('inventory-body').innerHTML = '<tr><td colspan="11">Erro nas permissões da base de dados.</td></tr>';
     });
 }
 
-function renderGallery(items) {
-    const container = document.getElementById('gallery-container');
-    container.innerHTML = '';
-
-    if (items.length === 0) {
-        container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #64748b;">Nenhum Funko Pop encontrado na coleção.</p>';
+function renderTable(data) {
+    const body = document.getElementById('inventory-body');
+    body.innerHTML = '';
+    
+    if (data.length === 0) {
+        body.innerHTML = '<tr><td colspan="11">Nenhum item encontrado.</td></tr>';
         return;
     }
 
-    items.forEach((item, index) => {
-        const firstImg = (item.Imagem && item.Imagem[0]) ? item.Imagem[0] : 'https://via.placeholder.com/200?text=Sem+Imagem';
-        const titleText = item.NomeNaColecao || item.Nome || item.Colecao || 'Funko Pop';
-
-        const card = document.createElement('div');
-        card.className = 'gallery-item';
-        card.title = titleText;
-        card.onclick = () => openCardModal(index);
+    data.forEach((item, index) => {
+        const row = body.insertRow();
+        const img = (item.Imagem && item.Imagem[0]) ? item.Imagem[0] : 'https://via.placeholder.com/50';
+        const valorLoja = item.Loja || item.loja;
+        const valorPreco = item.Preço || item.Preco || item.preço || 0;
+        const nomeItem = item.NomeNaColecao || item.Nome || item.nome || item.Colecao || 'Ver Detalhes';
         
-        card.innerHTML = `<img src="${firstImg}" alt="${titleText}" referrerpolicy="no-referrer" loading="lazy">`;
-        container.appendChild(card);
+        row.innerHTML = `
+            <td data-label="Marca">${item.Marca || 'N/A'}</td>
+            <td data-label="Imagem"><img src="${img}" class="pop-main-image"></td>
+            <td data-label="Numero">${item.NumeroNaColecao || item.Numero || 'N/A'}</td>
+            <td data-label="Colecao">${item.Colecao || 'N/A'}</td>
+            <td data-label="Nome"><a class="item-name-link" href="javascript:void(0)" onclick="openCardModal(${index})">${nomeItem}</a></td>
+            <td data-label="Descricao">${item.Descricao || 'N/A'}</td>
+            <td data-label="Origem">${translateOrigem(item.Origem)}</td>
+            <td data-label="Loja">${translateLoja(valorLoja)}</td>
+            <td data-label="Preco">${formatCurrency(valorPreco)}</td>
+            <td data-label="Data">${formatDate(item.DatadeCompra)}</td>
+            <td data-label="Colecionado">${translateColecionado(item.Colecionado)}</td>
+        `;
     });
+}
+
+function filterData() {
+    const txt = document.getElementById('searchColecao').value.toLowerCase();
+    const marca = document.getElementById('searchMarca').value;
+    currentFilteredItems = allItems.filter(i => (i.Colecao || '').toLowerCase().includes(txt) && (marca === "" || i.Marca === marca));
+    renderTable(currentFilteredItems);
 }
 
 function openCardModal(index) {
@@ -344,10 +329,10 @@ function openCardModal(index) {
 }
 
 function displayCardData() {
-    const item = funkoItems[currentItemIndex];
+    const item = currentFilteredItems[currentItemIndex];
     if (!item) return;
 
-    document.getElementById('card-marca').innerText = item.Marca || 'Funko Pop';
+    document.getElementById('card-marca').innerText = item.Marca || 'Geral';
     document.getElementById('card-nome').innerText = item.NomeNaColecao || item.Nome || item.nome || 'Sem Nome';
     document.getElementById('card-colecao').innerText = item.Colecao || 'N/A';
     document.getElementById('card-numero').innerText = item.NumeroNaColecao || item.Numero || 'N/A';
@@ -362,9 +347,9 @@ function displayCardData() {
     currentCardImageIndex = 0;
     updateCardImageDisplay();
 
-    document.getElementById('item-counter').innerText = `${currentItemIndex + 1} de ${funkoItems.length}`;
+    document.getElementById('item-counter').innerText = `${currentItemIndex + 1} de ${currentFilteredItems.length}`;
     document.getElementById('prev-item-btn').disabled = (currentItemIndex === 0);
-    document.getElementById('next-item-btn').disabled = (currentItemIndex === funkoItems.length - 1);
+    document.getElementById('next-item-btn').disabled = (currentItemIndex === currentFilteredItems.length - 1);
 }
 
 function updateCardImageDisplay() {
@@ -383,7 +368,7 @@ function changeCardImage(direction) {
 
 function navigateItem(direction) {
     const newIndex = currentItemIndex + direction;
-    if (newIndex >= 0 && newIndex < funkoItems.length) {
+    if (newIndex >= 0 && newIndex < currentFilteredItems.length) {
         currentItemIndex = newIndex;
         displayCardData();
     }
