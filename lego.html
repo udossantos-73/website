@@ -30,7 +30,7 @@
     .back-btn {
         background-color: #64748b;
         color: white;
-        padding: 8px 16px;
+        padding: 10px 18px;
         border-radius: 6px;
         text-decoration: none;
         font-weight: bold;
@@ -40,45 +40,6 @@
         transition: background-color 0.2s;
     }
     .back-btn:hover { background-color: #475569; }
-
-    /* RODAPÉ FINAL DA PÁGINA */
-    .footer-section {
-        margin-top: 50px;
-        margin-bottom: 30px;
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .bottom-logout-btn {
-        padding: 12px 28px;
-        font-size: 1rem;
-        color: white;
-        background-color: #dc3545;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.2s;
-    }
-    .bottom-logout-btn:hover { background-color: #bb2d3b; }
-
-    /* BOTÃO PARA VOLTAR AO TOPO (TELEMÓVEL) */
-    .top-btn {
-        display: none;
-        background-color: #007acc;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 6px;
-        border: none;
-        font-weight: bold;
-        font-size: 0.9rem;
-        cursor: pointer;
-        width: 100%;
-        max-width: 300px;
-    }
 
     /* GRELHA DA GALERIA */
     .gallery-grid {
@@ -115,6 +76,62 @@
         display: block;
     }
 
+    /* RODAPÉ E PAGINAÇÃO */
+    .footer-section {
+        margin-top: 40px;
+        margin-bottom: 30px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .load-more-btn {
+        width: 100%;
+        padding: 14px;
+        font-size: 0.95rem;
+        font-weight: bold;
+        color: white;
+        background-color: #10b981;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    .load-more-btn:hover { background-color: #059669; }
+
+    .portal-btn {
+        width: 100%;
+        padding: 14px;
+        font-size: 0.95rem;
+        font-weight: bold;
+        color: white;
+        background-color: #007acc;
+        border: none;
+        border-radius: 6px;
+        text-decoration: none;
+        display: inline-block;
+        box-sizing: border-box;
+        transition: background-color 0.2s;
+    }
+    .portal-btn:hover { background-color: #005999; }
+
+    .bottom-logout-btn {
+        background: none;
+        border: none;
+        color: #dc3545;
+        font-size: 0.85rem;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 10px;
+        text-decoration: underline;
+    }
+
     /* MODAL DETALHADO */
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.75); padding: 15px; box-sizing: border-box; }
     .card-modal-content { background-color: #fff; padding: 25px; border-radius: 12px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
@@ -148,35 +165,9 @@
     /* MODO TELEMÓVEL */
     @media (max-width: 600px) {
         body { margin: 10px; }
-        
-        .header-bar {
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            gap: 12px;
-        }
-
-        h1 { 
-            font-size: 1.5rem; 
-            order: 1; 
-        }
-        
-        .back-btn { 
-            order: 2; 
-            width: 100%;
-            max-width: 300px;
-            box-sizing: border-box;
-        }
-
-        .gallery-grid {
-            grid-template-columns: 1fr !important; 
-            gap: 15px;
-            padding: 0;
-        }
-
-        .top-btn {
-            display: inline-block; 
-        }
+        .header-bar { flex-direction: column; text-align: center; gap: 12px; }
+        .back-btn { width: 100%; box-sizing: border-box; }
+        .gallery-grid { grid-template-columns: 1fr !important; gap: 15px; padding: 0; }
     }
     </style>
 </head>
@@ -192,9 +183,12 @@
     <p style="text-align: center; grid-column: 1 / -1; color: #64748b;">A carregar coleção de LEGO...</p>
 </div>
 
-<!-- SECÇÃO FINAL DA PÁGINA -->
+<!-- SECÇÃO FINAL DA PÁGINA (BOTÕES DE AÇÃO) -->
 <div class="footer-section">
-    <button class="top-btn" onclick="scrollToTop()">&uarr; Ir para o Início da Página</button>
+    <button id="load-more-btn" class="load-more-btn" onclick="carregarMaisItens()" style="display:none;">
+        ➕ Carregar mais 10 imagens
+    </button>
+    <a href="index.html" class="portal-btn">&larr; Voltar ao Portal</a>
     <button class="bottom-logout-btn" onclick="logout()">Terminar Sessão</button>
 </div>
 
@@ -257,7 +251,10 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
 <script>
-let legoItems = [];
+let totalItems = [];
+let itemsExibidos = 0;
+const ITENS_POR_PAGINA = 10;
+
 let currentItemIndex = 0;
 let currentCardImages = [];
 let currentCardImageIndex = 0;
@@ -288,10 +285,6 @@ function logout() {
     auth.signOut().then(() => { window.location.href = "index.html"; });
 }
 
-function scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
 auth.onAuthStateChanged((user) => {
     if (user) {
         const userEmail = (user.email || "").toLowerCase().trim();
@@ -318,8 +311,6 @@ function translateLoja(v) { return v ? v : 'Desconhecida'; }
 
 function extrairImagens(data) {
     if (!data) return [];
-    
-    // Suporta arrays ou strings no campo Imagem/foto
     const chavesComuns = ['imagem', 'Imagem', 'foto', 'Foto', 'FotoUrl', 'URL', 'url'];
     for (const chave of chavesComuns) {
         const val = data[chave];
@@ -341,37 +332,42 @@ function loadLegoGallery() {
     container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #64748b;">A carregar dados do inventário...</p>';
     
     db.collection(COLLECTION_NAME).get().then((snap) => {
-        legoItems = [];
+        totalItems = [];
         snap.forEach(doc => { 
             let d = doc.data(); 
             d.id = doc.id; 
             const marca = (d.Marca || '').toLowerCase();
             const tipo = (d.Tipo || '').toLowerCase();
 
-            // Filtra exclusivamente por Lego
             if (marca.includes('lego') || tipo.includes('lego') || tipo.includes('set')) {
-                legoItems.push(d); 
+                totalItems.push(d); 
             }
         });
 
-        legoItems.sort((a,b) => (a.Colecao || a.Marca || '').localeCompare(b.Colecao || b.Marca || '') || (a.NumeroNaColecao - b.NumeroNaColecao));
-        renderGallery(legoItems);
+        totalItems.sort((a,b) => (a.Colecao || a.Marca || '').localeCompare(b.Colecao || b.Marca || '') || (a.NumeroNaColecao - b.NumeroNaColecao));
+        
+        container.innerHTML = '';
+        itemsExibidos = 0;
+        
+        if (totalItems.length === 0) {
+            container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #64748b;">Nenhum Set LEGO encontrado na coleção.</p>';
+            document.getElementById('load-more-btn').style.display = 'none';
+            return;
+        }
+
+        carregarMaisItens();
     }).catch(err => {
         console.error("Erro ao carregar Firestore:", err);
         container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #dc3545;">Erro ao carregar dados da coleção.</p>';
     });
 }
 
-function renderGallery(items) {
+function carregarMaisItens() {
     const container = document.getElementById('gallery-container');
-    container.innerHTML = '';
+    const proximoLimite = Math.min(itemsExibidos + ITENS_POR_PAGINA, totalItems.length);
 
-    if (items.length === 0) {
-        container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #64748b;">Nenhum Set LEGO encontrado na coleção.</p>';
-        return;
-    }
-
-    items.forEach((item, index) => {
+    for (let i = itemsExibidos; i < proximoLimite; i++) {
+        const item = totalItems[i];
         const imgs = extrairImagens(item);
         const firstImg = imgs.length > 0 ? imgs[0] : 'https://via.placeholder.com/200?text=Sem+Imagem';
         const titleText = item.NomeNaColecao || item.Nome || item.Modelo || 'Set LEGO';
@@ -379,11 +375,22 @@ function renderGallery(items) {
         const card = document.createElement('div');
         card.className = 'gallery-item';
         card.title = titleText;
-        card.onclick = () => openCardModal(index);
+        card.onclick = () => openCardModal(i);
         
         card.innerHTML = `<img src="${firstImg}" alt="${titleText}" loading="lazy">`;
         container.appendChild(card);
-    });
+    }
+
+    itemsExibidos = proximoLimite;
+
+    // Se já carregou todos os itens, esconde o botão "Carregar Mais"
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    if (itemsExibidos < totalItems.length) {
+        loadMoreBtn.style.display = 'block';
+        loadMoreBtn.innerText = `➕ Carregar mais 10 imagens (${itemsExibidos} de ${totalItems.length})`;
+    } else {
+        loadMoreBtn.style.display = 'none';
+    }
 }
 
 function openCardModal(index) {
@@ -393,7 +400,7 @@ function openCardModal(index) {
 }
 
 function displayCardData() {
-    const item = legoItems[currentItemIndex];
+    const item = totalItems[currentItemIndex];
     if (!item) return;
 
     document.getElementById('card-marca').innerText = item.Marca || 'LEGO';
@@ -412,9 +419,9 @@ function displayCardData() {
     currentCardImageIndex = 0;
     updateCardImageDisplay();
 
-    document.getElementById('item-counter').innerText = `${currentItemIndex + 1} de ${legoItems.length}`;
+    document.getElementById('item-counter').innerText = `${currentItemIndex + 1} de ${totalItems.length}`;
     document.getElementById('prev-item-btn').disabled = (currentItemIndex === 0);
-    document.getElementById('next-item-btn').disabled = (currentItemIndex === legoItems.length - 1);
+    document.getElementById('next-item-btn').disabled = (currentItemIndex === totalItems.length - 1);
 }
 
 function updateCardImageDisplay() {
@@ -433,7 +440,7 @@ function changeCardImage(direction) {
 
 function navigateItem(direction) {
     const newIndex = currentItemIndex + direction;
-    if (newIndex >= 0 && newIndex < legoItems.length) {
+    if (newIndex >= 0 && newIndex < totalItems.length) {
         currentItemIndex = newIndex;
         displayCardData();
     }
