@@ -18,11 +18,13 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 30px;
+        margin-bottom: 20px;
         max-width: 1200px;
         margin-left: auto;
         margin-right: auto;
         padding: 0 10px;
+        flex-wrap: wrap;
+        gap: 15px;
     }
 
     h1 { color: #007acc; margin: 0; font-size: 1.8rem; }
@@ -40,6 +42,41 @@
         transition: background-color 0.2s;
     }
     .back-btn:hover { background-color: #475569; }
+
+    /* CAIXA DE SELEÇÃO / DROPDOWN */
+    .filter-container {
+        max-width: 1200px;
+        margin: 0 auto 25px auto;
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .filter-label {
+        font-weight: bold;
+        color: #475569;
+        font-size: 0.95rem;
+    }
+
+    .filter-select {
+        padding: 10px 14px;
+        font-size: 0.95rem;
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        background-color: #ffffff;
+        color: #1e293b;
+        font-weight: 500;
+        cursor: pointer;
+        outline: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        max-width: 320px;
+        width: 100%;
+    }
+
+    .filter-select:focus {
+        border-color: #007acc;
+    }
 
     /* RODAPÉ FINAL DA PÁGINA */
     .footer-section {
@@ -108,10 +145,13 @@
         box-shadow: 0 8px 16px rgba(0,0,0,0.15);
     }
 
+    /* Ajustado para não cortar as figuras Funko */
     .gallery-item img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
+        padding: 8px;
+        box-sizing: border-box;
         display: block;
     }
 
@@ -168,6 +208,15 @@
             box-sizing: border-box;
         }
 
+        .filter-container {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-select {
+            max-width: 100%;
+        }
+
         .gallery-grid {
             grid-template-columns: 1fr !important; 
             gap: 15px;
@@ -184,7 +233,15 @@
 
 <div class="header-bar">
     <h1>Galeria Funko Pop</h1>
-    <a href="index.html" class="back-btn">&larr; Voltar ao Portal</a>
+    <a href="galerias.html" class="back-btn">&larr; Voltar às Galerias</a>
+</div>
+
+<!-- DROPDOWN PARA FILTRAR POR COLEÇÃO -->
+<div class="filter-container">
+    <label for="collection-select" class="filter-label">Coleção:</label>
+    <select id="collection-select" class="filter-select" onchange="filtrarPorColecao()">
+        <option value="TODAS">Todas as Coleções Funko</option>
+    </select>
 </div>
 
 <!-- GRELHA VISUAL -->
@@ -257,7 +314,8 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
 <script>
-let funkoItems = [];
+let allFunkoItems = [];         // Todos os Funkos carregados
+let activeFilteredItems = [];    // Funkos ativos na vista atual (filtrados ou todos)
 let currentItemIndex = 0;
 let currentCardImages = [];
 let currentCardImageIndex = 0;
@@ -321,21 +379,60 @@ function loadFunkoGallery() {
     container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #64748b;">A carregar dados do inventário...</p>';
     
     db.collection(COLLECTION_NAME).get().then((snap) => {
-        funkoItems = [];
+        allFunkoItems = [];
         snap.forEach(doc => { 
             let d = doc.data(); 
             d.id = doc.id; 
             if ((d.Marca || '').toLowerCase().includes('funko')) {
-                funkoItems.push(d); 
+                allFunkoItems.push(d); 
             }
         });
 
-        funkoItems.sort((a,b) => (a.Colecao || '').localeCompare(b.Colecao || '') || (a.NumeroNaColecao - b.NumeroNaColecao));
-        renderGallery(funkoItems);
+        allFunkoItems.sort((a,b) => (a.Colecao || '').localeCompare(b.Colecao || '') || ((a.NumeroNaColecao || 0) - (b.NumeroNaColecao || 0)));
+        
+        preencherDropdownColecoes();
+        activeFilteredItems = [...allFunkoItems];
+        renderGallery(activeFilteredItems);
+
     }).catch(err => {
         console.error("Erro ao carregar Firestore:", err);
         container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #dc3545;">Erro ao carregar dados da coleção.</p>';
     });
+}
+
+function preencherDropdownColecoes() {
+    const select = document.getElementById('collection-select');
+    if (!select) return;
+
+    select.innerHTML = '<option value="TODAS">Todas as Coleções Funko (' + allFunkoItems.length + ')</option>';
+
+    const colecoesMap = {};
+    allFunkoItems.forEach(item => {
+        const col = (item.Colecao || 'Outros').trim();
+        colecoesMap[col] = (colecoesMap[col] || 0) + 1;
+    });
+
+    const colecoesOrdenadas = Object.keys(colecoesMap).sort((a, b) => a.localeCompare(b));
+
+    colecoesOrdenadas.forEach(col => {
+        const option = document.createElement('option');
+        option.value = col;
+        option.textContent = `${col} (${colecoesMap[col]})`;
+        select.appendChild(option);
+    });
+}
+
+function filtrarPorColecao() {
+    const select = document.getElementById('collection-select');
+    const colecaoSelecionada = select ? select.value : "TODAS";
+
+    if (colecaoSelecionada === "TODAS") {
+        activeFilteredItems = [...allFunkoItems];
+    } else {
+        activeFilteredItems = allFunkoItems.filter(item => (item.Colecao || 'Outros').trim() === colecaoSelecionada);
+    }
+
+    renderGallery(activeFilteredItems);
 }
 
 function renderGallery(items) {
@@ -343,7 +440,7 @@ function renderGallery(items) {
     container.innerHTML = '';
 
     if (items.length === 0) {
-        container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #64748b;">Nenhum Funko Pop encontrado na coleção.</p>';
+        container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #64748b;">Nenhum Funko Pop encontrado para esta coleção.</p>';
         return;
     }
 
@@ -368,7 +465,7 @@ function openCardModal(index) {
 }
 
 function displayCardData() {
-    const item = funkoItems[currentItemIndex];
+    const item = activeFilteredItems[currentItemIndex];
     if (!item) return;
 
     document.getElementById('card-marca').innerText = item.Marca || 'Funko Pop';
@@ -386,9 +483,9 @@ function displayCardData() {
     currentCardImageIndex = 0;
     updateCardImageDisplay();
 
-    document.getElementById('item-counter').innerText = `${currentItemIndex + 1} de ${funkoItems.length}`;
+    document.getElementById('item-counter').innerText = `${currentItemIndex + 1} de ${activeFilteredItems.length}`;
     document.getElementById('prev-item-btn').disabled = (currentItemIndex === 0);
-    document.getElementById('next-item-btn').disabled = (currentItemIndex === funkoItems.length - 1);
+    document.getElementById('next-item-btn').disabled = (currentItemIndex === activeFilteredItems.length - 1);
 }
 
 function updateCardImageDisplay() {
@@ -407,7 +504,7 @@ function changeCardImage(direction) {
 
 function navigateItem(direction) {
     const newIndex = currentItemIndex + direction;
-    if (newIndex >= 0 && newIndex < funkoItems.length) {
+    if (newIndex >= 0 && newIndex < activeFilteredItems.length) {
         currentItemIndex = newIndex;
         displayCardData();
     }
