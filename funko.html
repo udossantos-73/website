@@ -192,4 +192,76 @@
     .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.9rem; }
     .card-grid-item { display: flex; flex-direction: column; }
     .card-grid-item.full-width { grid-column: span 2; }
-    .
+    .card-label { font-size: 0.75rem; color: #64748b; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
+    .card-value { color: #1e293b; font-weight: 500; }
+
+    .card-item-navigation { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; }
+    .nav-item-btn { background: #007acc; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
+    .nav-item-btn:hover { background: #005999; }
+    .nav-item-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+    .item-counter { font-size: 0.85rem; color: #64748b; font-weight: bold; }
+
+    /* MODO TELEMÓVEL */
+    @media (max-width: 600px) {
+        body { margin: 10px; }
+        .header-bar { flex-direction: column; text-align: center; gap: 12px; }
+        .back-btn { width: 100%; box-sizing: border-box; }
+        .filter-container { flex-direction: column; align-items: stretch; }
+        .filter-select { max-width: 100%; }
+        .gallery-grid { grid-template-columns: 1fr !important; gap: 15px; padding: 0; }
+    }
+    </style>
+</head>
+<body>
+
+<div class="header-bar">
+    <h1>Galeria Funko Pop</h1>
+    <a href="galerias.html" class="back-btn">&larr; Voltar às Galerias</a>
+</div>
+
+<!-- FILTRO DE COLEÇÕES -->
+<div class="filter-container">
+    <label for="collection-select" class="filter-label">Coleção:</label>
+    <select id="collection-select" class="filter-select" onchange="filtrarPorColecao()">
+        <option value="TODAS">Todas as Coleções Funko</option>
+    </select>
+</div>
+
+<!-- GRELHA VISUAL -->
+<div class="gallery-grid" id="gallery-container">
+    <p style="text-align: center; grid-column: 1 / -1; color: #64748b;">A carregar coleção de Funko Pops...</p>
+</div>
+
+<!-- SECÇÃO FINAL DA PÁGINA -->
+<div class="footer-section">
+    <button id="load-more-btn" class="load-more-btn" onclick="carregarMaisItens()" style="display:none;">
+        ➕ Carregar mais 10 imagens
+    </button>
+    <a href="index.html" class="portal-btn">&larr; Voltar ao Portal</a>
+    <button class="bottom-logout-btn" onclick="logout()">Terminar Sessão</button>
+</div>
+
+<!-- MODAL DE CARTÃO DETALHADO -->
+<div id="card-modal" class="modal">
+    <div class="card-modal-content">
+        <span class="close-button" onclick="closeCardModal()">&times;</span>
+        
+        <div class="card-header">
+            <span class="card-badge" id="card-marca">Funko Pop</span>
+            <h2 id="card-nome">Nome do Item</h2>
+            <div style="font-size: 0.9rem; color: #64748b;">
+                <span id="card-colecao">Coleção</span> #<span id="card-numero">00</span>
+            </div>
+        </div>
+
+        <div class="card-image-wrapper">
+            <button class="nav-arrow prev" id="img-prev-btn" onclick="changeCardImage(-1)">&#10094;</button>
+            <img id="card-img-display" src="" alt="Imagem do Item">
+            <button class="nav-arrow next" id="img-next-btn" onclick="changeCardImage(1)">&#10095;</button>
+        </div>
+
+        <div class="card-grid">
+            <div class="card-grid-item full-width">
+                <span class="card-label">Descrição</span>
+                <span class="card-value" id="card-descricao">N/A</span>
+            </div>
