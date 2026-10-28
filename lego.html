@@ -201,7 +201,7 @@
     .nav-item-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
     .item-counter { font-size: 0.85rem; color: #64748b; font-weight: bold; }
 
-    /* MODO TELEMÓVEL */
+    /* MODO TELEMÓVEL (1 COLUNA) */
     @media (max-width: 600px) {
         body { margin: 10px; }
         
@@ -234,8 +234,8 @@
         }
 
         .gallery-grid {
-            grid-template-columns: repeat(2, 1fr) !important; 
-            gap: 12px;
+            grid-template-columns: 1fr !important; 
+            gap: 15px;
             padding: 0;
         }
 
@@ -341,7 +341,6 @@ let currentItemIndex = 0;
 let currentCardImages = [];
 let currentCardImageIndex = 0;
 
-// Determina 30 para PC e 10 para Telemóvel
 function getItensPorPagina() {
     return window.innerWidth <= 600 ? 10 : 30;
 }
