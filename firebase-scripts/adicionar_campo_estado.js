@@ -1,8 +1,7 @@
 const admin = require('firebase-admin');
 
-// Inicialização direta para o projeto miguel-inventory
+// Inicialização automática para o ambiente Google Cloud / Cloud Shell
 admin.initializeApp({
-  credential: admin.credential.applicationDefault(),
   projectId: 'miguel-inventory'
 });
 
