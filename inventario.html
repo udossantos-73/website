@@ -34,7 +34,7 @@
     .logout-btn { padding: 8px 16px; font-size: 0.9rem; color: white; background-color: #dc3545; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
     .logout-btn:hover { background-color: #bb2d3b; }
 
-    .filters-container { display: flex; gap: 15px; margin-bottom: 20px; justify-content: center; }
+    .filters-container { display: flex; gap: 15px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
     .filters-container input, .filters-container select { padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 1rem; }
 
     .pop-inventory { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background-color: white; }
@@ -89,6 +89,7 @@
     @media (max-width: 850px) {
         h1 { font-size: 1.3rem; }
         .filters-container { flex-direction: column; align-items: stretch; }
+        .filters-container input { max-width: 100% !important; }
 
         .pop-inventory { display: table !important; width: 100% !important; border-collapse: collapse; font-size: 13px; }
         .pop-inventory thead { display: table-header-group !important; }
@@ -119,7 +120,8 @@
 </div>
 
 <div class="filters-container">
-    <input type="text" id="searchColecao" placeholder="Filtrar por Coleção..." onkeyup="filterData()">
+    <input type="text" id="searchNumero" placeholder="Filtrar por Número..." onkeyup="filterData()" style="max-width: 180px;">
+    <input type="text" id="searchColecao" placeholder="Filtrar por Coleção ou Nome..." onkeyup="filterData()">
     <select id="searchMarca" onchange="filterData()">
         <option value="">Todas as Marcas</option>
         <option value="Funko Pop">Funko Pop</option>
@@ -131,17 +133,17 @@
 <table class="pop-inventory">
     <thead>
         <tr>
-            <th>Marca</th>
-            <th>Imagem</th>
-            <th>Numero</th>
-            <th>Coleção</th>
-            <th>Nome</th>
-            <th>Descrição</th>
-            <th>Origem</th>
-            <th>Loja</th> 
-            <th>Preço</th>
-            <th>Data Compra</th>
-            <th>Colecionado</th>
+            <th data-label="Marca">Marca</th>
+            <th data-label="Imagem">Imagem</th>
+            <th data-label="Numero">Numero</th>
+            <th data-label="Colecao">Coleção</th>
+            <th data-label="Nome">Nome</th>
+            <th data-label="Descricao">Descrição</th>
+            <th data-label="Origem">Origem</th>
+            <th data-label="Loja">Loja</th> 
+            <th data-label="Preco">Preço</th>
+            <th data-label="Data">Data Compra</th>
+            <th data-label="Colecionado">Colecionado</th>
         </tr>
     </thead>
     <tbody id="inventory-body">
@@ -317,9 +319,22 @@ function renderTable(data) {
 }
 
 function filterData() {
-    const txt = document.getElementById('searchColecao').value.toLowerCase();
+    const numTxt = document.getElementById('searchNumero').value.toLowerCase().trim();
+    const colTxt = document.getElementById('searchColecao').value.toLowerCase().trim();
     const marca = document.getElementById('searchMarca').value;
-    currentFilteredItems = allItems.filter(i => (i.Colecao || '').toLowerCase().includes(txt) && (marca === "" || i.Marca === marca));
+
+    currentFilteredItems = allItems.filter(i => {
+        const numItem = String(i.NumeroNaColecao || i.Numero || '').toLowerCase();
+        const colItem = (i.Colecao || '').toLowerCase();
+        const nomeItem = (i.NomeNaColecao || i.Nome || i.nome || '').toLowerCase();
+
+        const matchNumero = numItem.includes(numTxt);
+        const matchColecaoOuNome = colItem.includes(colTxt) || nomeItem.includes(colTxt);
+        const matchMarca = (marca === "" || i.Marca === marca);
+
+        return matchNumero && matchColecaoOuNome && matchMarca;
+    });
+
     renderTable(currentFilteredItems);
 }
 
