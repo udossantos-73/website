@@ -1,11 +1,12 @@
-const admin = require('firebase-admin');
+const { initializeApp } = require('firebase-admin/app');
+const { getFirestore } = require('firebase-admin/firestore');
 
-// Inicialização automática para o ambiente Google Cloud / Cloud Shell
-admin.initializeApp({
+// Inicialização modular oficial do Firebase Admin
+initializeApp({
   projectId: 'miguel-inventory'
 });
 
-const db = admin.firestore();
+const db = getFirestore();
 
 async function adicionarCampoEstado() {
   const colecoes = ['lego_items', 'funko_items', 'hotwheels_items'];
