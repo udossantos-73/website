@@ -1,17 +1,14 @@
 const admin = require('firebase-admin');
 
-// Inicialização segura para o projeto miguel-inventory
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.applicationDefault(),
-    projectId: 'miguel-inventory'
-  });
-}
+// Inicialização direta para o projeto miguel-inventory
+admin.initializeApp({
+  credential: admin.credential.applicationDefault(),
+  projectId: 'miguel-inventory'
+});
 
 const db = admin.firestore();
 
 async function adicionarCampoEstado() {
-  // Coleções do inventário (Lego, Funko e Hot Wheels)
   const colecoes = ['lego_items', 'funko_items', 'hotwheels_items'];
 
   for (const nomeColecao of colecoes) {
