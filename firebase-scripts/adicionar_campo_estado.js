@@ -25,25 +25,34 @@ async function migrarParaEstado() {
     snapshot.forEach((doc) => {
       const dados = doc.data();
       
-      // Determina o novo estado com base no campo antigo 'Colecionado'
-      let novoEstado = 'adquirido'; // valor predefinido
+      // Determina o estado com a primeira letra maiúscula com base no campo antigo 'Colecionado'
+      let novoEstado = 'Adquirido'; // valor predefinido
       if (dados.Colecionado === false) {
-        novoEstado = 'wishlist';
+        novoEstado = 'Wishlist';
       } else if (dados.Colecionado === true) {
-        novoEstado = 'adquirido';
+        novoEstado = 'Adquirido';
       }
 
-      // Adiciona o novo campo 'estado' e remove o antigo 'Colecionado'
+      // Se já existir um campo 'estado' em minúsculas de uma tentativa anterior, aproveitamos o valor capitalizado
+      if (dados.estado) {
+        const val = dados.estado.toLowerCase();
+        if (val === 'wishlist') novoEstado = 'Wishlist';
+        if (val === 'encomendado') novoEstado = 'Encomendado';
+        if (val === 'adquirido') novoEstado = 'Adquirido';
+      }
+
+      // Adiciona o campo 'Estado', remove o antigo 'Colecionado' e limpa o 'estado' antigo se existir
       batch.update(doc.ref, {
-        estado: novoEstado,
-        Colecionado: FieldValue.delete() // Remove o campo booleano antigo
+        Estado: novoEstado,
+        Colecionado: FieldValue.delete(),
+        estado: FieldValue.delete() // Remove o campo antigo em minúsculas, caso exista
       });
       contador++;
     });
 
     if (contador > 0) {
       await batch.commit();
-      console.log(`> Migrados ${contador} documentos com sucesso para o campo 'estado'!`);
+      console.log(`> Migrados ${contador} documentos com sucesso para o campo 'Estado'!`);
     } else {
       console.log(`> Nenhum documento para atualizar.`);
     }
