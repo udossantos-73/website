@@ -1,50 +1,55 @@
 const { initializeApp } = require('firebase-admin/app');
-const { getFirestore } = require('firebase-admin/firestore');
+const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 
-// Inicialização modular oficial do Firebase Admin
 initializeApp({
   projectId: 'miguel-inventory'
 });
 
 const db = getFirestore();
 
-async function adicionarCampoEstado() {
-  const colecoes = ['lego_items', 'funko_items', 'hotwheels_items'];
+async function migrarParaEstado() {
+  const nomeColecao = 'inventario';
+  console.log(`A processar a coleção: ${nomeColecao}...`);
+  
+  try {
+    const snapshot = await db.collection(nomeColecao).get();
 
-  for (const nomeColecao of colecoes) {
-    console.log(`A verificar a coleção: ${nomeColecao}...`);
-    
-    try {
-      const snapshot = await db.collection(nomeColecao).get();
-
-      if (snapshot.empty) {
-        console.log(`> Coleção ${nomeColecao} vazia ou não encontrada.`);
-        continue;
-      }
-
-      const batch = db.batch();
-      let contador = 0;
-
-      snapshot.forEach((doc) => {
-        const dados = doc.data();
-        // Se o documento ainda não tiver o campo 'estado', define como 'adquirido' por defeito
-        if (!dados.estado) {
-          batch.update(doc.ref, { estado: 'adquirido' });
-          contador++;
-        }
-      });
-
-      if (contador > 0) {
-        await batch.commit();
-        console.log(`> Adicionado campo 'estado' em ${contador} documentos na coleção ${nomeColecao}.`);
-      } else {
-        console.log(`> Nenhum documento precisava de atualização em ${nomeColecao}.`);
-      }
-    } catch (erro) {
-      console.log(`> Erro ao aceder à coleção ${nomeColecao}:`, erro.message);
+    if (snapshot.empty) {
+      console.log(`> Coleção ${nomeColecao} vazia ou não encontrada.`);
+      return;
     }
+
+    const batch = db.batch();
+    let contador = 0;
+
+    snapshot.forEach((doc) => {
+      const dados = doc.data();
+      
+      // Determina o novo estado com base no campo antigo 'Colecionado'
+      let novoEstado = 'adquirido'; // valor predefinido
+      if (dados.Colecionado === false) {
+        novoEstado = 'wishlist';
+      } else if (dados.Colecionado === true) {
+        novoEstado = 'adquirido';
+      }
+
+      // Adiciona o novo campo 'estado' e remove o antigo 'Colecionado'
+      batch.update(doc.ref, {
+        estado: novoEstado,
+        Colecionado: FieldValue.delete() // Remove o campo booleano antigo
+      });
+      contador++;
+    });
+
+    if (contador > 0) {
+      await batch.commit();
+      console.log(`> Migrados ${contador} documentos com sucesso para o campo 'estado'!`);
+    } else {
+      console.log(`> Nenhum documento para atualizar.`);
+    }
+  } catch (erro) {
+    console.log(`> Erro ao migrar a coleção:`, erro.message);
   }
-  console.log('Processo de migração concluído com sucesso!');
 }
 
-adicionarCampoEstado().catch(console.error);
+migrarParaEstado().catch(console.error);
