@@ -142,13 +142,12 @@
             <th data-label="Origem">Origem</th>
             <th data-label="Loja">Loja</th> 
             <th data-label="Preco">Preço</th>
-            <th data-label="Quantidade">Qtd</th>
             <th data-label="Data">Data Compra</th>
             <th data-label="Colecionado">Colecionado</th>
         </tr>
     </thead>
     <tbody id="inventory-body">
-        <tr><td colspan="12">A verificar autenticação...</td></tr>
+        <tr><td colspan="11">A verificar autenticação...</td></tr>
     </tbody>
 </table>
 
@@ -186,10 +185,6 @@
             <div class="card-grid-item">
                 <span class="card-label">Preço</span>
                 <span class="card-value" id="card-preco">0,00 €</span>
-            </div>
-            <div class="card-grid-item">
-                <span class="card-label">Quantidade</span>
-                <span class="card-value" id="card-quantidade">1</span>
             </div>
             <div class="card-grid-item">
                 <span class="card-label">Data de Compra</span>
@@ -250,3 +245,159 @@ auth.onAuthStateChanged((user) => {
     if (user) {
         const userEmail = (user.email || "").toLowerCase().trim();
         if (authorizedEmails.includes(userEmail)) {
+            const userDetailsEl = document.getElementById('user-details');
+            const userEmailEl = document.getElementById('user-email');
+            
+            if (userDetailsEl) userDetailsEl.style.display = 'block';
+            if (userEmailEl) userEmailEl.innerText = user.email;
+            
+            loadInventory();
+        } else {
+            alert("Acesso Negado! O e-mail (" + user.email + ") não tem permissão.");
+            window.location.href = "index.html";
+        }
+    } else {
+        setTimeout(() => {
+            if (!auth.currentUser) {
+                window.location.href = "index.html";
+            }
+        }, 1000);
+    }
+});
+
+function formatCurrency(v) { return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(v || 0); }
+function formatDate(t) { return (t && t.toDate) ? new Intl.DateTimeFormat('pt-PT', { day: '2-digit', month: 'short', year: 'numeric' }).format(t.toDate()) : 'Desconhecida'; }
+function translateOrigem(v) { return v === false ? 'Oferecido' : 'Adquirido'; }
+function translateColecionado(v) { return v === true ? 'Sim' : 'Não'; }
+function translateLoja(v) { return v ? v : 'Desconhecida'; }
+
+function loadInventory() {
+    document.getElementById('inventory-body').innerHTML = '<tr><td colspan="11">A carregar dados do inventário...</td></tr>';
+    
+    db.collection(COLLECTION_NAME).get().then((snap) => {
+        allItems = [];
+        snap.forEach(doc => { let d = doc.data(); d.id = doc.id; allItems.push(d); });
+        allItems.sort((a,b) => (a.Colecao || '').localeCompare(b.Colecao || '') || (a.NumeroNaColecao - b.NumeroNaColecao));
+        currentFilteredItems = [...allItems];
+        renderTable(currentFilteredItems);
+    }).catch(err => {
+        console.error("Erro ao carregar Firestore:", err);
+        document.getElementById('inventory-body').innerHTML = '<tr><td colspan="11">Erro nas permissões da base de dados.</td></tr>';
+    });
+}
+
+function renderTable(data) {
+    const body = document.getElementById('inventory-body');
+    body.innerHTML = '';
+    
+    if (data.length === 0) {
+        body.innerHTML = '<tr><td colspan="11">Nenhum item encontrado.</td></tr>';
+        return;
+    }
+
+    data.forEach((item, index) => {
+        const row = body.insertRow();
+        const img = (item.Imagem && item.Imagem[0]) ? item.Imagem[0] : 'https://via.placeholder.com/50';
+        const valorLoja = item.Loja || item.loja;
+        const valorPreco = item.Preço || item.Preco || item.preço || 0;
+        const nomeItem = item.NomeNaColecao || item.Nome || item.nome || item.Colecao || 'Ver Detalhes';
+        
+        row.innerHTML = `
+            <td data-label="Marca">${item.Marca || 'N/A'}</td>
+            <td data-label="Imagem"><img src="${img}" class="pop-main-image"></td>
+            <td data-label="Numero">${item.NumeroNaColecao || item.Numero || 'N/A'}</td>
+            <td data-label="Colecao">${item.Colecao || 'N/A'}</td>
+            <td data-label="Nome"><a class="item-name-link" href="javascript:void(0)" onclick="openCardModal(${index})">${nomeItem}</a></td>
+            <td data-label="Descricao">${item.Descricao || 'N/A'}</td>
+            <td data-label="Origem">${translateOrigem(item.Origem)}</td>
+            <td data-label="Loja">${translateLoja(valorLoja)}</td>
+            <td data-label="Preco">${formatCurrency(valorPreco)}</td>
+            <td data-label="Data">${formatDate(item.DatadeCompra)}</td>
+            <td data-label="Colecionado">${translateColecionado(item.Colecionado)}</td>
+        `;
+    });
+}
+
+function filterData() {
+    const numTxt = document.getElementById('searchNumero').value.toLowerCase().trim();
+    const colTxt = document.getElementById('searchColecao').value.toLowerCase().trim();
+    const marca = document.getElementById('searchMarca').value;
+
+    currentFilteredItems = allItems.filter(i => {
+        const numItem = String(i.NumeroNaColecao || i.Numero || '').toLowerCase();
+        const colItem = (i.Colecao || '').toLowerCase();
+        const nomeItem = (i.NomeNaColecao || i.Nome || i.nome || '').toLowerCase();
+
+        const matchNumero = numItem.includes(numTxt);
+        const matchColecaoOuNome = colItem.includes(colTxt) || nomeItem.includes(colTxt);
+        const matchMarca = (marca === "" || i.Marca === marca);
+
+        return matchNumero && matchColecaoOuNome && matchMarca;
+    });
+
+    renderTable(currentFilteredItems);
+}
+
+function openCardModal(index) {
+    currentItemIndex = index;
+    displayCardData();
+    document.getElementById('card-modal').style.display = 'flex';
+}
+
+function displayCardData() {
+    const item = currentFilteredItems[currentItemIndex];
+    if (!item) return;
+
+    document.getElementById('card-marca').innerText = item.Marca || 'Geral';
+    document.getElementById('card-nome').innerText = item.NomeNaColecao || item.Nome || item.nome || 'Sem Nome';
+    document.getElementById('card-colecao').innerText = item.Colecao || 'N/A';
+    document.getElementById('card-numero').innerText = item.NumeroNaColecao || item.Numero || 'N/A';
+    document.getElementById('card-descricao').innerText = item.Descricao || 'Sem descrição disponível.';
+    document.getElementById('card-origem').innerText = translateOrigem(item.Origem);
+    document.getElementById('card-loja').innerText = translateLoja(item.Loja || item.loja);
+    document.getElementById('card-preco').innerText = formatCurrency(item.Preço || item.Preco || item.preço);
+    document.getElementById('card-data').innerText = formatDate(item.DatadeCompra);
+    document.getElementById('card-colecionado').innerText = translateColecionado(item.Colecionado);
+
+    currentCardImages = (item.Imagem && item.Imagem.length > 0) ? item.Imagem : ['https://via.placeholder.com/300?text=Sem+Imagem'];
+    currentCardImageIndex = 0;
+    updateCardImageDisplay();
+
+    document.getElementById('item-counter').innerText = `${currentItemIndex + 1} de ${currentFilteredItems.length}`;
+    document.getElementById('prev-item-btn').disabled = (currentItemIndex === 0);
+    document.getElementById('next-item-btn').disabled = (currentItemIndex === currentFilteredItems.length - 1);
+}
+
+function updateCardImageDisplay() {
+    document.getElementById('card-img-display').src = currentCardImages[currentCardImageIndex];
+    const showArrows = currentCardImages.length > 1;
+    document.getElementById('img-prev-btn').style.display = showArrows ? 'flex' : 'none';
+    document.getElementById('img-next-btn').style.display = showArrows ? 'flex' : 'none';
+}
+
+function changeCardImage(direction) {
+    currentCardImageIndex += direction;
+    if (currentCardImageIndex >= currentCardImages.length) currentCardImageIndex = 0;
+    if (currentCardImageIndex < 0) currentCardImageIndex = currentCardImages.length - 1;
+    updateCardImageDisplay();
+}
+
+function navigateItem(direction) {
+    const newIndex = currentItemIndex + direction;
+    if (newIndex >= 0 && newIndex < currentFilteredItems.length) {
+        currentItemIndex = newIndex;
+        displayCardData();
+    }
+}
+
+function closeCardModal() {
+    document.getElementById('card-modal').style.display = 'none';
+}
+
+window.onclick = (e) => {
+    if (e.target.className === 'modal') closeCardModal();
+};
+</script>
+
+</body>
+</html>
