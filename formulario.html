@@ -9,16 +9,23 @@
 </head>
 <body class="bg-light">
 
-    <!-- Barra Superior -->
+    <!-- Barra Superior com Controlo de Autenticação -->
     <nav class="navbar navbar-dark bg-dark px-4 mb-4">
         <span class="navbar-brand mb-0 h1">Gestão de Inventário 🎮🚗🧱</span>
-        <a href="inventario.html" class="btn btn-outline-light btn-sm">Ver Galeria / Site</a>
+        <div id="auth-container">
+            <button id="btn-login" class="btn btn-outline-light btn-sm" style="display:none;" onclick="loginGoogle()">Entrar com Google</button>
+            <div id="user-info" class="text-white small" style="display:none;">
+                <span id="user-name" class="me-2"></span>
+                <button class="btn btn-outline-danger btn-sm" onclick="logoutGoogle()">Sair</button>
+            </div>
+        </div>
     </nav>
 
     <div class="container mb-5">
         <!-- Botão para novo item -->
-        <div class="mb-3">
+        <div class="d-flex justify-content-between mb-3">
             <button class="btn btn-primary" id="btn-novo" onclick="limparFormulario()">+ Novo Item</button>
+            <a href="inventario.html" class="btn btn-outline-secondary">Ver Galeria / Site</a>
         </div>
 
         <div class="row">
@@ -37,7 +44,7 @@
                         </div>
                         
                         <div class="list-group overflow-auto" id="lista-itens" style="max-height: 450px;">
-                            <div class="text-center p-3 text-muted">A carregar inventário...</div>
+                            <div class="text-center p-3 text-muted">A verificar autenticação...</div>
                         </div>
                     </div>
                 </div>
@@ -174,21 +181,57 @@
         </div>
     </div>
 
-    <!-- 1. Guarda de Autenticação existente no site -->
-    <script src="auth-guard.js"></script>
-
-    <!-- 2. Lógica da Página (Assume que a app Firebase e o Firestore já estão disponíveis globalmente ou importados) -->
+    <!-- Lógica Firebase e Autenticação -->
     <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-        // Obtém a instância do Firestore da app principal
-        const db = getFirestore();
+        const firebaseConfig = {
+            projectId: "miguel-inventory"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
 
         let todosOsItens = [];
 
+        window.loginGoogle = async function() {
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error("Erro no login:", error);
+                alert("Erro ao autenticar: " + error.message);
+            }
+        }
+
+        window.logoutGoogle = async function() {
+            await signOut(auth);
+        }
+
+        // Monitoriza a sessão do Google
+        onAuthStateChanged(auth, (user) => {
+            const btnLogin = document.getElementById('btn-login');
+            const userInfo = document.getElementById('user-info');
+            const userName = document.getElementById('user-name');
+
+            if (user) {
+                btnLogin.style.display = 'none';
+                userInfo.style.display = 'block';
+                userName.textContent = user.displayName || user.email;
+                carregarListaItens();
+            } else {
+                btnLogin.style.display = 'block';
+                userInfo.style.display = 'none';
+                document.getElementById('lista-itens').innerHTML = '<div class="text-warning p-3 text-center">Clica em **Entrar com Google** no topo para aceder ao inventário.</div>';
+            }
+        });
+
         async function carregarListaItens() {
             const listaDiv = document.getElementById('lista-itens');
-            listaDiv.innerHTML = '<div class="text-center p-3">A carregar...</div>';
+            listaDiv.innerHTML = '<div class="text-center p-3">A carregar inventário...</div>';
             
             try {
                 const querySnapshot = await getDocs(collection(db, "inventario"));
@@ -235,7 +278,7 @@
             });
         }
 
-        // Evento do botão de pesquisa por Número na Coleção
+        // Pesquisa por Número na Coleção
         document.getElementById('btn-pesquisar').addEventListener('click', () => {
             const valPesquisa = document.getElementById('input-pesquisa-num').value.trim();
             if (!valPesquisa) {
@@ -248,7 +291,6 @@
             renderizarLista(filtrados);
         });
 
-        // Botão para limpar a pesquisa
         document.getElementById('btn-limpar-pesquisa').addEventListener('click', () => {
             document.getElementById('input-pesquisa-num').value = '';
             renderizarLista(todosOsItens);
@@ -291,7 +333,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Submeter formulário (Criar ou Atualizar)
         document.getElementById('item-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('item-id').value;
@@ -350,9 +391,6 @@
                 }
             }
         }
-
-        // Iniciar carregamento automático ao entrar na página protegida
-        carregarListaItens();
     </script>
 </body>
 </html>
