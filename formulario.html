@@ -188,7 +188,12 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
         const firebaseConfig = {
-            projectId: "miguel-inventory"
+            apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
+            authDomain: "miguel-inventory.firebaseapp.com",
+            projectId: "miguel-inventory",
+            storageBucket: "miguel-inventory.firebasestorage.app",
+            messagingSenderId: "277968569414",
+            appId: "1:277968569414:web:04884bc1932c2c7dbb6b647"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -225,7 +230,7 @@
             } else {
                 btnLogin.style.display = 'block';
                 userInfo.style.display = 'none';
-                document.getElementById('lista-itens').innerHTML = '<div class="text-warning p-3 text-center">Clica em **Entrar com Google** no topo para aceder ao inventário.</div>';
+                document.getElementById('lista-itens').innerHTML = '<div class="text-warning p-3 text-center">Clica em <b>Entrar com Google</b> no topo para aceder ao inventário.</div>';
             }
         });
 
