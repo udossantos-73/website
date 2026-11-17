@@ -19,15 +19,21 @@
         </div>
 
         <div class="row">
-            <!-- Coluna da Esquerda: Lista de Itens Existentes -->
+            <!-- Coluna da Esquerda: Lista de Itens Existentes e Pesquisa -->
             <div class="col-md-5 mb-4">
                 <div class="card shadow">
                     <div class="card-header bg-dark text-white">
                         <h5 class="mb-0">Lista de Itens</h5>
                     </div>
                     <div class="card-body">
-                        <input type="text" id="filtro-pesquisa" class="form-control mb-3" placeholder="Pesquisar por nome...">
-                        <div class="list-group overflow-auto" id="lista-itens" style="max-height: 500px;">
+                        <!-- Campo de Pesquisa por Número na Coleção -->
+                        <div class="input-group mb-3">
+                            <input type="number" id="input-pesquisa-num" class="form-control" placeholder="Nº na Coleção (ex: 686)">
+                            <button class="btn btn-outline-primary" type="button" id="btn-pesquisar">Pesquisar</button>
+                            <button class="btn btn-outline-secondary" type="button" id="btn-limpar-pesquisa" title="Limpar filtro">❌</button>
+                        </div>
+                        
+                        <div class="list-group overflow-auto" id="lista-itens" style="max-height: 450px;">
                             <!-- Preenchido via JavaScript -->
                         </div>
                     </div>
@@ -146,7 +152,7 @@
                                 <textarea class="form-control" id="Descricao" rows="2"></textarea>
                             </div>
 
-                            <!-- Imagem (URLs separadas por vírgula ou uma por linha) -->
+                            <!-- Imagem -->
                             <div class="mb-3">
                                 <label for="Imagem" class="form-label">Links das Imagens (URLs separadas por vírgula)</label>
                                 <input type="text" class="form-control" id="Imagem" placeholder="https://..., https://...">
@@ -168,9 +174,7 @@
     <!-- Firebase SDK Modular -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, getDoc, setDoc, addDoc, deletedoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-        // Import corrigido para deleteDoc
-        import { deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, setDoc, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         const firebaseConfig = {
             projectId: "miguel-inventory"
@@ -212,10 +216,13 @@
                 const a = document.createElement('a');
                 a.href = "#";
                 a.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center";
+                
+                const numColecaoTexto = item.NumeroNaColecao !== undefined && item.NumeroNaColecao !== null ? `Nº ${item.NumeroNaColecao}` : '';
+                
                 a.innerHTML = `
                     <div>
-                        <strong>${item.NomeNaColecao || 'Sem Nome'}</strong><br>
-                        <small class="text-muted">${item.Marca || ''} - ${item.Estado || 'Adquirido'}</small>
+                        <strong>${numColecaoTexto ? numColecaoTexto + ' - ' : ''}${item.NomeNaColecao || 'Sem Nome'}</strong><br>
+                        <small class="text-muted">${item.Marca || ''} | ${item.Estado || 'Adquirido'}</small>
                     </div>
                     <span class="badge bg-primary rounded-pill">${item.Pertence || ''}</span>
                 `;
@@ -227,14 +234,23 @@
             });
         }
 
-        // Filtrar ao pesquisar
-        document.getElementById('filtro-pesquisa').addEventListener('input', (e) => {
-            const termo = e.target.value.toLowerCase();
-            const filtrados = todosOsItens.filter(item => 
-                (item.NomeNaColecao && item.NomeNaColecao.toLowerCase().includes(termo)) ||
-                (item.Marca && item.Marca.toLowerCase().includes(termo))
-            );
+        // Evento do botão de pesquisa por Número na Coleção
+        document.getElementById('btn-pesquisar').addEventListener('click', () => {
+            const valPesquisa = document.getElementById('input-pesquisa-num').value.trim();
+            if (!valPesquisa) {
+                renderizarLista(todosOsItens);
+                return;
+            }
+
+            const numProcurado = parseInt(valPesquisa);
+            const filtrados = todosOsItens.filter(item => item.NumeroNaColecao === numProcurado);
             renderizarLista(filtrados);
+        });
+
+        // Botão para limpar a pesquisa
+        document.getElementById('btn-limpar-pesquisa').addEventListener('click', () => {
+            document.getElementById('input-pesquisa-num').value = '';
+            renderizarLista(todosOsItens);
         });
 
         window.limparFormulario = function() {
@@ -262,7 +278,6 @@
             document.getElementById('Loja').value = item.Loja || '';
             document.getElementById('Descricao').value = item.Descricao || '';
             
-            // Tratar imagens se forem array ou string
             if (Array.isArray(item.Imagem)) {
                 document.getElementById('Imagem').value = item.Imagem.join(', ');
             } else {
@@ -275,12 +290,10 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Submeter formulário (Criar ou Atualizar)
         document.getElementById('item-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('item-id').value;
 
-            // Converter string de imagens de volta para Array
             const imagensStr = document.getElementById('Imagem').value;
             const imagensArray = imagensStr ? imagensStr.split(',').map(s => s.trim()).filter(s => s.length > 0) : [];
 
@@ -336,7 +349,6 @@
             }
         }
 
-        // Iniciar carregamento
         carregarListaItens();
     </script>
 </body>
