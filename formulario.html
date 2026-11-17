@@ -185,7 +185,7 @@
 
         let todosOsItens = [];
 
-        async function carregarListaItens() {
+       async function carregarListaItens() {
             const listaDiv = document.getElementById('lista-itens');
             listaDiv.innerHTML = '<div class="text-center p-3">A carregar...</div>';
             
@@ -199,7 +199,8 @@
                 renderizarLista(todosOsItens);
             } catch (error) {
                 console.error("Erro ao carregar inventário:", error);
-                listaDiv.innerHTML = '<div class="text-danger p-3">Erro ao carregar dados.</div>';
+                // Mostra o erro exato no ecrã para sabermos a causa
+                listaDiv.innerHTML = `<div class="text-danger p-3 small"><strong>Erro:</strong> ${error.message}</div>`;
             }
         }
 
