@@ -9,24 +9,27 @@
 </head>
 <body class="bg-light">
 
-    <div class="container mt-4 mb-5">
-        <h2 class="mb-4 text-center">Gestão de Inventário 🎮🚗🧱</h2>
+    <!-- Barra Superior -->
+    <nav class="navbar navbar-dark bg-dark px-4 mb-4">
+        <span class="navbar-brand mb-0 h1">Gestão de Inventário 🎮🚗🧱</span>
+        <a href="inventario.html" class="btn btn-outline-light btn-sm">Ver Galeria / Site</a>
+    </nav>
 
-        <!-- Botão para alternar para o modo de criação -->
-        <div class="d-flex justify-content-between mb-3">
+    <div class="container mb-5">
+        <!-- Botão para novo item -->
+        <div class="mb-3">
             <button class="btn btn-primary" id="btn-novo" onclick="limparFormulario()">+ Novo Item</button>
-            <a href="inventario.html" class="btn btn-outline-secondary">Ver Galeria / Site</a>
         </div>
 
         <div class="row">
-            <!-- Coluna da Esquerda: Lista de Itens Existentes e Pesquisa -->
+            <!-- Coluna da Esquerda: Lista de Itens e Pesquisa por Número -->
             <div class="col-md-5 mb-4">
                 <div class="card shadow">
                     <div class="card-header bg-dark text-white">
                         <h5 class="mb-0">Lista de Itens</h5>
                     </div>
                     <div class="card-body">
-                        <!-- Campo de Pesquisa por Número na Coleção -->
+                        <!-- Pesquisa por Número na Coleção -->
                         <div class="input-group mb-3">
                             <input type="number" id="input-pesquisa-num" class="form-control" placeholder="Nº na Coleção (ex: 686)">
                             <button class="btn btn-outline-primary" type="button" id="btn-pesquisar">Pesquisar</button>
@@ -34,13 +37,13 @@
                         </div>
                         
                         <div class="list-group overflow-auto" id="lista-itens" style="max-height: 450px;">
-                            <!-- Preenchido via JavaScript -->
+                            <div class="text-center p-3 text-muted">A carregar inventário...</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Coluna da Direita: Formulário de Edição / Criação Completo -->
+            <!-- Coluna da Direita: Formulário de Edição / Criação -->
             <div class="col-md-7">
                 <div class="card shadow">
                     <div class="card-header bg-success text-white">
@@ -67,7 +70,7 @@
                                     </select>
                                 </div>
 
-                                <!-- Estado (Dropdown com as 3 opções) -->
+                                <!-- Estado (Dropdown com as 3 opções capitalizadas) -->
                                 <div class="col-md-6 mb-3">
                                     <label for="Estado" class="form-label">Estado</label>
                                     <select class="form-select" id="Estado" required>
@@ -171,21 +174,19 @@
         </div>
     </div>
 
-    <!-- Firebase SDK Modular -->
+    <!-- 1. Guarda de Autenticação existente no site -->
+    <script src="auth-guard.js"></script>
+
+    <!-- 2. Lógica da Página (Assume que a app Firebase e o Firestore já estão disponíveis globalmente ou importados) -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, getDoc, setDoc, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            projectId: "miguel-inventory"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        // Obtém a instância do Firestore da app principal
+        const db = getFirestore();
 
         let todosOsItens = [];
 
-       async function carregarListaItens() {
+        async function carregarListaItens() {
             const listaDiv = document.getElementById('lista-itens');
             listaDiv.innerHTML = '<div class="text-center p-3">A carregar...</div>';
             
@@ -199,7 +200,6 @@
                 renderizarLista(todosOsItens);
             } catch (error) {
                 console.error("Erro ao carregar inventário:", error);
-                // Mostra o erro exato no ecrã para sabermos a causa
                 listaDiv.innerHTML = `<div class="text-danger p-3 small"><strong>Erro:</strong> ${error.message}</div>`;
             }
         }
@@ -291,6 +291,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // Submeter formulário (Criar ou Atualizar)
         document.getElementById('item-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('item-id').value;
@@ -350,6 +351,7 @@
             }
         }
 
+        // Iniciar carregamento automático ao entrar na página protegida
         carregarListaItens();
     </script>
 </body>
