@@ -95,7 +95,7 @@
                             <small class="text-muted">Preenche automaticamente nome, tema, ano, peças e imagem oficial.</small>
                         </div>
 
-                        <!-- Caixa Exclusiva para Auto-Preenchimento FUNKO POP (Apify) -->
+                        <!-- Caixa Exclusiva para Auto-Preenchimento FUNKO POP (via Proxy Apps Script -> Apify) -->
                         <div id="box-auto-funko" class="alert alert-info border-info mb-4" style="display: none;">
                             <label for="input-funko-apify" class="form-label fw-bold mb-1">👾 Pesquisa Oficial Funko (via Apify)</label>
                             <div class="input-group mb-2">
@@ -245,16 +245,15 @@
         </div>
     </div>
 
-    <!-- Lógica Firebase, Tabs, Rebrickable e Apify -->
+    <!-- Lógica Firebase, Tabs, Rebrickable e Proxy Apps Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-        // API KEYS
+        // API KEYS & PROXIES
         const REBRICKABLE_API_KEY = "52c39bed082b481c5653232cb85f5bbb";
-        const APIFY_TOKEN = "apify_api_Tc1cQWKPB1DeM1vsXqUVNISpLOOeJE4ArXCS";
-        const APIFY_ACTOR_ID = "true.false.maybe~funko-pop-product-scraper";
+        const APPS_SCRIPT_PROXY_URL = "https://script.google.com/macros/s/AKfycbwAIzKIKVnt1Wxa2GU2kfoGPmst9wGf1EYsjQueVaPG-zNfoKwjtLrevhvZYmQlSuh_/exec";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
@@ -395,7 +394,7 @@
             }
         });
 
-        // --- AUTO-PREENCHIMENTO FUNKO POP VIA APIFY ---
+        // --- AUTO-PREENCHIMENTO FUNKO POP VIA GOOGLE APPS SCRIPT PROXY ---
         document.getElementById('btn-buscar-funko-apify').addEventListener('click', async () => {
             const termo = document.getElementById('input-funko-apify').value.trim();
             const lojaStore = document.getElementById('select-store-apify').value;
@@ -411,28 +410,22 @@
             selectResultados.style.display = 'none';
 
             try {
-                const url = `https://api.apify.com/v2/acts/${APIFY_ACTOR_ID}/run-sync-get-dataset-items`;
-
-                const inputPayload = {
-                    "search": termo,
-                    "productFilter": "all",
-                    "store": lojaStore
-                };
-
-                const response = await fetch(url, {
+                const response = await fetch(APPS_SCRIPT_PROXY_URL, {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${APIFY_TOKEN}`
-                    },
-                    body: JSON.stringify(inputPayload)
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        search: termo,
+                        store: lojaStore
+                    })
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Erro na API da Apify (${response.status}). Verifica as permissões do Token.`);
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
                 }
 
-                resultadosApify = await response.json();
+                resultadosApify = data;
 
                 if (!Array.isArray(resultadosApify) || resultadosApify.length === 0) {
                     alert(`Nenhum Funko Pop encontrado na loja ${lojaStore} com esse termo.`);
