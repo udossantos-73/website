@@ -107,7 +107,7 @@
                                 <button class="btn btn-info fw-bold" type="button" id="btn-buscar-funko-apify">Pesquisar</button>
                             </div>
                             <div id="status-apify" class="small text-primary fw-semibold mb-2" style="display: none;">
-                                ⏳ A pesquisar no catálogo da Funko (pode demorar 15-30 segundos)...
+                                ⏳ A pesquisar no catálogo da Funko (pode demorar 10-20 segundos)...
                             </div>
                             <select id="select-resultados-apify" class="form-select mt-2" style="display: none;" onchange="selecionarFunkoApify()">
                                 <option value="">-- Seleciona o Funko Pop encontrado --</option>
@@ -438,12 +438,12 @@
                     const opt = document.createElement('option');
                     opt.value = idx;
                     
-                    const nome = pop.title || pop.name || 'Sem nome';
+                    const nome = pop.name || pop.title || 'Sem nome';
                     const num = pop.boxNumber || pop.number || pop.itemNumber || '';
                     const numTxt = num ? ` (#${num})` : '';
-                    const licenca = pop.license || pop.franchise || pop.category || '';
+                    const precoTxt = pop.originalPrice || pop.price ? ` [${pop.originalPrice || pop.price}]` : '';
                     
-                    opt.textContent = `${nome}${numTxt}${licenca ? ' - ' + licenca : ''}`;
+                    opt.textContent = `${nome}${numTxt}${precoTxt}`;
                     selectResultados.appendChild(opt);
                 });
 
@@ -466,7 +466,7 @@
             console.log("Dados brutos da Apify:", pop);
 
             document.getElementById('Marca').value = 'Funko Pop';
-            document.getElementById('NomeNaColecao').value = pop.title || pop.name || '';
+            document.getElementById('NomeNaColecao').value = pop.name || pop.title || '';
             document.getElementById('Colecao').value = pop.license || pop.franchise || pop.category || '';
             document.getElementById('Tipo').value = 'Figura';
 
@@ -475,18 +475,18 @@
                 document.getElementById('NumeroNaColecao').value = parseInt(numCaixa);
             }
 
-            const precoRaw = pop.price || pop.retailPrice || '';
+            const precoRaw = pop.originalPrice || pop.price || pop.retailPrice || '';
             const precoLimpo = parseFloat(String(precoRaw).replace(/[^0-9.,]/g, '').replace(',', '.'));
             if (!isNaN(precoLimpo)) {
                 document.getElementById('ValorMercado').value = precoLimpo;
             }
 
-            document.getElementById('Descricao').value = pop.description || `${pop.license || ''} - ${pop.title || pop.name || ''}`.trim();
+            document.getElementById('Descricao').value = pop.description || pop.url || '';
 
             if (Array.isArray(pop.images) && pop.images.length > 0) {
                 document.getElementById('Imagem').value = pop.images.join(', ');
-            } else if (pop.image || pop.imageUrl || pop.mainImage) {
-                document.getElementById('Imagem').value = pop.image || pop.imageUrl || pop.mainImage;
+            } else if (pop.mainImage || pop.image || pop.imageUrl) {
+                document.getElementById('Imagem').value = pop.mainImage || pop.image || pop.imageUrl;
             }
 
             atualizarPreviewImagem();
