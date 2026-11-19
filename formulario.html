@@ -253,7 +253,7 @@
 
         // API KEYS
         const REBRICKABLE_API_KEY = "52c39bed082b481c5653232cb85f5bbb";
-        const APIFY_TOKEN = "apify_api_COLA_AQUI_O_TEU_TOKEN";
+        const APIFY_TOKEN = "apify_api_Tc1cQWKPB1DeM1vsXqUVNISpLOOeJE4ArXCS";
         const APIFY_ACTOR_ID = "true.false.maybe~funko-pop-product-scraper";
 
         const firebaseConfig = {
@@ -330,7 +330,6 @@
             const labelNumColecao = document.getElementById('label-num-colecao');
             const labelColecao = document.getElementById('label-colecao');
 
-            // Esconde ambos por defeito
             boxLego.style.display = 'none';
             boxFunko.style.display = 'none';
 
@@ -402,9 +401,6 @@
             const lojaStore = document.getElementById('select-store-apify').value;
 
             if (!termo) return alert('Escreve o nome ou número do Funko Pop.');
-            if (APIFY_TOKEN === "apify_api_COLA_AQUI_O_TEU_TOKEN") {
-                return alert('Substitui APIFY_TOKEN pelo teu token pessoal da Apify no código.');
-            }
 
             const btn = document.getElementById('btn-buscar-funko-apify');
             const statusDiv = document.getElementById('status-apify');
@@ -415,7 +411,7 @@
             selectResultados.style.display = 'none';
 
             try {
-                const url = `https://api.apify.com/v2/acts/${APIFY_ACTOR_ID}/run-sync-get-dataset-items?token=${APIFY_TOKEN}`;
+                const url = `https://api.apify.com/v2/acts/${APIFY_ACTOR_ID}/run-sync-get-dataset-items`;
 
                 const inputPayload = {
                     "search": termo,
@@ -425,12 +421,15 @@
 
                 const response = await fetch(url, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${APIFY_TOKEN}`
+                    },
                     body: JSON.stringify(inputPayload)
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Erro na API da Apify (${response.status}). Verifica o Token.`);
+                    throw new Error(`Erro na API da Apify (${response.status}). Verifica as permissões do Token.`);
                 }
 
                 resultadosApify = await response.json();
