@@ -95,24 +95,24 @@
                             <small class="text-muted">Preenche automaticamente nome, tema, ano, peças e imagem oficial.</small>
                         </div>
 
-                        <!-- Caixa Exclusiva para Auto-Preenchimento FUNKO POP (via Proxy Apps Script -> Apify) -->
+                        <!-- Caixa Exclusiva para Auto-Preenchimento FUNKO POP (Híbrida: Histórico + Loja Oficial) -->
                         <div id="box-auto-funko" class="alert alert-info border-info mb-4" style="display: none;">
-                            <label for="input-funko-apify" class="form-label fw-bold mb-1">👾 Pesquisa Oficial Funko (via Apify)</label>
+                            <label for="input-funko-apify" class="form-label fw-bold mb-1">👾 Pesquisa Funko Pop (Catálogo Histórico + Loja Oficial)</label>
                             <div class="input-group mb-2">
-<select id="select-store-apify" class="form-select" style="max-width: 85px;" title="Loja Funko">
-    <option value="PT" selected>PT</option>
-    <option value="US">US</option>
-</select>
-                                <input type="text" id="input-funko-apify" class="form-control" placeholder="Ex: Max Verstappen, Thrawn 686...">
+                                <select id="select-store-apify" class="form-select" style="max-width: 85px;" title="Loja Oficial Funko">
+                                    <option value="PT" selected>PT</option>
+                                    <option value="US">US</option>
+                                </select>
+                                <input type="text" id="input-funko-apify" class="form-control" placeholder="Ex: Darth Maul, Max Verstappen...">
                                 <button class="btn btn-info fw-bold" type="button" id="btn-buscar-funko-apify">Pesquisar</button>
                             </div>
                             <div id="status-apify" class="small text-primary fw-semibold mb-2" style="display: none;">
-                                ⏳ A pesquisar no catálogo da Funko (pode demorar 10-20 segundos)...
+                                ⏳ A pesquisar no catálogo histórico e na loja oficial (10-20 segundos)...
                             </div>
                             <select id="select-resultados-apify" class="form-select mt-2" style="display: none;" onchange="selecionarFunkoApify()">
                                 <option value="">-- Seleciona o Funko Pop encontrado --</option>
                             </select>
-                            <small class="text-muted d-block mt-1">Se não encontrares na loja EU, muda o seletor à esquerda para US.</small>
+                            <small class="text-muted d-block mt-1">Pesquisa em simultâneo modelos antigos (Histórico) e lançamentos atuais (Loja PT/US).</small>
                         </div>
 
                         <form id="item-form">
@@ -339,7 +339,7 @@
                 if (!document.getElementById('Tipo').value) document.getElementById('Tipo').value = 'Set';
             } else if (marca === 'Funko Pop') {
                 boxFunko.style.display = 'block';
-                labelNumColecao.textContent = 'Nº da Caixa Funko (ex: 686)';
+                labelNumColecao.textContent = 'Nº da Caixa Funko (ex: 410)';
                 labelColecao.textContent = 'Franquia / Coleção (ex: Star Wars, Formula 1)';
                 if (!document.getElementById('Tipo').value) document.getElementById('Tipo').value = 'Figura';
             } else {
@@ -394,7 +394,7 @@
             }
         });
 
-        // --- AUTO-PREENCHIMENTO FUNKO POP VIA GOOGLE APPS SCRIPT PROXY ---
+        // --- AUTO-PREENCHIMENTO FUNKO POP (HISTÓRICO + LOJA OFICIAL) ---
         document.getElementById('btn-buscar-funko-apify').addEventListener('click', async () => {
             const termo = document.getElementById('input-funko-apify').value.trim();
             const lojaStore = document.getElementById('select-store-apify').value;
@@ -428,7 +428,7 @@
                 resultadosApify = data;
 
                 if (!Array.isArray(resultadosApify) || resultadosApify.length === 0) {
-                    alert(`Nenhum Funko Pop encontrado na loja ${lojaStore} com esse termo.`);
+                    alert(`Nenhum Funko Pop encontrado com o termo "${termo}".`);
                     return;
                 }
 
@@ -438,12 +438,13 @@
                     const opt = document.createElement('option');
                     opt.value = idx;
                     
+                    const tagOrigem = pop.origem ? `[${pop.origem}] ` : '';
                     const nome = pop.name || pop.title || 'Sem nome';
-                    const num = pop.boxNumber || pop.number || pop.itemNumber || '';
+                    const num = pop.boxNumber || pop.number || '';
                     const numTxt = num ? ` (#${num})` : '';
-                    const precoTxt = pop.originalPrice || pop.price ? ` [${pop.originalPrice || pop.price}]` : '';
+                    const precoTxt = pop.originalPrice ? ` - ${pop.originalPrice}` : '';
                     
-                    opt.textContent = `${nome}${numTxt}${precoTxt}`;
+                    opt.textContent = `${tagOrigem}${nome}${numTxt}${precoTxt}`;
                     selectResultados.appendChild(opt);
                 });
 
@@ -463,30 +464,34 @@
             if (idx === '') return;
 
             const pop = resultadosApify[idx];
-            console.log("Dados brutos da Apify:", pop);
+            console.log("Dados selecionados:", pop);
 
             document.getElementById('Marca').value = 'Funko Pop';
             document.getElementById('NomeNaColecao').value = pop.name || pop.title || '';
-            document.getElementById('Colecao').value = pop.license || pop.franchise || pop.category || '';
+            document.getElementById('Colecao').value = pop.license || '';
             document.getElementById('Tipo').value = 'Figura';
 
-            const numCaixa = pop.boxNumber || pop.number || '';
+            const numCaixa = pop.boxNumber || '';
             if (numCaixa && !isNaN(parseInt(numCaixa))) {
                 document.getElementById('NumeroNaColecao').value = parseInt(numCaixa);
             }
 
-            const precoRaw = pop.originalPrice || pop.price || pop.retailPrice || '';
+            const precoRaw = pop.originalPrice || '';
             const precoLimpo = parseFloat(String(precoRaw).replace(/[^0-9.,]/g, '').replace(',', '.'));
             if (!isNaN(precoLimpo)) {
                 document.getElementById('ValorMercado').value = precoLimpo;
+            } else {
+                document.getElementById('ValorMercado').value = 0;
             }
 
-            document.getElementById('Descricao').value = pop.description || pop.url || '';
+            document.getElementById('Descricao').value = pop.description || '';
 
             if (Array.isArray(pop.images) && pop.images.length > 0) {
                 document.getElementById('Imagem').value = pop.images.join(', ');
-            } else if (pop.mainImage || pop.image || pop.imageUrl) {
-                document.getElementById('Imagem').value = pop.mainImage || pop.image || pop.imageUrl;
+            } else if (pop.mainImage) {
+                document.getElementById('Imagem').value = pop.mainImage;
+            } else {
+                document.getElementById('Imagem').value = '';
             }
 
             atualizarPreviewImagem();
