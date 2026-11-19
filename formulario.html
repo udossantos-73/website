@@ -95,6 +95,26 @@
                             <small class="text-muted">Preenche automaticamente nome, tema, ano, peças e imagem oficial.</small>
                         </div>
 
+                        <!-- Caixa Exclusiva para Auto-Preenchimento FUNKO POP (Apify) -->
+                        <div id="box-auto-funko" class="alert alert-info border-info mb-4" style="display: none;">
+                            <label for="input-funko-apify" class="form-label fw-bold mb-1">👾 Pesquisa Oficial Funko (via Apify)</label>
+                            <div class="input-group mb-2">
+                                <select id="select-store-apify" class="form-select" style="max-width: 85px;" title="Loja Funko">
+                                    <option value="EU" selected>EU</option>
+                                    <option value="US">US</option>
+                                </select>
+                                <input type="text" id="input-funko-apify" class="form-control" placeholder="Ex: Max Verstappen, Thrawn 686...">
+                                <button class="btn btn-info fw-bold" type="button" id="btn-buscar-funko-apify">Pesquisar</button>
+                            </div>
+                            <div id="status-apify" class="small text-primary fw-semibold mb-2" style="display: none;">
+                                ⏳ A pesquisar no catálogo da Funko (pode demorar 15-30 segundos)...
+                            </div>
+                            <select id="select-resultados-apify" class="form-select mt-2" style="display: none;" onchange="selecionarFunkoApify()">
+                                <option value="">-- Seleciona o Funko Pop encontrado --</option>
+                            </select>
+                            <small class="text-muted d-block mt-1">Se não encontrares na loja EU, muda o seletor à esquerda para US.</small>
+                        </div>
+
                         <form id="item-form">
                             <input type="hidden" id="item-id">
 
@@ -225,14 +245,16 @@
         </div>
     </div>
 
-    <!-- Lógica Firebase, Tabs e API Rebrickable -->
+    <!-- Lógica Firebase, Tabs, Rebrickable e Apify -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-        // COLOCA AQUI A TUA CHAVE GRATUITA DO REBRICKABLE (rebrickable.com/api/)
+        // API KEYS
         const REBRICKABLE_API_KEY = "52c39bed082b481c5653232cb85f5bbb";
+        const APIFY_TOKEN = "apify_api_COLA_AQUI_O_TEU_TOKEN";
+        const APIFY_ACTOR_ID = "true.false.maybe~funko-pop-product-scraper";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
@@ -249,6 +271,7 @@
         const provider = new GoogleAuthProvider();
 
         let todosOsItens = [];
+        let resultadosApify = [];
         let secaoAtual = 'Todos';
 
         // --- AUTENTICAÇÃO ---
@@ -286,14 +309,12 @@
         window.mudarSecao = function(marca, elementoBtn) {
             secaoAtual = marca;
             
-            // Atualizar estilo visual das tabs
             document.querySelectorAll('#tabs-marcas .nav-link').forEach(btn => btn.classList.remove('active'));
             if (elementoBtn) elementoBtn.classList.add('active');
 
             document.getElementById('titulo-lista').textContent = `Lista: ${marca}`;
             document.getElementById('input-pesquisa').value = '';
 
-            // Se estivermos a criar um novo item (sem ID), pré-seleciona a marca da tab no formulário
             if (!document.getElementById('item-id').value && marca !== 'Todos') {
                 document.getElementById('Marca').value = marca;
                 verificarCamposPorMarca();
@@ -305,17 +326,25 @@
         window.verificarCamposPorMarca = function() {
             const marca = document.getElementById('Marca').value;
             const boxLego = document.getElementById('box-auto-lego');
+            const boxFunko = document.getElementById('box-auto-funko');
             const labelNumColecao = document.getElementById('label-num-colecao');
             const labelColecao = document.getElementById('label-colecao');
 
-            // Mostra ou esconde a caixa de auto-preenchimento LEGO
+            // Esconde ambos por defeito
+            boxLego.style.display = 'none';
+            boxFunko.style.display = 'none';
+
             if (marca === 'Lego') {
                 boxLego.style.display = 'block';
                 labelNumColecao.textContent = 'Nº do Set LEGO';
                 labelColecao.textContent = 'Tema LEGO (ex: Speed Champions)';
                 if (!document.getElementById('Tipo').value) document.getElementById('Tipo').value = 'Set';
+            } else if (marca === 'Funko Pop') {
+                boxFunko.style.display = 'block';
+                labelNumColecao.textContent = 'Nº da Caixa Funko (ex: 686)';
+                labelColecao.textContent = 'Franquia / Coleção (ex: Star Wars, Formula 1)';
+                if (!document.getElementById('Tipo').value) document.getElementById('Tipo').value = 'Figura';
             } else {
-                boxLego.style.display = 'none';
                 labelNumColecao.textContent = marca === 'MiniGT' ? 'Nº MiniGT (ex: 642)' : 'Nº na Coleção';
                 labelColecao.textContent = 'Série / Coleção (ex: Pantone, Star Wars)';
             }
@@ -325,9 +354,6 @@
         document.getElementById('btn-buscar-lego').addEventListener('click', async () => {
             const rawNum = document.getElementById('input-lego-set').value.trim();
             if (!rawNum) return alert('Insere o número do set LEGO (ex: 77243).');
-            if (REBRICKABLE_API_KEY === "A_TUA_API_KEY_REBRICKABLE") {
-                return alert('Configura primeiro a tua chave API gratuita do Rebrickable no código.');
-            }
 
             const setNum = rawNum.includes('-') ? rawNum : `${rawNum}-1`;
             const btn = document.getElementById('btn-buscar-lego');
@@ -335,20 +361,17 @@
             btn.disabled = true;
 
             try {
-                // 1. Dados do Set
                 const resSet = await fetch(`https://rebrickable.com/api/v3/lego/sets/${setNum}/`, {
                     headers: { "Authorization": `key ${REBRICKABLE_API_KEY}` }
                 });
                 if (!resSet.ok) throw new Error('Set não encontrado no Rebrickable.');
                 const set = await resSet.json();
 
-                // 2. Nome do Tema
                 const resTheme = await fetch(`https://rebrickable.com/api/v3/lego/themes/${set.theme_id}/`, {
                     headers: { "Authorization": `key ${REBRICKABLE_API_KEY}` }
                 });
                 const theme = resTheme.ok ? await resTheme.json() : { name: 'LEGO' };
 
-                // 3. Preencher formulário
                 document.getElementById('Marca').value = 'Lego';
                 document.getElementById('NomeNaColecao').value = set.name;
                 document.getElementById('Colecao').value = theme.name;
@@ -360,7 +383,6 @@
                 
                 atualizarPreviewImagem();
 
-                // Verifica se já existe no inventário para avisar
                 const jaExiste = todosOsItens.some(i => i.Marca === 'Lego' && i.NumeroNaColecao === parseInt(rawNum.split('-')[0]));
                 if (jaExiste) {
                     alert(`Atenção: O set ${rawNum} já existe no teu inventário!`);
@@ -373,6 +395,110 @@
                 btn.disabled = false;
             }
         });
+
+        // --- AUTO-PREENCHIMENTO FUNKO POP VIA APIFY ---
+        document.getElementById('btn-buscar-funko-apify').addEventListener('click', async () => {
+            const termo = document.getElementById('input-funko-apify').value.trim();
+            const lojaStore = document.getElementById('select-store-apify').value;
+
+            if (!termo) return alert('Escreve o nome ou número do Funko Pop.');
+            if (APIFY_TOKEN === "apify_api_COLA_AQUI_O_TEU_TOKEN") {
+                return alert('Substitui APIFY_TOKEN pelo teu token pessoal da Apify no código.');
+            }
+
+            const btn = document.getElementById('btn-buscar-funko-apify');
+            const statusDiv = document.getElementById('status-apify');
+            const selectResultados = document.getElementById('select-resultados-apify');
+
+            btn.disabled = true;
+            statusDiv.style.display = 'block';
+            selectResultados.style.display = 'none';
+
+            try {
+                const url = `https://api.apify.com/v2/acts/${APIFY_ACTOR_ID}/run-sync-get-dataset-items?token=${APIFY_TOKEN}`;
+
+                const inputPayload = {
+                    "search": termo,
+                    "productFilter": "all",
+                    "store": lojaStore
+                };
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(inputPayload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro na API da Apify (${response.status}). Verifica o Token.`);
+                }
+
+                resultadosApify = await response.json();
+
+                if (!Array.isArray(resultadosApify) || resultadosApify.length === 0) {
+                    alert(`Nenhum Funko Pop encontrado na loja ${lojaStore} com esse termo.`);
+                    return;
+                }
+
+                selectResultados.innerHTML = `<option value="">-- Seleciona o resultado (${resultadosApify.length} encontrados) --</option>`;
+
+                resultadosApify.forEach((pop, idx) => {
+                    const opt = document.createElement('option');
+                    opt.value = idx;
+                    
+                    const nome = pop.title || pop.name || 'Sem nome';
+                    const num = pop.boxNumber || pop.number || pop.itemNumber || '';
+                    const numTxt = num ? ` (#${num})` : '';
+                    const licenca = pop.license || pop.franchise || pop.category || '';
+                    
+                    opt.textContent = `${nome}${numTxt}${licenca ? ' - ' + licenca : ''}`;
+                    selectResultados.appendChild(opt);
+                });
+
+                selectResultados.style.display = 'block';
+
+            } catch (erro) {
+                console.error(erro);
+                alert('Erro: ' + erro.message);
+            } finally {
+                btn.disabled = false;
+                statusDiv.style.display = 'none';
+            }
+        });
+
+        window.selecionarFunkoApify = function() {
+            const idx = document.getElementById('select-resultados-apify').value;
+            if (idx === '') return;
+
+            const pop = resultadosApify[idx];
+            console.log("Dados brutos da Apify:", pop);
+
+            document.getElementById('Marca').value = 'Funko Pop';
+            document.getElementById('NomeNaColecao').value = pop.title || pop.name || '';
+            document.getElementById('Colecao').value = pop.license || pop.franchise || pop.category || '';
+            document.getElementById('Tipo').value = 'Figura';
+
+            const numCaixa = pop.boxNumber || pop.number || '';
+            if (numCaixa && !isNaN(parseInt(numCaixa))) {
+                document.getElementById('NumeroNaColecao').value = parseInt(numCaixa);
+            }
+
+            const precoRaw = pop.price || pop.retailPrice || '';
+            const precoLimpo = parseFloat(String(precoRaw).replace(/[^0-9.,]/g, '').replace(',', '.'));
+            if (!isNaN(precoLimpo)) {
+                document.getElementById('ValorMercado').value = precoLimpo;
+            }
+
+            document.getElementById('Descricao').value = pop.description || `${pop.license || ''} - ${pop.title || pop.name || ''}`.trim();
+
+            if (Array.isArray(pop.images) && pop.images.length > 0) {
+                document.getElementById('Imagem').value = pop.images.join(', ');
+            } else if (pop.image || pop.imageUrl || pop.mainImage) {
+                document.getElementById('Imagem').value = pop.image || pop.imageUrl || pop.mainImage;
+            }
+
+            atualizarPreviewImagem();
+        };
 
         window.atualizarPreviewImagem = function() {
             const urlStr = document.getElementById('Imagem').value.split(',')[0].trim();
@@ -427,14 +553,12 @@
             let filtrados = todosOsItens.filter(item => {
                 const marcaItem = (item.Marca || '').toLowerCase();
                 
-                // Filtro pela Tab ativa
                 if (secaoAtual === 'Outros') {
                     if (marcasPrincipais.includes(marcaItem)) return false;
                 } else if (secaoAtual !== 'Todos') {
                     if (marcaItem !== secaoAtual.toLowerCase()) return false;
                 }
 
-                // Filtro pela caixa de pesquisa (Nº ou Nome)
                 if (termo) {
                     const nomeMatch = (item.NomeNaColecao || '').toLowerCase().includes(termo);
                     const numMatch = String(item.NumeroNaColecao || '').includes(termo) || String(item.NumeroItem || '').includes(termo);
@@ -493,6 +617,8 @@
             document.getElementById('item-form').reset();
             document.getElementById('item-id').value = '';
             document.getElementById('input-lego-set').value = '';
+            document.getElementById('input-funko-apify').value = '';
+            document.getElementById('select-resultados-apify').style.display = 'none';
             document.getElementById('preview-container').style.display = 'none';
             document.getElementById('form-titulo').textContent = 'Adicionar Novo Item';
             document.getElementById('btn-guardar').textContent = 'Guardar Novo Item';
@@ -594,6 +720,9 @@
                 }
             }
         }
+
+        // Inicializa a visibilidade correta dos campos logo ao abrir a página
+        verificarCamposPorMarca();
     </script>
 </body>
 </html>
