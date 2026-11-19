@@ -6,6 +6,8 @@
     <title>Gestão de Inventário - Miguel Inventory</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap 5 JS (necessário para as tabs) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
 </head>
 <body class="bg-light">
 
@@ -22,28 +24,53 @@
     </nav>
 
     <div class="container mb-5">
-        <!-- Botão para novo item -->
+        <!-- Botão para novo item e link para galeria -->
         <div class="d-flex justify-content-between mb-3">
             <button class="btn btn-primary" id="btn-novo" onclick="limparFormulario()">+ Novo Item</button>
             <a href="inventario.html" class="btn btn-outline-secondary">Ver Galeria / Site</a>
         </div>
 
+        <!-- Secções por Marca (Tabs) -->
+        <ul class="nav nav-pills mb-4 bg-white p-2 rounded shadow-sm" id="tabs-marcas" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" data-marca="Todos" type="button" onclick="mudarSecao('Todos', this)">Todos <span class="badge bg-secondary ms-1" id="badge-Todos">0</span></button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-marca="Lego" type="button" onclick="mudarSecao('Lego', this)">🧱 Lego <span class="badge bg-secondary ms-1" id="badge-Lego">0</span></button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-marca="Funko Pop" type="button" onclick="mudarSecao('Funko Pop', this)">👾 Funko Pop <span class="badge bg-secondary ms-1" id="badge-Funko Pop">0</span></button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-marca="Hot Wheels" type="button" onclick="mudarSecao('Hot Wheels', this)">🔥 Hot Wheels <span class="badge bg-secondary ms-1" id="badge-Hot Wheels">0</span></button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-marca="MiniGT" type="button" onclick="mudarSecao('MiniGT', this)">🏎️ MiniGT <span class="badge bg-secondary ms-1" id="badge-MiniGT">0</span></button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-marca="Playmobil" type="button" onclick="mudarSecao('Playmobil', this)">🤠 Playmobil <span class="badge bg-secondary ms-1" id="badge-Playmobil">0</span></button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-marca="Outros" type="button" onclick="mudarSecao('Outros', this)">📦 Outros <span class="badge bg-secondary ms-1" id="badge-Outros">0</span></button>
+            </li>
+        </ul>
+
         <div class="row">
-            <!-- Coluna da Esquerda: Lista de Itens e Pesquisa por Número -->
+            <!-- Coluna da Esquerda: Lista de Itens Filtrada pela Secção -->
             <div class="col-md-5 mb-4">
                 <div class="card shadow">
-                    <div class="card-header bg-dark text-white">
-                        <h5 class="mb-0">Lista de Itens</h5>
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0" id="titulo-lista">Lista: Todos</h5>
                     </div>
                     <div class="card-body">
-                        <!-- Pesquisa por Número na Coleção -->
+                        <!-- Pesquisa por Número ou Nome -->
                         <div class="input-group mb-3">
-                            <input type="number" id="input-pesquisa-num" class="form-control" placeholder="Nº na Coleção (ex: 686)">
-                            <button class="btn btn-outline-primary" type="button" id="btn-pesquisar">Pesquisar</button>
+                            <input type="text" id="input-pesquisa" class="form-control" placeholder="Pesquisar nº ou nome...">
+                            <button class="btn btn-outline-primary" type="button" id="btn-pesquisar">Filtrar</button>
                             <button class="btn btn-outline-secondary" type="button" id="btn-limpar-pesquisa" title="Limpar filtro">❌</button>
                         </div>
                         
-                        <div class="list-group overflow-auto" id="lista-itens" style="max-height: 450px;">
+                        <div class="list-group overflow-auto" id="lista-itens" style="max-height: 520px;">
                             <div class="text-center p-3 text-muted">A verificar autenticação...</div>
                         </div>
                     </div>
@@ -57,27 +84,35 @@
                         <h5 class="mb-0" id="form-titulo">Adicionar Novo Item</h5>
                     </div>
                     <div class="card-body">
+                        
+                        <!-- Caixa Exclusiva para Auto-Preenchimento LEGO -->
+                        <div id="box-auto-lego" class="alert alert-warning border-warning mb-4" style="display: none;">
+                            <label for="input-lego-set" class="form-label fw-bold mb-1">🧱 Importação Rápida LEGO (Rebrickable)</label>
+                            <div class="input-group">
+                                <input type="text" id="input-lego-set" class="form-control" placeholder="Insere o nº do Set (ex: 77243)">
+                                <button class="btn btn-warning fw-bold" type="button" id="btn-buscar-lego">Auto-preencher</button>
+                            </div>
+                            <small class="text-muted">Preenche automaticamente nome, tema, ano, peças e imagem oficial.</small>
+                        </div>
+
                         <form id="item-form">
                             <input type="hidden" id="item-id">
-
-                            <!-- Nome Na Colecao -->
-                            <div class="mb-3">
-                                <label for="NomeNaColecao" class="form-label">Nome na Coleção</label>
-                                <input type="text" class="form-control" id="NomeNaColecao" required>
-                            </div>
 
                             <div class="row">
                                 <!-- Marca -->
                                 <div class="col-md-6 mb-3">
-                                    <label for="Marca" class="form-label">Marca</label>
-                                    <select class="form-select" id="Marca" required>
+                                    <label for="Marca" class="form-label">Marca / Secção</label>
+                                    <select class="form-select" id="Marca" required onchange="verificarCamposPorMarca()">
                                         <option value="Lego">Lego</option>
                                         <option value="Funko Pop">Funko Pop</option>
                                         <option value="Hot Wheels">Hot Wheels</option>
+                                        <option value="MiniGT">MiniGT</option>
+                                        <option value="Playmobil">Playmobil</option>
+                                        <option value="Outros">Outros</option>
                                     </select>
                                 </div>
 
-                                <!-- Estado (Dropdown com as 3 opções capitalizadas) -->
+                                <!-- Estado -->
                                 <div class="col-md-6 mb-3">
                                     <label for="Estado" class="form-label">Estado</label>
                                     <select class="form-select" id="Estado" required>
@@ -88,16 +123,22 @@
                                 </div>
                             </div>
 
+                            <!-- Nome Na Colecao -->
+                            <div class="mb-3">
+                                <label for="NomeNaColecao" class="form-label">Nome na Coleção</label>
+                                <input type="text" class="form-control" id="NomeNaColecao" required>
+                            </div>
+
                             <div class="row">
-                                <!-- Colecao (Tema) -->
+                                <!-- Colecao (Tema / Série) -->
                                 <div class="col-md-6 mb-3">
-                                    <label for="Colecao" class="form-label">Tema / Coleção (ex: Star Wars)</label>
+                                    <label for="Colecao" class="form-label" id="label-colecao">Tema / Série (ex: Speed Champions, Star Wars)</label>
                                     <input type="text" class="form-control" id="Colecao">
                                 </div>
 
                                 <!-- Tipo -->
                                 <div class="col-md-6 mb-3">
-                                    <label for="Tipo" class="form-label">Tipo (ex: Figura, Carro)</label>
+                                    <label for="Tipo" class="form-label">Tipo (ex: Set, Figura, Carro 1/64)</label>
                                     <input type="text" class="form-control" id="Tipo">
                                 </div>
                             </div>
@@ -111,13 +152,13 @@
 
                                 <!-- NumeroItem -->
                                 <div class="col-md-4 mb-3">
-                                    <label for="NumeroItem" class="form-label">Nº do Item</label>
+                                    <label for="NumeroItem" class="form-label" id="label-num-item">Nº do Item / Série</label>
                                     <input type="number" class="form-control" id="NumeroItem">
                                 </div>
 
                                 <!-- NumeroNaColecao -->
                                 <div class="col-md-4 mb-3">
-                                    <label for="NumeroNaColecao" class="form-label">Nº na Coleção</label>
+                                    <label for="NumeroNaColecao" class="form-label" id="label-num-colecao">Nº na Coleção / Set</label>
                                     <input type="number" class="form-control" id="NumeroNaColecao">
                                 </div>
                             </div>
@@ -125,7 +166,7 @@
                             <div class="row">
                                 <!-- Preço -->
                                 <div class="col-md-4 mb-3">
-                                    <label for="Preco" class="form-label">Preço (€)</label>
+                                    <label for="Preco" class="form-label">Preço Pago (€)</label>
                                     <input type="number" step="0.01" class="form-control" id="Preco" value="0">
                                 </div>
 
@@ -158,18 +199,21 @@
 
                             <!-- Descricao -->
                             <div class="mb-3">
-                                <label for="Descricao" class="form-label">Descrição</label>
+                                <label for="Descricao" class="form-label">Descrição / Notas</label>
                                 <textarea class="form-control" id="Descricao" rows="2"></textarea>
                             </div>
 
                             <!-- Imagem -->
                             <div class="mb-3">
                                 <label for="Imagem" class="form-label">Links das Imagens (URLs separadas por vírgula)</label>
-                                <input type="text" class="form-control" id="Imagem" placeholder="https://..., https://...">
+                                <input type="text" class="form-control" id="Imagem" placeholder="https://..., https://..." oninput="atualizarPreviewImagem()">
+                                <div id="preview-container" class="mt-2" style="display:none;">
+                                    <img id="preview-img" src="" alt="Pré-visualização" class="img-thumbnail" style="max-height: 120px;">
+                                </div>
                             </div>
 
                             <!-- Botões de Submissão -->
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between gap-2">
                                 <button type="button" class="btn btn-danger" id="btn-apagar" style="display:none;" onclick="apagarItem()">Eliminar Item</button>
                                 <button type="submit" class="btn btn-success w-100" id="btn-guardar">Guardar Novo Item</button>
                             </div>
@@ -181,11 +225,14 @@
         </div>
     </div>
 
-    <!-- Lógica Firebase e Autenticação -->
+    <!-- Lógica Firebase, Tabs e API Rebrickable -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+        // COLOCA AQUI A TUA CHAVE GRATUITA DO REBRICKABLE (rebrickable.com/api/)
+        const REBRICKABLE_API_KEY = "A_TUA_API_KEY_REBRICKABLE";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
@@ -202,7 +249,9 @@
         const provider = new GoogleAuthProvider();
 
         let todosOsItens = [];
+        let secaoAtual = 'Todos';
 
+        // --- AUTENTICAÇÃO ---
         window.loginGoogle = async function() {
             try {
                 await signInWithPopup(auth, provider);
@@ -216,7 +265,6 @@
             await signOut(auth);
         }
 
-        // Monitoriza a sessão do Google
         onAuthStateChanged(auth, (user) => {
             const btnLogin = document.getElementById('btn-login');
             const userInfo = document.getElementById('user-info');
@@ -234,6 +282,111 @@
             }
         });
 
+        // --- GESTÃO DE SECÇÕES / TABS ---
+        window.mudarSecao = function(marca, elementoBtn) {
+            secaoAtual = marca;
+            
+            // Atualizar estilo visual das tabs
+            document.querySelectorAll('#tabs-marcas .nav-link').forEach(btn => btn.classList.remove('active'));
+            if (elementoBtn) elementoBtn.classList.add('active');
+
+            document.getElementById('titulo-lista').textContent = `Lista: ${marca}`;
+            document.getElementById('input-pesquisa').value = '';
+
+            // Se estivermos a criar um novo item (sem ID), pré-seleciona a marca da tab no formulário
+            if (!document.getElementById('item-id').value && marca !== 'Todos') {
+                document.getElementById('Marca').value = marca;
+                verificarCamposPorMarca();
+            }
+
+            aplicarFiltros();
+        }
+
+        window.verificarCamposPorMarca = function() {
+            const marca = document.getElementById('Marca').value;
+            const boxLego = document.getElementById('box-auto-lego');
+            const labelNumColecao = document.getElementById('label-num-colecao');
+            const labelColecao = document.getElementById('label-colecao');
+
+            // Mostra ou esconde a caixa de auto-preenchimento LEGO
+            if (marca === 'Lego') {
+                boxLego.style.display = 'block';
+                labelNumColecao.textContent = 'Nº do Set LEGO';
+                labelColecao.textContent = 'Tema LEGO (ex: Speed Champions)';
+                if (!document.getElementById('Tipo').value) document.getElementById('Tipo').value = 'Set';
+            } else {
+                boxLego.style.display = 'none';
+                labelNumColecao.textContent = marca === 'MiniGT' ? 'Nº MiniGT (ex: 642)' : 'Nº na Coleção';
+                labelColecao.textContent = 'Série / Coleção (ex: Pantone, Star Wars)';
+            }
+        }
+
+        // --- AUTO-PREENCHIMENTO LEGO VIA REBRICKABLE ---
+        document.getElementById('btn-buscar-lego').addEventListener('click', async () => {
+            const rawNum = document.getElementById('input-lego-set').value.trim();
+            if (!rawNum) return alert('Insere o número do set LEGO (ex: 77243).');
+            if (REBRICKABLE_API_KEY === "A_TUA_API_KEY_REBRICKABLE") {
+                return alert('Configura primeiro a tua chave API gratuita do Rebrickable no código.');
+            }
+
+            const setNum = rawNum.includes('-') ? rawNum : `${rawNum}-1`;
+            const btn = document.getElementById('btn-buscar-lego');
+            btn.textContent = 'A procurar...';
+            btn.disabled = true;
+
+            try {
+                // 1. Dados do Set
+                const resSet = await fetch(`https://rebrickable.com/api/v3/lego/sets/${setNum}/`, {
+                    headers: { "Authorization": `key ${REBRICKABLE_API_KEY}` }
+                });
+                if (!resSet.ok) throw new Error('Set não encontrado no Rebrickable.');
+                const set = await resSet.json();
+
+                // 2. Nome do Tema
+                const resTheme = await fetch(`https://rebrickable.com/api/v3/lego/themes/${set.theme_id}/`, {
+                    headers: { "Authorization": `key ${REBRICKABLE_API_KEY}` }
+                });
+                const theme = resTheme.ok ? await resTheme.json() : { name: 'LEGO' };
+
+                // 3. Preencher formulário
+                document.getElementById('Marca').value = 'Lego';
+                document.getElementById('NomeNaColecao').value = set.name;
+                document.getElementById('Colecao').value = theme.name;
+                document.getElementById('Tipo').value = 'Set';
+                document.getElementById('Ano').value = set.year || '';
+                document.getElementById('NumeroNaColecao').value = parseInt(rawNum.split('-')[0]) || '';
+                document.getElementById('Descricao').value = `${theme.name} (${set.year}) - ${set.num_parts} peças`;
+                document.getElementById('Imagem').value = set.set_img_url || '';
+                
+                atualizarPreviewImagem();
+
+                // Verifica se já existe no inventário para avisar
+                const jaExiste = todosOsItens.some(i => i.Marca === 'Lego' && i.NumeroNaColecao === parseInt(rawNum.split('-')[0]));
+                if (jaExiste) {
+                    alert(`Atenção: O set ${rawNum} já existe no teu inventário!`);
+                }
+
+            } catch (erro) {
+                alert('Erro: ' + erro.message);
+            } finally {
+                btn.textContent = 'Auto-preencher';
+                btn.disabled = false;
+            }
+        });
+
+        window.atualizarPreviewImagem = function() {
+            const urlStr = document.getElementById('Imagem').value.split(',')[0].trim();
+            const container = document.getElementById('preview-container');
+            const img = document.getElementById('preview-img');
+            if (urlStr && urlStr.startsWith('http')) {
+                img.src = urlStr;
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        // --- FIRESTORE CRUD ---
         async function carregarListaItens() {
             const listaDiv = document.getElementById('lista-itens');
             listaDiv.innerHTML = '<div class="text-center p-3">A carregar inventário...</div>';
@@ -245,11 +398,53 @@
                     todosOsItens.push({ id: docSnap.id, ...docSnap.data() });
                 });
                 
-                renderizarLista(todosOsItens);
+                atualizarContadores();
+                aplicarFiltros();
             } catch (error) {
                 console.error("Erro ao carregar inventário:", error);
                 listaDiv.innerHTML = `<div class="text-danger p-3 small"><strong>Erro:</strong> ${error.message}</div>`;
             }
+        }
+
+        function atualizarContadores() {
+            const marcasPrincipais = ['Lego', 'Funko Pop', 'Hot Wheels', 'MiniGT', 'Playmobil'];
+            document.getElementById('badge-Todos').textContent = todosOsItens.length;
+
+            marcasPrincipais.forEach(m => {
+                const count = todosOsItens.filter(i => (i.Marca || '').toLowerCase() === m.toLowerCase()).length;
+                const badge = document.getElementById(`badge-${m}`);
+                if (badge) badge.textContent = count;
+            });
+
+            const countOutros = todosOsItens.filter(i => !marcasPrincipais.map(m => m.toLowerCase()).includes((i.Marca || '').toLowerCase())).length;
+            document.getElementById('badge-Outros').textContent = countOutros;
+        }
+
+        function aplicarFiltros() {
+            const termo = document.getElementById('input-pesquisa').value.trim().toLowerCase();
+            const marcasPrincipais = ['lego', 'funko pop', 'hot wheels', 'minigt', 'playmobil'];
+
+            let filtrados = todosOsItens.filter(item => {
+                const marcaItem = (item.Marca || '').toLowerCase();
+                
+                // Filtro pela Tab ativa
+                if (secaoAtual === 'Outros') {
+                    if (marcasPrincipais.includes(marcaItem)) return false;
+                } else if (secaoAtual !== 'Todos') {
+                    if (marcaItem !== secaoAtual.toLowerCase()) return false;
+                }
+
+                // Filtro pela caixa de pesquisa (Nº ou Nome)
+                if (termo) {
+                    const nomeMatch = (item.NomeNaColecao || '').toLowerCase().includes(termo);
+                    const numMatch = String(item.NumeroNaColecao || '').includes(termo) || String(item.NumeroItem || '').includes(termo);
+                    return nomeMatch || numMatch;
+                }
+
+                return true;
+            });
+
+            renderizarLista(filtrados);
         }
 
         function renderizarLista(itens) {
@@ -257,7 +452,7 @@
             listaDiv.innerHTML = '';
 
             if (itens.length === 0) {
-                listaDiv.innerHTML = '<div class="p-3 text-muted">Nenhum item encontrado.</div>';
+                listaDiv.innerHTML = '<div class="p-3 text-muted text-center">Nenhum item nesta secção.</div>';
                 return;
             }
 
@@ -267,13 +462,17 @@
                 a.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center";
                 
                 const numColecaoTexto = item.NumeroNaColecao !== undefined && item.NumeroNaColecao !== null ? `Nº ${item.NumeroNaColecao}` : '';
+                const corEstado = item.Estado === 'Wishlist' ? 'bg-warning text-dark' : (item.Estado === 'Encomendado' ? 'bg-info text-dark' : 'bg-success');
                 
                 a.innerHTML = `
                     <div>
                         <strong>${numColecaoTexto ? numColecaoTexto + ' - ' : ''}${item.NomeNaColecao || 'Sem Nome'}</strong><br>
-                        <small class="text-muted">${item.Marca || ''} | ${item.Estado || 'Adquirido'}</small>
+                        <small class="text-muted">${item.Marca || ''} ${item.Colecao ? '• ' + item.Colecao : ''}</small>
                     </div>
-                    <span class="badge bg-primary rounded-pill">${item.Pertence || ''}</span>
+                    <div class="text-end">
+                        <span class="badge ${corEstado} d-block mb-1">${item.Estado || 'Adquirido'}</span>
+                        <span class="badge bg-secondary">${item.Pertence || ''}</span>
+                    </div>
                 `;
                 a.onclick = (e) => {
                     e.preventDefault();
@@ -283,30 +482,26 @@
             });
         }
 
-        // Pesquisa por Número na Coleção
-        document.getElementById('btn-pesquisar').addEventListener('click', () => {
-            const valPesquisa = document.getElementById('input-pesquisa-num').value.trim();
-            if (!valPesquisa) {
-                renderizarLista(todosOsItens);
-                return;
-            }
-
-            const numProcurado = parseInt(valPesquisa);
-            const filtrados = todosOsItens.filter(item => item.NumeroNaColecao === numProcurado);
-            renderizarLista(filtrados);
-        });
-
+        document.getElementById('btn-pesquisar').addEventListener('click', aplicarFiltros);
+        document.getElementById('input-pesquisa').addEventListener('keyup', aplicarFiltros);
         document.getElementById('btn-limpar-pesquisa').addEventListener('click', () => {
-            document.getElementById('input-pesquisa-num').value = '';
-            renderizarLista(todosOsItens);
+            document.getElementById('input-pesquisa').value = '';
+            aplicarFiltros();
         });
 
         window.limparFormulario = function() {
             document.getElementById('item-form').reset();
             document.getElementById('item-id').value = '';
+            document.getElementById('input-lego-set').value = '';
+            document.getElementById('preview-container').style.display = 'none';
             document.getElementById('form-titulo').textContent = 'Adicionar Novo Item';
             document.getElementById('btn-guardar').textContent = 'Guardar Novo Item';
             document.getElementById('btn-apagar').style.display = 'none';
+
+            if (secaoAtual !== 'Todos') {
+                document.getElementById('Marca').value = secaoAtual;
+            }
+            verificarCamposPorMarca();
         }
 
         function preencherFormulario(item) {
@@ -331,6 +526,9 @@
             } else {
                 document.getElementById('Imagem').value = item.Imagem || '';
             }
+
+            verificarCamposPorMarca();
+            atualizarPreviewImagem();
 
             document.getElementById('form-titulo').textContent = 'Editar Item: ' + (item.NomeNaColecao || '');
             document.getElementById('btn-guardar').textContent = 'Atualizar Item';
