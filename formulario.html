@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestão de Inventário - Miguel Inventory</title>
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap 5 JS (necessário para as tabs) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
 </head>
 <body class="bg-light">
@@ -24,7 +22,6 @@
     </nav>
 
     <div class="container mb-5">
-        <!-- Botão para novo item e link para galeria -->
         <div class="d-flex justify-content-between mb-3">
             <button class="btn btn-primary" id="btn-novo" onclick="limparFormulario()">+ Novo Item</button>
             <a href="inventario.html" class="btn btn-outline-secondary">Ver Galeria / Site</a>
@@ -63,7 +60,6 @@
                         <h5 class="mb-0" id="titulo-lista">Lista: Todos</h5>
                     </div>
                     <div class="card-body">
-                        <!-- Pesquisa por Número ou Nome -->
                         <div class="input-group mb-3">
                             <input type="text" id="input-pesquisa" class="form-control" placeholder="Pesquisar nº ou nome...">
                             <button class="btn btn-outline-primary" type="button" id="btn-pesquisar">Filtrar</button>
@@ -95,31 +91,31 @@
                             <small class="text-muted">Preenche automaticamente nome, tema, ano, peças e imagem oficial.</small>
                         </div>
 
-                        <!-- Caixa Exclusiva para Auto-Preenchimento FUNKO POP (Híbrida: Histórico + Loja Oficial) -->
+                        <!-- Caixa Exclusiva para Auto-Preenchimento FUNKO POP (Com Grelha Visual de Imagens) -->
                         <div id="box-auto-funko" class="alert alert-info border-info mb-4" style="display: none;">
-                            <label for="input-funko-apify" class="form-label fw-bold mb-1">👾 Pesquisa Funko Pop (Catálogo Histórico + Loja Oficial)</label>
+                            <label for="input-funko-apify" class="form-label fw-bold mb-1">👾 Pesquisa Visual Funko Pop (Nº + Nome)</label>
                             <div class="input-group mb-2">
                                 <select id="select-store-apify" class="form-select" style="max-width: 85px;" title="Loja Oficial Funko">
                                     <option value="PT" selected>PT</option>
                                     <option value="US">US</option>
                                 </select>
-                                <input type="text" id="input-funko-apify" class="form-control" placeholder="Ex: Darth Maul, Max Verstappen...">
+                                <input type="text" id="input-funko-apify" class="form-control" placeholder="Ex: 410 Darth Maul, Verstappen...">
                                 <button class="btn btn-info fw-bold" type="button" id="btn-buscar-funko-apify">Pesquisar</button>
                             </div>
                             <div id="status-apify" class="small text-primary fw-semibold mb-2" style="display: none;">
-                                ⏳ A pesquisar no catálogo histórico e na loja oficial (10-20 segundos)...
+                                ⏳ A pesquisar no HobbyDB, Loja Oficial e Catálogo Local (10-20 segundos)...
                             </div>
-                            <select id="select-resultados-apify" class="form-select mt-2" style="display: none;" onchange="selecionarFunkoApify()">
-                                <option value="">-- Seleciona o Funko Pop encontrado --</option>
-                            </select>
-                            <small class="text-muted d-block mt-1">Pesquisa em simultâneo modelos antigos (Histórico) e lançamentos atuais (Loja PT/US).</small>
+                            
+                            <!-- Grelha Visual de Miniaturas -->
+                            <div id="galeria-resultados-apify" class="row row-cols-2 row-cols-md-3 g-2 mt-2 p-2 bg-white rounded border" style="display: none; max-height: 360px; overflow-y: auto;"></div>
+                            
+                            <small class="text-muted d-block mt-1">Clica na imagem do Funko correto para preencher o formulário.</small>
                         </div>
 
                         <form id="item-form">
                             <input type="hidden" id="item-id">
 
                             <div class="row">
-                                <!-- Marca -->
                                 <div class="col-md-6 mb-3">
                                     <label for="Marca" class="form-label">Marca / Secção</label>
                                     <select class="form-select" id="Marca" required onchange="verificarCamposPorMarca()">
@@ -132,7 +128,6 @@
                                     </select>
                                 </div>
 
-                                <!-- Estado -->
                                 <div class="col-md-6 mb-3">
                                     <label for="Estado" class="form-label">Estado</label>
                                     <select class="form-select" id="Estado" required>
@@ -143,20 +138,17 @@
                                 </div>
                             </div>
 
-                            <!-- Nome Na Colecao -->
                             <div class="mb-3">
                                 <label for="NomeNaColecao" class="form-label">Nome na Coleção</label>
                                 <input type="text" class="form-control" id="NomeNaColecao" required>
                             </div>
 
                             <div class="row">
-                                <!-- Colecao (Tema / Série) -->
                                 <div class="col-md-6 mb-3">
                                     <label for="Colecao" class="form-label" id="label-colecao">Tema / Série (ex: Speed Champions, Star Wars)</label>
                                     <input type="text" class="form-control" id="Colecao">
                                 </div>
 
-                                <!-- Tipo -->
                                 <div class="col-md-6 mb-3">
                                     <label for="Tipo" class="form-label">Tipo (ex: Set, Figura, Carro 1/64)</label>
                                     <input type="text" class="form-control" id="Tipo">
@@ -164,19 +156,16 @@
                             </div>
 
                             <div class="row">
-                                <!-- Ano -->
                                 <div class="col-md-4 mb-3">
                                     <label for="Ano" class="form-label">Ano</label>
                                     <input type="number" class="form-control" id="Ano">
                                 </div>
 
-                                <!-- NumeroItem -->
                                 <div class="col-md-4 mb-3">
                                     <label for="NumeroItem" class="form-label" id="label-num-item">Nº do Item / Série</label>
                                     <input type="number" class="form-control" id="NumeroItem">
                                 </div>
 
-                                <!-- NumeroNaColecao -->
                                 <div class="col-md-4 mb-3">
                                     <label for="NumeroNaColecao" class="form-label" id="label-num-colecao">Nº na Coleção / Set</label>
                                     <input type="number" class="form-control" id="NumeroNaColecao">
@@ -184,19 +173,16 @@
                             </div>
 
                             <div class="row">
-                                <!-- Preço -->
                                 <div class="col-md-4 mb-3">
                                     <label for="Preco" class="form-label">Preço Pago (€)</label>
                                     <input type="number" step="0.01" class="form-control" id="Preco" value="0">
                                 </div>
 
-                                <!-- Valor Mercado -->
                                 <div class="col-md-4 mb-3">
                                     <label for="ValorMercado" class="form-label">Valor de Mercado (€)</label>
                                     <input type="number" step="0.01" class="form-control" id="ValorMercado" value="0">
                                 </div>
 
-                                <!-- Quantidade -->
                                 <div class="col-md-4 mb-3">
                                     <label for="Quantidade" class="form-label">Quantidade</label>
                                     <input type="number" class="form-control" id="Quantidade" value="1">
@@ -204,26 +190,22 @@
                             </div>
 
                             <div class="row">
-                                <!-- Pertence -->
                                 <div class="col-md-6 mb-3">
                                     <label for="Pertence" class="form-label">Pertence a</label>
                                     <input type="text" class="form-control" id="Pertence" value="Miguel">
                                 </div>
 
-                                <!-- Loja -->
                                 <div class="col-md-6 mb-3">
                                     <label for="Loja" class="form-label">Loja</label>
                                     <input type="text" class="form-control" id="Loja">
                                 </div>
                             </div>
 
-                            <!-- Descricao -->
                             <div class="mb-3">
                                 <label for="Descricao" class="form-label">Descrição / Notas</label>
                                 <textarea class="form-control" id="Descricao" rows="2"></textarea>
                             </div>
 
-                            <!-- Imagem -->
                             <div class="mb-3">
                                 <label for="Imagem" class="form-label">Links das Imagens (URLs separadas por vírgula)</label>
                                 <input type="text" class="form-control" id="Imagem" placeholder="https://..., https://..." oninput="atualizarPreviewImagem()">
@@ -232,7 +214,6 @@
                                 </div>
                             </div>
 
-                            <!-- Botões de Submissão -->
                             <div class="d-flex justify-content-between gap-2">
                                 <button type="button" class="btn btn-danger" id="btn-apagar" style="display:none;" onclick="apagarItem()">Eliminar Item</button>
                                 <button type="submit" class="btn btn-success w-100" id="btn-guardar">Guardar Novo Item</button>
@@ -251,7 +232,6 @@
         import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-        // API KEYS & PROXIES
         const REBRICKABLE_API_KEY = "52c39bed082b481c5653232cb85f5bbb";
         const APPS_SCRIPT_PROXY_URL = "https://script.google.com/macros/s/AKfycbwAIzKIKVnt1Wxa2GU2kfoGPmst9wGf1EYsjQueVaPG-zNfoKwjtLrevhvZYmQlSuh_/exec";
 
@@ -307,7 +287,6 @@
         // --- GESTÃO DE SECÇÕES / TABS ---
         window.mudarSecao = function(marca, elementoBtn) {
             secaoAtual = marca;
-            
             document.querySelectorAll('#tabs-marcas .nav-link').forEach(btn => btn.classList.remove('active'));
             if (elementoBtn) elementoBtn.classList.add('active');
 
@@ -318,7 +297,6 @@
                 document.getElementById('Marca').value = marca;
                 verificarCamposPorMarca();
             }
-
             aplicarFiltros();
         }
 
@@ -341,7 +319,9 @@
                 boxFunko.style.display = 'block';
                 labelNumColecao.textContent = 'Nº da Caixa Funko (ex: 410)';
                 labelColecao.textContent = 'Franquia / Coleção (ex: Star Wars, Formula 1)';
-                if (!document.getElementById('Tipo').value) document.getElementById('Tipo').value = 'Figura';
+                if (!document.getElementById('Tipo').value || document.getElementById('Tipo').value === 'Set') {
+                    document.getElementById('Tipo').value = 'Figura';
+                }
             } else {
                 labelNumColecao.textContent = marca === 'MiniGT' ? 'Nº MiniGT (ex: 642)' : 'Nº na Coleção';
                 labelColecao.textContent = 'Série / Coleção (ex: Pantone, Star Wars)';
@@ -385,7 +365,6 @@
                 if (jaExiste) {
                     alert(`Atenção: O set ${rawNum} já existe no teu inventário!`);
                 }
-
             } catch (erro) {
                 alert('Erro: ' + erro.message);
             } finally {
@@ -394,20 +373,21 @@
             }
         });
 
-        // --- AUTO-PREENCHIMENTO FUNKO POP (HISTÓRICO + LOJA OFICIAL) ---
+        // --- PESQUISA VISUAL FUNKO POP (GRELHA DE IMAGENS) ---
         document.getElementById('btn-buscar-funko-apify').addEventListener('click', async () => {
             const termo = document.getElementById('input-funko-apify').value.trim();
             const lojaStore = document.getElementById('select-store-apify').value;
 
-            if (!termo) return alert('Escreve o nome ou número do Funko Pop.');
+            if (!termo) return alert('Escreve o número e/ou nome do Funko Pop (ex: 410 Darth Maul).');
 
             const btn = document.getElementById('btn-buscar-funko-apify');
             const statusDiv = document.getElementById('status-apify');
-            const selectResultados = document.getElementById('select-resultados-apify');
+            const galeria = document.getElementById('galeria-resultados-apify');
 
             btn.disabled = true;
             statusDiv.style.display = 'block';
-            selectResultados.style.display = 'none';
+            galeria.style.display = 'none';
+            galeria.innerHTML = '';
 
             try {
                 const response = await fetch(APPS_SCRIPT_PROXY_URL, {
@@ -421,34 +401,39 @@
 
                 const data = await response.json();
 
-                if (data.error) {
-                    throw new Error(data.error);
-                }
+                if (data.error) throw new Error(data.error);
 
                 resultadosApify = data;
 
                 if (!Array.isArray(resultadosApify) || resultadosApify.length === 0) {
-                    alert(`Nenhum Funko Pop encontrado com o termo "${termo}".`);
+                    alert(`Nenhum Funko Pop encontrado com "${termo}".`);
                     return;
                 }
 
-                selectResultados.innerHTML = `<option value="">-- Seleciona o resultado (${resultadosApify.length} encontrados) --</option>`;
-
                 resultadosApify.forEach((pop, idx) => {
-                    const opt = document.createElement('option');
-                    opt.value = idx;
-                    
-                    const tagOrigem = pop.origem ? `[${pop.origem}] ` : '';
+                    const tagOrigem = pop.origem || '';
                     const nome = pop.name || pop.title || 'Sem nome';
                     const num = pop.boxNumber || pop.number || '';
-                    const numTxt = num ? ` (#${num})` : '';
-                    const precoTxt = pop.originalPrice ? ` - ${pop.originalPrice}` : '';
-                    
-                    opt.textContent = `${tagOrigem}${nome}${numTxt}${precoTxt}`;
-                    selectResultados.appendChild(opt);
+                    const serie = pop.license || '';
+                    const preco = pop.originalPrice ? ` • ${pop.originalPrice}` : '';
+                    const imgUrl = pop.mainImage || (Array.isArray(pop.images) && pop.images[0]) || 'https://placehold.co/120x120?text=Sem+Foto';
+
+                    const col = document.createElement('div');
+                    col.className = 'col';
+                    col.innerHTML = `
+                        <div class="card h-100 shadow-sm border-secondary" style="cursor: pointer; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'" onclick="selecionarFunkoCard(${idx})">
+                            <img src="${imgUrl}" class="card-img-top p-2" style="height: 115px; object-fit: contain; background: #f8f9fa;" onerror="this.src='https://placehold.co/120x120?text=Sem+Imagem'">
+                            <div class="card-body p-2 text-center">
+                                <span class="badge ${tagOrigem.includes('Loja') ? 'bg-success' : (tagOrigem.includes('HobbyDB') ? 'bg-primary' : 'bg-secondary')} mb-1" style="font-size: 0.65rem;">${tagOrigem}${preco}</span>
+                                <p class="card-title fw-bold mb-1" style="font-size: 0.78rem; line-height: 1.15;">${nome} ${num ? '(#'+num+')' : ''}</p>
+                                <small class="text-muted d-block text-truncate" style="font-size: 0.68rem;">${serie}</small>
+                            </div>
+                        </div>
+                    `;
+                    galeria.appendChild(col);
                 });
 
-                selectResultados.style.display = 'block';
+                galeria.style.display = 'flex';
 
             } catch (erro) {
                 console.error(erro);
@@ -459,12 +444,9 @@
             }
         });
 
-        window.selecionarFunkoApify = function() {
-            const idx = document.getElementById('select-resultados-apify').value;
-            if (idx === '') return;
-
+        window.selecionarFunkoCard = function(idx) {
             const pop = resultadosApify[idx];
-            console.log("Dados selecionados:", pop);
+            if (!pop) return;
 
             document.getElementById('Marca').value = 'Funko Pop';
             document.getElementById('NomeNaColecao').value = pop.name || pop.title || '';
@@ -474,15 +456,18 @@
             const numCaixa = pop.boxNumber || '';
             if (numCaixa && !isNaN(parseInt(numCaixa))) {
                 document.getElementById('NumeroNaColecao').value = parseInt(numCaixa);
+            } else {
+                // Caso o utilizador tenha escrito o número na caixa de pesquisa (ex: "410 Darth Maul"), aproveita-o se o catálogo não tiver
+                const termoPesquisa = document.getElementById('input-funko-apify').value;
+                const matchPesquisa = termoPesquisa.match(/\b(\d{1,4})\b/);
+                if (matchPesquisa) {
+                    document.getElementById('NumeroNaColecao').value = parseInt(matchPesquisa[1]);
+                }
             }
 
             const precoRaw = pop.originalPrice || '';
             const precoLimpo = parseFloat(String(precoRaw).replace(/[^0-9.,]/g, '').replace(',', '.'));
-            if (!isNaN(precoLimpo)) {
-                document.getElementById('ValorMercado').value = precoLimpo;
-            } else {
-                document.getElementById('ValorMercado').value = 0;
-            }
+            document.getElementById('ValorMercado').value = !isNaN(precoLimpo) ? precoLimpo : 0;
 
             document.getElementById('Descricao').value = pop.description || '';
 
@@ -495,6 +480,7 @@
             }
 
             atualizarPreviewImagem();
+            document.getElementById('galeria-resultados-apify').style.display = 'none';
         };
 
         window.atualizarPreviewImagem = function() {
@@ -615,7 +601,7 @@
             document.getElementById('item-id').value = '';
             document.getElementById('input-lego-set').value = '';
             document.getElementById('input-funko-apify').value = '';
-            document.getElementById('select-resultados-apify').style.display = 'none';
+            document.getElementById('galeria-resultados-apify').style.display = 'none';
             document.getElementById('preview-container').style.display = 'none';
             document.getElementById('form-titulo').textContent = 'Adicionar Novo Item';
             document.getElementById('btn-guardar').textContent = 'Guardar Novo Item';
@@ -718,7 +704,6 @@
             }
         }
 
-        // Inicializa a visibilidade correta dos campos logo ao abrir a página
         verificarCamposPorMarca();
     </script>
 </body>
