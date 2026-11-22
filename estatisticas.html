@@ -8,46 +8,82 @@
     <style>
     body { 
         font-family: Arial, sans-serif; 
-        background-color: #f4f4f4; 
-        margin: 20px 10px; 
+        background-color: #f4f7f6; 
+        margin: 0; 
+        padding: 0 0 30px 0; 
         color: #333; 
     }
     
-    .header-bar {
+    /* Barra Superior Uniforme */
+    .top-bar {
+        width: 100%;
+        padding: 20px 32px;
         display: flex;
-        flex-direction: column;
+        justify-content: space-between;
         align-items: center;
-        text-align: center;
-        margin-bottom: 25px;
+        flex-wrap: wrap;
+        box-sizing: border-box;
         gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    .btn-portal {
+        background-color: #6c7a89;
+        color: #ffffff;
+        border: none;
+        font-weight: bold;
+        font-size: 0.9rem;
+        padding: 9px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: background-color 0.2s;
+        display: inline-block;
+    }
+
+    .btn-portal:hover {
+        background-color: #5a6673;
+        color: #ffffff;
     }
 
     h1 { 
-        color: #007acc; 
+        color: #0088cc; 
         margin: 0; 
-        font-size: 1.6rem; 
-    }
-    
-    .back-btn {
-        background-color: #64748b;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 6px;
-        text-decoration: none;
-        font-weight: bold;
-        font-size: 0.95rem;
-        display: inline-block;
-        width: 100%;
-        max-width: 320px;
-        box-sizing: border-box;
+        font-size: 1.7rem; 
         text-align: center;
+    }
+
+    .user-area {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .user-first-name {
+        font-weight: bold;
+        font-size: 0.9rem;
+        color: #1e293b;
+    }
+
+    .btn-logout {
+        background-color: #dc3545;
+        color: #ffffff;
+        border: none;
+        font-weight: bold;
+        font-size: 0.85rem;
+        padding: 7px 13px;
+        border-radius: 6px;
+        cursor: pointer;
         transition: background-color 0.2s;
     }
-    .back-btn:hover { background-color: #475569; }
+
+    .btn-logout:hover {
+        background-color: #bb2d3b;
+    }
 
     .stats-container {
         max-width: 600px;
         margin: 0 auto;
+        padding: 0 12px;
         display: flex;
         flex-direction: column;
         gap: 20px;
@@ -158,6 +194,7 @@
     .footer-section {
         margin-top: 40px;
         margin-bottom: 30px;
+        padding: 0 12px;
         text-align: center;
         display: flex;
         flex-direction: column;
@@ -179,30 +216,18 @@
         box-sizing: border-box;
     }
     .top-btn:hover { background-color: #005999; }
-
-    .bottom-logout-btn {
-        padding: 12px 20px;
-        font-size: 0.95rem;
-        color: white;
-        background-color: #dc3545;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
-        width: 100%;
-        max-width: 320px;
-        box-sizing: border-box;
-        transition: background-color 0.2s;
-    }
-    .bottom-logout-btn:hover { background-color: #bb2d3b; }
     </style>
 </head>
 <body>
 
-<div class="header-bar">
+<header class="top-bar">
+    <a href="index.html" class="btn-portal">&larr; Voltar ao Portal</a>
     <h1>Estatísticas & Valor da Coleção</h1>
-    <a href="index.html" class="back-btn">&larr; Voltar ao Portal</a>
-</div>
+    <div id="user-area" class="user-area" style="display:none;">
+        <span id="user-first-name" class="user-first-name"></span>
+        <button class="btn-logout" onclick="logout()">Sair</button>
+    </div>
+</header>
 
 <div class="stats-container" id="stats-content">
     <p style="text-align: center; color: #64748b;" id="loading-msg">A calcular totais do inventário...</p>
@@ -210,7 +235,6 @@
 
 <div class="footer-section">
     <button class="top-btn" onclick="scrollToTop()">&uarr; Ir para o Início da Página</button>
-    <button class="bottom-logout-btn" onclick="logout()">Terminar Sessão</button>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -253,6 +277,9 @@ auth.onAuthStateChanged((user) => {
     if (user) {
         const userEmail = (user.email || "").toLowerCase().trim();
         if (userEmail === ADMIN_EMAIL) {
+            document.getElementById('user-area').style.display = 'flex';
+            const nomeCompleto = user.displayName || user.email.split('@')[0];
+            document.getElementById('user-first-name').innerText = nomeCompleto.split(' ')[0];
             loadStatistics();
         } else {
             alert("Acesso Restrito!\n\nEsta página de relatórios financeiros é exclusiva para o administrador.");
