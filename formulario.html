@@ -163,7 +163,7 @@
     <!-- Cabeçalho Limpo igual ao Inventário da Coleção -->
     <header class="container-fluid top-header">
         <div>
-            <a href="inventario.html" class="btn-portal">← Ver Galeria / Inventário</a>
+            <a href="index.html" class="btn-portal">← Voltar ao Portal</a>
         </div>
 
         <h1 class="page-title">Gestão de Inventário</h1>
@@ -433,7 +433,8 @@
             if (user) {
                 btnLogin.style.display = 'none';
                 userInfo.style.display = 'block';
-                userName.textContent = user.displayName || user.email;
+                const nomeCompleto = user.displayName || user.email;
+                userName.textContent = nomeCompleto.split(' ')[0];
                 carregarListaItens();
             } else {
                 btnLogin.style.display = 'block';
