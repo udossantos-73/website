@@ -328,7 +328,8 @@ auth.onAuthStateChanged((user) => {
             document.getElementById('login-btn').style.display = 'none';
             document.getElementById('user-details').style.display = 'block';
             document.getElementById('menu-container').style.display = 'block';
-            document.getElementById('user-email').innerText = user.email;
+            const nomeCompleto = user.displayName || user.email.split('@')[0];
+            document.getElementById('user-email').innerText = nomeCompleto.split(' ')[0];
 
             if (userEmail === ADMIN_EMAIL) {
                 document.getElementById('admin-stats-btn').style.display = 'block';
