@@ -6,7 +6,7 @@
     <title>Inventário Detalhado - Pops & Hot Wheels</title>
     
     <style>
-    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 20px; color: #333; }
+    body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 20px; color: #333; }
     
     .header-bar {
         display: flex;
@@ -14,24 +14,88 @@
         align-items: center;
         margin-bottom: 20px;
         flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    /* Linha do Título + Menu Hambúrguer alinhados horizontalmente */
+    .title-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         gap: 10px;
     }
 
-    h1 { color: #007acc; margin: 0; }
+    .menu-container {
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .hamburger-btn {
+        background: transparent;
+        border: none;
+        font-size: 1.6rem;
+        cursor: pointer;
+        color: #333;
+        padding: 4px 6px;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+    }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        left: 0;
+        top: 38px;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        border: 1px solid #e2e8f0;
+        width: 220px;
+        z-index: 100;
+        overflow: hidden;
+        text-align: left;
+    }
+
+    .dropdown-menu a {
+        display: block;
+        padding: 12px 16px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: bold;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background-color 0.2s;
+    }
+
+    .dropdown-menu a:hover {
+        background-color: #f8fafc;
+    }
+
+    .dropdown-menu a.blue-link { color: #007acc; }
+    .dropdown-menu a.add-link { color: #64748b; }
+
+    h1 { color: #0088cc; margin: 0; font-size: 1.75rem; line-height: 1.2; }
     
     .back-btn {
-        background-color: #64748b;
+        background-color: #6c7a89;
         color: white;
-        padding: 8px 16px;
+        padding: 9px 16px;
         border-radius: 6px;
         text-decoration: none;
         font-weight: bold;
         font-size: 0.9rem;
+        transition: background-color 0.2s;
     }
-    .back-btn:hover { background-color: #475569; }
+    .back-btn:hover { background-color: #5a6673; }
 
-    .user-info { font-weight: bold; margin-right: 15px; }
-    .logout-btn { padding: 8px 16px; font-size: 0.9rem; color: white; background-color: #dc3545; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    .user-area {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .user-info { font-weight: bold; font-size: 0.9rem; color: #1e293b; }
+    .logout-btn { padding: 7px 14px; font-size: 0.85rem; color: white; background-color: #dc3545; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background-color 0.2s; }
     .logout-btn:hover { background-color: #bb2d3b; }
 
     .filters-container { display: flex; gap: 15px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
@@ -39,7 +103,7 @@
 
     .pop-inventory { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background-color: white; }
     .pop-inventory th, .pop-inventory td { border: 1px solid #ddd; padding: 12px 8px; text-align: left; }
-    .pop-inventory th { background-color: #007acc; color: white; font-weight: bold; text-transform: uppercase; }
+    .pop-inventory th { background-color: #0088cc; color: white; font-weight: bold; text-transform: uppercase; }
     .pop-inventory tbody tr:nth-child(even) { background-color: #f9f9f9; }
     .pop-inventory tbody tr:hover { background-color: #f1f5f9; }
     
@@ -112,9 +176,22 @@
 
 <div class="header-bar">
     <a href="index.html" class="back-btn">&larr; Voltar ao Portal</a>
-    <h1>Inventário da Coleção</h1>
-    <div id="user-details" style="display:none;">
-        <span class="user-info" id="user-email" style="font-size:0.85rem;"></span>
+
+    <div class="title-row">
+        <div id="menu-container" class="menu-container" style="display:none;">
+            <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
+            <div id="dropdown-menu" class="dropdown-menu">
+                <a href="inventario.html" class="blue-link">Tabela de Inventário</a>
+                <a href="galerias.html" class="blue-link">Galerias</a>
+                <a href="estatisticas.html" id="admin-stats-btn" class="blue-link" style="display:none;">Valor & Estatísticas</a>
+                <a href="formulario.html" class="add-link">Gerir Inventário</a>
+            </div>
+        </div>
+        <h1>Inventário da Coleção</h1>
+    </div>
+
+    <div id="user-details" class="user-area" style="display:none;">
+        <span class="user-info" id="user-email"></span>
         <button class="logout-btn" onclick="logout()">Sair</button>
     </div>
 </div>
@@ -237,9 +314,23 @@ const authorizedEmails = [
     "miguelabrantesdossantos@gmail.com"
 ];
 
+const ADMIN_EMAIL = "ulisses.dos.santos@gmail.com";
+
 function logout() {
     auth.signOut().then(() => { window.location.href = "index.html"; });
 }
+
+function toggleMenu() {
+    const menu = document.getElementById('dropdown-menu');
+    menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+}
+
+document.addEventListener('click', function(event) {
+    const container = document.getElementById('menu-container');
+    if (container && !container.contains(event.target)) {
+        document.getElementById('dropdown-menu').style.display = 'none';
+    }
+});
 
 auth.onAuthStateChanged((user) => {
     if (user) {
@@ -247,9 +338,21 @@ auth.onAuthStateChanged((user) => {
         if (authorizedEmails.includes(userEmail)) {
             const userDetailsEl = document.getElementById('user-details');
             const userEmailEl = document.getElementById('user-email');
+            const menuContainerEl = document.getElementById('menu-container');
             
-            if (userDetailsEl) userDetailsEl.style.display = 'block';
-            if (userEmailEl) userEmailEl.innerText = user.email;
+            if (userDetailsEl) userDetailsEl.style.display = 'flex';
+            if (menuContainerEl) menuContainerEl.style.display = 'block';
+            
+            if (userEmailEl) {
+                const nomeCompleto = user.displayName || user.email.split('@')[0];
+                userEmailEl.innerText = nomeCompleto.split(' ')[0];
+            }
+
+            if (userEmail === ADMIN_EMAIL) {
+                document.getElementById('admin-stats-btn').style.display = 'block';
+            } else {
+                document.getElementById('admin-stats-btn').style.display = 'none';
+            }
             
             loadInventory();
         } else {
