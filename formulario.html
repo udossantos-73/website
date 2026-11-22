@@ -273,6 +273,23 @@
                             <small class="text-muted d-block mt-1">Clica na imagem do Funko correto para preencher o formulário.</small>
                         </div>
 
+                        <!-- Caixa Exclusiva para Auto-Preenchimento MINI GT (Catálogo Oficial TSM Model) -->
+                        <div id="box-auto-minigt" class="alert alert-primary border-primary mb-4" style="display: none;">
+                            <label for="input-minigt-busca" class="form-label fw-bold mb-1">🏎️ Pesquisa Rápida Mini GT (Catálogo Oficial)</label>
+                            <div class="input-group mb-2">
+                                <input type="text" id="input-minigt-busca" class="form-control" placeholder="Insere o nº (ex: 642) ou modelo (ex: Porsche 911)...">
+                                <button class="btn btn-primary-blue fw-bold" type="button" id="btn-buscar-minigt">Pesquisar</button>
+                            </div>
+                            <div id="status-minigt" class="small text-primary fw-semibold mb-2" style="display: none;">
+                                ⏳ A consultar catálogo oficial Mini GT...
+                            </div>
+
+                            <!-- Grelha Visual de Miniaturas Mini GT -->
+                            <div id="galeria-resultados-minigt" class="row row-cols-2 row-cols-md-3 g-2 mt-2 p-2 bg-white rounded border" style="display: none; max-height: 360px; overflow-y: auto;"></div>
+
+                            <small class="text-muted d-block mt-1">Clica no modelo Mini GT correto para preencher número, fabricante, nome e foto.</small>
+                        </div>
+
                         <form id="item-form">
                             <input type="hidden" id="item-id">
 
@@ -387,7 +404,7 @@
         </div>
     </div>
 
-    <!-- Lógica Firebase, Tabs, Rebrickable e Proxy Apps Script (100% original) -->
+    <!-- Lógica Firebase, Tabs, Rebrickable e Proxy Apps Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -412,6 +429,7 @@
 
         let todosOsItens = [];
         let resultadosApify = [];
+        let resultadosMiniGT = [];
         let secaoAtual = 'Todos';
 
         // --- AUTENTICAÇÃO ---
@@ -466,11 +484,13 @@
             const marca = document.getElementById('Marca').value;
             const boxLego = document.getElementById('box-auto-lego');
             const boxFunko = document.getElementById('box-auto-funko');
+            const boxMiniGT = document.getElementById('box-auto-minigt');
             const labelNumColecao = document.getElementById('label-num-colecao');
             const labelColecao = document.getElementById('label-colecao');
 
             boxLego.style.display = 'none';
             boxFunko.style.display = 'none';
+            boxMiniGT.style.display = 'none';
 
             if (marca === 'Lego') {
                 boxLego.style.display = 'block';
@@ -481,11 +501,18 @@
                 boxFunko.style.display = 'block';
                 labelNumColecao.textContent = 'Nº da Caixa Funko (ex: 410)';
                 labelColecao.textContent = 'Franquia / Coleção (ex: Star Wars, Formula 1)';
-                if (!document.getElementById('Tipo').value || document.getElementById('Tipo').value === 'Set') {
+                if (!document.getElementById('Tipo').value || document.getElementById('Tipo').value === 'Set' || document.getElementById('Tipo').value === 'Carro 1/64') {
                     document.getElementById('Tipo').value = 'Figura';
                 }
+            } else if (marca === 'MiniGT') {
+                boxMiniGT.style.display = 'block';
+                labelNumColecao.textContent = 'Nº MiniGT (ex: 642)';
+                labelColecao.textContent = 'Fabricante / Série (ex: Porsche, Lamborghini)';
+                if (!document.getElementById('Tipo').value || document.getElementById('Tipo').value === 'Set' || document.getElementById('Tipo').value === 'Figura') {
+                    document.getElementById('Tipo').value = 'Carro 1/64';
+                }
             } else {
-                labelNumColecao.textContent = marca === 'MiniGT' ? 'Nº MiniGT (ex: 642)' : 'Nº na Coleção';
+                labelNumColecao.textContent = 'Nº na Coleção';
                 labelColecao.textContent = 'Série / Coleção (ex: Pantone, Star Wars)';
             }
         }
@@ -557,7 +584,8 @@
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({
                         search: termo,
-                        store: lojaStore
+                        store: lojaStore,
+                        marca: 'funko'
                     })
                 });
 
@@ -642,6 +670,109 @@
 
             atualizarPreviewImagem();
             document.getElementById('galeria-resultados-apify').style.display = 'none';
+        };
+
+        // --- PESQUISA VISUAL MINI GT (CATÁLOGO OFICIAL TSM MODEL) ---
+        document.getElementById('btn-buscar-minigt').addEventListener('click', async () => {
+            const termo = document.getElementById('input-minigt-busca').value.trim();
+            if (!termo) return alert('Insere o número (ex: 642) ou nome do modelo Mini GT.');
+
+            const btn = document.getElementById('btn-buscar-minigt');
+            const statusDiv = document.getElementById('status-minigt');
+            const galeria = document.getElementById('galeria-resultados-minigt');
+
+            btn.disabled = true;
+            statusDiv.style.display = 'block';
+            galeria.style.display = 'none';
+            galeria.innerHTML = '';
+
+            try {
+                const response = await fetch(APPS_SCRIPT_PROXY_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        search: termo,
+                        marca: 'minigt'
+                    })
+                });
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+
+                resultadosMiniGT = data;
+
+                if (!Array.isArray(resultadosMiniGT) || resultadosMiniGT.length === 0) {
+                    alert(`Nenhum modelo Mini GT encontrado com "${termo}".`);
+                    return;
+                }
+
+                resultadosMiniGT.forEach((item, idx) => {
+                    const tagOrigem = item.origem || 'Mini GT';
+                    const nome = item.name || 'Sem nome';
+                    const num = item.boxNumber || '';
+                    const fabricante = item.license || '';
+                    const imgUrl = item.mainImage || 'https://placehold.co/120x120?text=MiniGT';
+
+                    const col = document.createElement('div');
+                    col.className = 'col';
+                    col.innerHTML = `
+                        <div class="card h-100 shadow-sm border-secondary" style="cursor: pointer; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'" onclick="selecionarMiniGTCard(${idx})">
+                            <img src="${imgUrl}" class="card-img-top p-2" style="height: 115px; object-fit: contain; background: #f8f9fa;" onerror="this.src='https://placehold.co/120x120?text=MiniGT'">
+                            <div class="card-body p-2 text-center">
+                                <span class="badge ${tagOrigem.includes('Oficial') ? 'bg-primary' : 'bg-secondary'} mb-1" style="font-size: 0.65rem;">${tagOrigem}</span>
+                                <p class="card-title fw-bold mb-1" style="font-size: 0.78rem; line-height: 1.15;">${num ? '#'+num+' - ' : ''}${nome}</p>
+                                <small class="text-muted d-block text-truncate" style="font-size: 0.68rem;">${fabricante}</small>
+                            </div>
+                        </div>
+                    `;
+                    galeria.appendChild(col);
+                });
+
+                galeria.style.display = 'flex';
+
+            } catch (erro) {
+                console.error(erro);
+                alert('Erro: ' + erro.message);
+            } finally {
+                btn.disabled = false;
+                statusDiv.style.display = 'none';
+            }
+        });
+
+        window.selecionarMiniGTCard = function(idx) {
+            const item = resultadosMiniGT[idx];
+            if (!item) return;
+
+            document.getElementById('Marca').value = 'MiniGT';
+            document.getElementById('NomeNaColecao').value = item.name || '';
+            document.getElementById('Colecao').value = item.license || 'Mini GT';
+            document.getElementById('Tipo').value = 'Carro 1/64';
+
+            const numBox = item.boxNumber || '';
+            const numParsed = parseInt(numBox);
+            if (!isNaN(numParsed)) {
+                document.getElementById('NumeroNaColecao').value = numParsed;
+            } else {
+                const termoPesquisa = document.getElementById('input-minigt-busca').value;
+                const matchPesquisa = termoPesquisa.match(/\b(\d{1,4})\b/);
+                if (matchPesquisa) {
+                    document.getElementById('NumeroNaColecao').value = parseInt(matchPesquisa[1]);
+                }
+            }
+
+            document.getElementById('Descricao').value = item.description || '';
+            document.getElementById('Imagem').value = item.mainImage || '';
+
+            atualizarPreviewImagem();
+            document.getElementById('galeria-resultados-minigt').style.display = 'none';
+
+            const numAtual = parseInt(document.getElementById('NumeroNaColecao').value);
+            if (!isNaN(numAtual)) {
+                const jaExiste = todosOsItens.some(i => (i.Marca || '').toLowerCase() === 'minigt' && i.NumeroNaColecao === numAtual);
+                if (jaExiste) {
+                    alert(`Atenção: O Mini GT #${numAtual} já existe no teu inventário!`);
+                }
+            }
         };
 
         window.atualizarPreviewImagem = function() {
@@ -773,7 +904,9 @@
             document.getElementById('item-id').value = '';
             document.getElementById('input-lego-set').value = '';
             document.getElementById('input-funko-apify').value = '';
+            document.getElementById('input-minigt-busca').value = '';
             document.getElementById('galeria-resultados-apify').style.display = 'none';
+            document.getElementById('galeria-resultados-minigt').style.display = 'none';
             document.getElementById('preview-container').style.display = 'none';
             document.getElementById('form-titulo').textContent = 'Adicionar Novo Item';
             document.getElementById('btn-guardar').textContent = 'Guardar Novo Item';
