@@ -27,6 +27,63 @@
         margin-bottom: 15px;
     }
 
+    /* Linha do Título + Menu Hambúrguer alinhados horizontalmente */
+    .title-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .menu-container {
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .hamburger-btn {
+        background: transparent;
+        border: none;
+        font-size: 1.6rem;
+        cursor: pointer;
+        color: #333;
+        padding: 4px 6px;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+    }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        left: 0;
+        top: 38px;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        border: 1px solid #e2e8f0;
+        width: 220px;
+        z-index: 100;
+        overflow: hidden;
+        text-align: left;
+    }
+
+    .dropdown-menu a {
+        display: block;
+        padding: 12px 16px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: bold;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background-color 0.2s;
+    }
+
+    .dropdown-menu a:hover {
+        background-color: #f8fafc;
+    }
+
+    .dropdown-menu a.blue-link { color: #007acc; }
+    .dropdown-menu a.add-link { color: #64748b; }
+
     .btn-portal {
         background-color: #6c7a89;
         color: #ffffff;
@@ -50,6 +107,7 @@
         margin: 0; 
         font-size: 1.7rem; 
         text-align: center;
+        line-height: 1.2;
     }
 
     .user-area {
@@ -222,7 +280,20 @@
 
 <header class="top-bar">
     <a href="index.html" class="btn-portal">&larr; Voltar ao Portal</a>
-    <h1>Estatísticas & Valor da Coleção</h1>
+
+    <div class="title-row">
+        <div id="menu-container" class="menu-container" style="display:none;">
+            <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
+            <div id="dropdown-menu" class="dropdown-menu">
+                <a href="inventario.html" class="blue-link">Tabela de Inventário</a>
+                <a href="galerias.html" class="blue-link">Galerias</a>
+                <a href="estatisticas.html" id="admin-stats-btn" class="blue-link" style="display:none;">Valor & Estatísticas</a>
+                <a href="formulario.html" class="add-link">Gerir Inventário</a>
+            </div>
+        </div>
+        <h1>Estatísticas & Valor da Coleção</h1>
+    </div>
+
     <div id="user-area" class="user-area" style="display:none;">
         <span id="user-first-name" class="user-first-name"></span>
         <button class="btn-logout" onclick="logout()">Sair</button>
@@ -265,6 +336,18 @@ function logout() {
     auth.signOut().then(() => { window.location.href = "index.html"; });
 }
 
+function toggleMenu() {
+    const menu = document.getElementById('dropdown-menu');
+    menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+}
+
+document.addEventListener('click', function(event) {
+    const container = document.getElementById('menu-container');
+    if (container && !container.contains(event.target)) {
+        document.getElementById('dropdown-menu').style.display = 'none';
+    }
+});
+
 function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -278,6 +361,9 @@ auth.onAuthStateChanged((user) => {
         const userEmail = (user.email || "").toLowerCase().trim();
         if (userEmail === ADMIN_EMAIL) {
             document.getElementById('user-area').style.display = 'flex';
+            document.getElementById('menu-container').style.display = 'block';
+            document.getElementById('admin-stats-btn').style.display = 'block';
+
             const nomeCompleto = user.displayName || user.email.split('@')[0];
             document.getElementById('user-first-name').innerText = nomeCompleto.split(' ')[0];
             loadStatistics();
