@@ -8,16 +8,72 @@
     <style>
     body { 
         font-family: Arial, sans-serif; 
-        background-color: #f4f4f4; 
+        background-color: #f4f7f6; 
         margin: 0; 
-        padding: 20px 0; 
+        padding: 0 0 30px 0; 
         display: flex; 
         flex-direction: column;
-        justify-content: center; 
         align-items: center; 
         min-height: 100vh; 
         color: #333; 
         box-sizing: border-box;
+    }
+
+    /* Barra Superior igual às restantes páginas */
+    .top-bar {
+        width: 100%;
+        padding: 20px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-sizing: border-box;
+        gap: 12px;
+    }
+
+    .btn-portal {
+        background-color: #6c7a89;
+        color: #ffffff;
+        border: none;
+        font-weight: bold;
+        font-size: 0.9rem;
+        padding: 9px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: background-color 0.2s;
+        display: inline-block;
+    }
+
+    .btn-portal:hover {
+        background-color: #5a6673;
+        color: #ffffff;
+    }
+
+    .user-area {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .user-first-name {
+        font-weight: bold;
+        font-size: 0.9rem;
+        color: #1e293b;
+    }
+
+    .btn-logout {
+        background-color: #dc3545;
+        color: #ffffff;
+        border: none;
+        font-weight: bold;
+        font-size: 0.85rem;
+        padding: 7px 13px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .btn-logout:hover {
+        background-color: #bb2d3b;
     }
 
     .portal-card { 
@@ -30,9 +86,10 @@
         width: 90%; 
         position: relative;
         box-sizing: border-box;
+        margin-top: 10px;
     }
 
-    /* Menu Hambúrguer alinhado à Esquerda */
+    /* Menu Hambúrguer alinhado à Esquerda dentro do cartão */
     .menu-container {
         position: absolute;
         top: 20px;
@@ -89,7 +146,6 @@
         display: flex;
         flex-direction: column;
         gap: 14px;
-        margin-bottom: 25px;
     }
 
     .theme-button {
@@ -131,25 +187,19 @@
         font-size: 0.85rem;
         font-weight: normal;
     }
-
-    .back-btn {
-        display: inline-block;
-        padding: 12px 24px;
-        font-size: 0.95rem;
-        color: #64748b;
-        background-color: #f1f5f9;
-        border: 1px solid #cbd5e1;
-        border-radius: 6px;
-        text-decoration: none;
-        font-weight: bold;
-        transition: background-color 0.2s;
-        width: 100%;
-        box-sizing: border-box;
-    }
-    .back-btn:hover { background-color: #e2e8f0; color: #334155; }
     </style>
 </head>
 <body>
+
+<!-- Barra Superior Uniforme -->
+<header class="top-bar">
+    <a href="index.html" class="btn-portal">&larr; Voltar ao Portal</a>
+
+    <div id="user-area" class="user-area" style="display:none;">
+        <span id="user-first-name" class="user-first-name"></span>
+        <button class="btn-logout" onclick="logout()">Sair</button>
+    </div>
+</header>
 
 <div class="portal-card">
 
@@ -161,7 +211,7 @@
             <a href="galerias.html" class="blue-link">Galerias</a>
             <!-- BOTÃO DE ESTATÍSTICAS EXCLUSIVO PARA O ULISSES -->
             <a href="estatisticas.html" id="admin-stats-btn" class="blue-link" style="display:none;">Valor & Estatísticas</a>
-            <a href="formulario.html" class="add-link">Adicionar Item</a>
+            <a href="formulario.html" class="add-link">Gerir Inventário</a>
         </div>
     </div>
 
@@ -190,8 +240,6 @@
             <span class="badge-count" id="count-total">...</span>
         </a>
     </div>
-
-    <a href="index.html" class="back-btn">&larr; Voltar ao Início</a>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -222,6 +270,12 @@ const authorizedEmails = [
 
 const ADMIN_EMAIL = "ulisses.dos.santos@gmail.com";
 
+function logout() {
+    auth.signOut().then(() => {
+        window.location.href = 'index.html';
+    });
+}
+
 function toggleMenu() {
     const menu = document.getElementById('dropdown-menu');
     menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
@@ -240,6 +294,10 @@ auth.onAuthStateChanged((user) => {
         if (authorizedEmails.includes(userEmail)) {
             document.getElementById('menu-container').style.display = 'block';
             document.getElementById('gallery-options').style.display = 'flex';
+            document.getElementById('user-area').style.display = 'flex';
+
+            const nomeCompleto = user.displayName || user.email.split('@')[0];
+            document.getElementById('user-first-name').innerText = nomeCompleto.split(' ')[0];
 
             if (userEmail === ADMIN_EMAIL) {
                 document.getElementById('admin-stats-btn').style.display = 'block';
