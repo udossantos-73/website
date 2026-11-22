@@ -1,1 +1,574 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encomendas & Wishlist - Coleção Privada</title>
+    <link rel="icon" type="image/svg+xml" href="images/favicon-lego-face.svg">
+    <link rel="icon" type="image/png" sizes="180x180" href="images/favicon-lego-face.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/favicon-lego-face.png">
 
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f7f6;
+        margin: 0;
+        padding: 0 0 40px 0;
+        color: #333;
+    }
+
+    /* Barra Superior Uniforme */
+    .top-bar {
+        width: 100%;
+        padding: 20px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        box-sizing: border-box;
+        gap: 12px;
+        margin-bottom: 10px;
+    }
+
+    .title-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .menu-container {
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .hamburger-btn {
+        background: transparent;
+        border: none;
+        font-size: 1.6rem;
+        cursor: pointer;
+        color: #333;
+        padding: 4px 6px;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+    }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        left: 0;
+        top: 38px;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        border: 1px solid #e2e8f0;
+        width: 220px;
+        z-index: 100;
+        overflow: hidden;
+        text-align: left;
+    }
+
+    .dropdown-menu a {
+        display: block;
+        padding: 12px 16px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: bold;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background-color 0.2s;
+    }
+
+    .dropdown-menu a:hover { background-color: #f8fafc; }
+    .dropdown-menu a.blue-link { color: #007acc; }
+    .dropdown-menu a.add-link { color: #64748b; }
+
+    .btn-portal {
+        background-color: #6c7a89;
+        color: #ffffff;
+        border: none;
+        font-weight: bold;
+        font-size: 0.9rem;
+        padding: 9px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: background-color 0.2s;
+        display: inline-block;
+    }
+    .btn-portal:hover { background-color: #5a6673; color: #ffffff; }
+
+    h1 {
+        color: #0088cc;
+        margin: 0;
+        font-size: 1.7rem;
+        text-align: center;
+        line-height: 1.2;
+    }
+
+    .user-area {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .user-first-name {
+        font-weight: bold;
+        font-size: 0.9rem;
+        color: #1e293b;
+    }
+
+    .btn-logout {
+        background-color: #dc3545;
+        color: #ffffff;
+        border: none;
+        font-weight: bold;
+        font-size: 0.85rem;
+        padding: 7px 13px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .btn-logout:hover { background-color: #bb2d3b; }
+
+    /* Contentor Principal */
+    .container {
+        max-width: 1050px;
+        margin: 0 auto;
+        padding: 0 16px;
+    }
+
+    /* Barra de Filtros */
+    .filters-bar {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+
+    .filters-bar input, .filters-bar select {
+        padding: 9px 12px;
+        border: 1px solid #cbd5e0;
+        border-radius: 6px;
+        font-size: 0.92rem;
+    }
+
+    .filters-bar input {
+        min-width: 240px;
+        flex: 1;
+        max-width: 380px;
+    }
+
+    /* Blocos Empilhados (Encomendados e Wishlist) */
+    .section-block {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-bottom: 28px;
+    }
+
+    .section-header {
+        padding: 14px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        color: #ffffff;
+    }
+
+    .header-encomendado {
+        background: linear-gradient(135deg, #0284c7, #0088cc);
+    }
+
+    .header-wishlist {
+        background: linear-gradient(135deg, #d97706, #f59e0b);
+    }
+
+    .section-header h2 {
+        margin: 0;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-meta {
+        font-size: 0.88rem;
+        font-weight: bold;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 4px 12px;
+        border-radius: 20px;
+    }
+
+    /* Lista de Itens dentro de cada Bloco */
+    .items-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+        gap: 14px;
+        padding: 18px;
+    }
+
+    .item-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #fafafa;
+        transition: background-color 0.15s, transform 0.15s;
+    }
+
+    .item-card:hover {
+        background: #f0f9ff;
+        transform: translateY(-2px);
+    }
+
+    .item-thumb {
+        width: 68px;
+        height: 68px;
+        object-fit: contain;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 4px;
+        flex-shrink: 0;
+    }
+
+    .item-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .item-top-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-bottom: 4px;
+    }
+
+    .tag-marca {
+        background: #e0f2fe;
+        color: #0369a1;
+        font-size: 0.72rem;
+        font-weight: bold;
+        padding: 2px 7px;
+        border-radius: 4px;
+    }
+
+    .tag-loja {
+        background: #dcfce7;
+        color: #15803d;
+        border: 1px solid #86efac;
+        font-size: 0.75rem;
+        font-weight: bold;
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
+
+    .item-title {
+        font-weight: bold;
+        font-size: 0.95rem;
+        color: #1e293b;
+        margin-bottom: 3px;
+        line-height: 1.25;
+    }
+
+    .item-sub {
+        font-size: 0.8rem;
+        color: #64748b;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .item-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 6px;
+    }
+
+    .item-price {
+        font-weight: bold;
+        font-size: 0.88rem;
+        color: #0284c7;
+    }
+
+    .btn-edit-mini {
+        font-size: 0.75rem;
+        color: #64748b;
+        text-decoration: none;
+        font-weight: bold;
+        padding: 3px 8px;
+        border: 1px solid #cbd5e1;
+        border-radius: 4px;
+        background: #ffffff;
+    }
+    .btn-edit-mini:hover {
+        background: #0088cc;
+        color: #ffffff;
+        border-color: #0088cc;
+    }
+
+    .empty-state {
+        padding: 28px;
+        text-align: center;
+        color: #64748b;
+        font-size: 0.92rem;
+        grid-column: 1 / -1;
+    }
+
+    @media (max-width: 600px) {
+        .top-bar {
+            padding: 15px 16px;
+        }
+        h1 {
+            font-size: 1.35rem;
+        }
+        .items-grid {
+            grid-template-columns: 1fr;
+            padding: 12px;
+        }
+    }
+    </style>
+</head>
+<body>
+
+<header class="top-bar">
+    <a href="index.html" class="btn-portal">&larr; Voltar ao Portal</a>
+
+    <div class="title-row">
+        <div id="menu-container" class="menu-container" style="display:none;">
+            <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
+            <div id="dropdown-menu" class="dropdown-menu">
+                <a href="inventario.html" class="blue-link">Tabela de Inventário</a>
+                <a href="galerias.html" class="blue-link">Galerias</a>
+                <a href="wishlist.html" class="blue-link">Encomendas & Wishlist</a>
+                <a href="estatisticas.html" id="admin-stats-btn" class="blue-link" style="display:none;">Valor & Estatísticas</a>
+                <a href="formulario.html" class="add-link">Gerir Inventário</a>
+            </div>
+        </div>
+        <h1>Encomendas & Wishlist</h1>
+    </div>
+
+    <div id="user-area" class="user-area" style="display:none;">
+        <span id="user-first-name" class="user-first-name"></span>
+        <button class="btn-logout" onclick="logout()">Sair</button>
+    </div>
+</header>
+
+<div class="container">
+    <!-- Filtros Rápidos para Loja -->
+    <div class="filters-bar">
+        <input type="text" id="filtro-texto" placeholder="Procurar nº do set/caixa, nome ou loja..." oninput="aplicarFiltros()">
+        <select id="filtro-marca" onchange="aplicarFiltros()">
+            <option value="">Todas as Marcas</option>
+            <option value="Lego">🧱 Lego</option>
+            <option value="Funko Pop">👾 Funko Pop</option>
+            <option value="Hot Wheels">🔥 Hot Wheels</option>
+            <option value="MiniGT">🏎️ MiniGT</option>
+            <option value="Playmobil">🤠 Playmobil</option>
+        </select>
+    </div>
+
+    <!-- BLOCO 1: ENCOMENDADOS (EM CIMA) -->
+    <section class="section-block">
+        <div class="section-header header-encomendado">
+            <h2>📦 Encomendados (A Caminho)</h2>
+            <span class="section-meta" id="meta-encomendados">0 itens • 0,00 €</span>
+        </div>
+        <div class="items-grid" id="lista-encomendados">
+            <div class="empty-state">A carregar encomendas...</div>
+        </div>
+    </section>
+
+    <!-- BLOCO 2: WISHLIST (EM BAIXO) -->
+    <section class="section-block">
+        <div class="section-header header-wishlist">
+            <h2>⭐ Wishlist (O que falta)</h2>
+            <span class="section-meta" id="meta-wishlist">0 itens • 0,00 €</span>
+        </div>
+        <div class="items-grid" id="lista-wishlist">
+            <div class="empty-state">A carregar wishlist...</div>
+        </div>
+    </section>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
+    authDomain: "miguel-inventory.firebaseapp.com",
+    projectId: "miguel-inventory",
+    storageBucket: "miguel-inventory.firebasestorage.app",
+    messagingSenderId: "277968569414",
+    appId: "1:277968569414:web:04884bc1932c2c7dbb6b647"
+};
+
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+const authorizedEmails = [
+    "ulisses.dos.santos@gmail.com",
+    "anaiabrantes@gmail.com",
+    "miguelabrantesdossantos@gmail.com"
+];
+
+const ADMIN_EMAIL = "ulisses.dos.santos@gmail.com";
+let todosPendentes = [];
+
+function logout() {
+    auth.signOut().then(() => { window.location.href = "index.html"; });
+}
+
+function toggleMenu() {
+    const menu = document.getElementById('dropdown-menu');
+    menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+}
+
+document.addEventListener('click', function(event) {
+    const container = document.getElementById('menu-container');
+    if (container && !container.contains(event.target)) {
+        document.getElementById('dropdown-menu').style.display = 'none';
+    }
+});
+
+function formatCurrency(v) {
+    return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(v || 0);
+}
+
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        const userEmail = (user.email || "").toLowerCase().trim();
+        if (authorizedEmails.includes(userEmail)) {
+            document.getElementById('user-area').style.display = 'flex';
+            document.getElementById('menu-container').style.display = 'block';
+
+            const nomeCompleto = user.displayName || user.email.split('@')[0];
+            document.getElementById('user-first-name').innerText = nomeCompleto.split(' ')[0];
+
+            if (userEmail === ADMIN_EMAIL) {
+                document.getElementById('admin-stats-btn').style.display = 'block';
+            }
+
+            carregarDados();
+        } else {
+            alert("Acesso Negado!");
+            window.location.href = "index.html";
+        }
+    } else {
+        setTimeout(() => {
+            if (!auth.currentUser) window.location.href = "index.html";
+        }, 1000);
+    }
+});
+
+function carregarDados() {
+    db.collection("inventario").get().then((snap) => {
+        todosPendentes = [];
+        snap.forEach(doc => {
+            const data = doc.data();
+            const estado = (data.Estado || '').toLowerCase().trim();
+            if (estado === 'encomendado' || estado === 'wishlist') {
+                todosPendentes.push({ id: doc.id, ...data });
+            }
+        });
+
+        todosPendentes.sort((a, b) => (a.Marca || '').localeCompare(b.Marca || '') || (a.NumeroNaColecao - b.NumeroNaColecao));
+        aplicarFiltros();
+    }).catch(err => {
+        console.error("Erro ao carregar dados:", err);
+        document.getElementById('lista-encomendados').innerHTML = '<div class="empty-state">Erro ao carregar encomendas.</div>';
+        document.getElementById('lista-wishlist').innerHTML = '<div class="empty-state">Erro ao carregar wishlist.</div>';
+    });
+}
+
+function aplicarFiltros() {
+    const texto = document.getElementById('filtro-texto').value.toLowerCase().trim();
+    const marca = document.getElementById('filtro-marca').value;
+
+    const filtrados = todosPendentes.filter(item => {
+        const nome = (item.NomeNaColecao || '').toLowerCase();
+        const colecao = (item.Colecao || '').toLowerCase();
+        const loja = (item.Loja || '').toLowerCase();
+        const num = String(item.NumeroNaColecao || '').toLowerCase();
+
+        const matchTexto = !texto || nome.includes(texto) || colecao.includes(texto) || loja.includes(texto) || num.includes(texto);
+        const matchMarca = !marca || (item.Marca || '').toLowerCase() === marca.toLowerCase();
+
+        return matchTexto && matchMarca;
+    });
+
+    const encomendados = filtrados.filter(i => (i.Estado || '').toLowerCase().trim() === 'encomendado');
+    const wishlist = filtrados.filter(i => (i.Estado || '').toLowerCase().trim() === 'wishlist');
+
+    renderizarBloco(encomendados, 'lista-encomendados', 'meta-encomendados', true);
+    renderizarBloco(wishlist, 'lista-wishlist', 'meta-wishlist', false);
+}
+
+function renderizarBloco(lista, containerId, metaId, mostrarLoja) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+
+    let totalValor = 0;
+    lista.forEach(item => {
+        const val = parseFloat(item.Preco || item.Preço || item.ValorMercado || 0);
+        totalValor += val;
+    });
+
+    document.getElementById(metaId).innerText = `${lista.length} ${lista.length === 1 ? 'item' : 'itens'} • ${formatCurrency(totalValor)}`;
+
+    if (lista.length === 0) {
+        container.innerHTML = `<div class="empty-state">${mostrarLoja ? 'Nenhum artigo encomendado neste filtro.' : 'Nenhum artigo na wishlist neste filtro.'}</div>`;
+        return;
+    }
+
+    lista.forEach(item => {
+        const imgUrl = (Array.isArray(item.Imagem) && item.Imagem[0])
+            ? item.Imagem[0]
+            : (typeof item.Imagem === 'string' && item.Imagem.startsWith('http') ? item.Imagem.split(',')[0].trim() : 'https://placehold.co/80x80?text=📦');
+
+        const numTexto = item.NumeroNaColecao ? `#${item.NumeroNaColecao} - ` : '';
+        const lojaTexto = (item.Loja || '').trim() || 'Loja n/d';
+        const precoVal = parseFloat(item.Preco || item.Preço || item.ValorMercado || 0);
+
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        card.innerHTML = `
+            <img src="${imgUrl}" class="item-thumb" alt="" onerror="this.src='https://placehold.co/80x80?text=📦'">
+            <div class="item-info">
+                <div class="item-top-tags">
+                    <span class="tag-marca">${item.Marca || 'Item'}</span>
+                    ${mostrarLoja ? `<span class="tag-loja">🏪 ${lojaTexto}</span>` : ''}
+                </div>
+                <div class="item-title">${numTexto}${item.NomeNaColecao || 'Sem Nome'}</div>
+                <div class="item-sub">${item.Colecao || ''}</div>
+                <div class="item-bottom">
+                    <span class="item-price">${precoVal > 0 ? formatCurrency(precoVal) : ''}</span>
+                    <a href="formulario.html" class="btn-edit-mini">Gerir</a>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+</script>
+
+</body>
+</html>
