@@ -22,7 +22,7 @@
 
     .portal-card { 
         background: #ffffff; 
-        padding: 40px 30px; 
+        padding: 35px 30px 40px 30px; 
         border-radius: 12px; 
         box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
         text-align: center; 
@@ -32,11 +32,19 @@
         box-sizing: border-box;
     }
 
-    /* Menu Hambúrguer alinhado à Esquerda */
+    /* Linha do Título + Menu Hambúrguer alinhados horizontalmente */
+    .title-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 5px;
+        margin-bottom: 10px;
+    }
+
     .menu-container {
-        position: absolute;
-        top: 20px;
-        left: 20px;
+        position: relative;
+        flex-shrink: 0;
     }
 
     .hamburger-btn {
@@ -45,15 +53,17 @@
         font-size: 1.6rem;
         cursor: pointer;
         color: #333;
-        padding: 5px;
+        padding: 4px 6px;
         line-height: 1;
+        display: flex;
+        align-items: center;
     }
 
     .dropdown-menu {
         display: none;
         position: absolute;
         left: 0;
-        top: 35px;
+        top: 38px;
         background: #ffffff;
         border-radius: 8px;
         box-shadow: 0 10px 25px rgba(0,0,0,0.15);
@@ -82,7 +92,7 @@
     .dropdown-menu a.blue-link { color: #007acc; }
     .dropdown-menu a.add-link { color: #64748b; }
 
-    h1 { color: #007acc; margin-top: 15px; margin-bottom: 10px; font-size: 1.8rem; }
+    h1 { color: #007acc; margin: 0; font-size: 1.65rem; line-height: 1.2; }
     p { color: #64748b; margin-bottom: 20px; line-height: 1.5; font-size: 0.95rem; }
 
     .auth-button { 
@@ -211,19 +221,21 @@
 
 <div class="portal-card">
 
-    <!-- MENU HAMBÚRGUER (À Esquerda, apenas visível se autenticado) -->
-    <div id="menu-container" class="menu-container" style="display:none;">
-        <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
-        <div id="dropdown-menu" class="dropdown-menu">
-            <a href="inventario.html" class="blue-link">Tabela de Inventário</a>
-            <a href="galerias.html" class="blue-link">Galerias</a>
-            <!-- BOTÃO DE ESTATÍSTICAS EXCLUSIVO PARA O ULISSES -->
-            <a href="estatisticas.html" id="admin-stats-btn" class="blue-link" style="display:none;">Valor & Estatísticas</a>
-            <a href="formulario.html" class="add-link">Gerir Inventário</a>
+    <!-- MENU HAMBÚRGUER NA MESMA LINHA E ANTES DO TÍTULO -->
+    <div class="title-row">
+        <div id="menu-container" class="menu-container" style="display:none;">
+            <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
+            <div id="dropdown-menu" class="dropdown-menu">
+                <a href="inventario.html" class="blue-link">Tabela de Inventário</a>
+                <a href="galerias.html" class="blue-link">Galerias</a>
+                <!-- BOTÃO DE ESTATÍSTICAS EXCLUSIVO PARA O ULISSES -->
+                <a href="estatisticas.html" id="admin-stats-btn" class="blue-link" style="display:none;">Valor & Estatísticas</a>
+                <a href="formulario.html" class="add-link">Gerir Inventário</a>
+            </div>
         </div>
+        <h1>Portal da Coleção Privada</h1>
     </div>
 
-    <h1>Portal da Coleção Privada</h1>
     <p>Portal de gestão e consulta do inventário completo de colecionáveis.</p>
 
     <!-- ÁREA DE AUTENTICAÇÃO -->
