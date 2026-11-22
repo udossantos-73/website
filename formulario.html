@@ -761,11 +761,11 @@
             }
 
             document.getElementById('Descricao').value = item.description || '';
-            document.getElemeif (Array.isArray(item.images) && item.images.length > 0) {
+            if (Array.isArray(item.images) && item.images.length > 0) {
             document.getElementById('Imagem').value = item.images.join(', ');
             } else {
             document.getElementById('Imagem').value = item.mainImage || '';
-            }ntById('Imagem').value = item.mainImage || '';
+            }
 
             atualizarPreviewImagem();
             document.getElementById('galeria-resultados-minigt').style.display = 'none';
