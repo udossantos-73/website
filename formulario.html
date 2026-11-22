@@ -6,80 +6,291 @@
     <title>Gestão de Inventário - Miguel Inventory</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
-</head>
-<body class="bg-light">
+    <style>
+        :root {
+            --primary-blue: #0088cc;
+            --primary-blue-hover: #0073ad;
+            --slate-btn: #6c7a89;
+            --slate-btn-hover: #5a6673;
+            --bg-page: #f4f7f6;
+            --border-subtle: #e2e8f0;
+        }
 
-    <!-- Barra Superior com Controlo de Autenticação -->
-    <nav class="navbar navbar-dark bg-dark px-4 mb-4">
-        <span class="navbar-brand mb-0 h1">Gestão de Inventário 🎮🚗🧱</span>
-        <div id="auth-container">
-            <button id="btn-login" class="btn btn-outline-light btn-sm" style="display:none;" onclick="loginGoogle()">Entrar com Google</button>
-            <div id="user-info" class="text-white small" style="display:none;">
-                <span id="user-name" class="me-2"></span>
-                <button class="btn btn-outline-danger btn-sm" onclick="logoutGoogle()">Sair</button>
+        body {
+            background-color: var(--bg-page);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #2d3748;
+        }
+
+        /* Cabeçalho estilo Inventário da Coleção */
+        .top-header {
+            padding: 1.25rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .btn-portal {
+            background-color: var(--slate-btn);
+            color: #fff;
+            border: none;
+            font-weight: 500;
+            padding: 0.45rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: background-color 0.15s;
+        }
+
+        .btn-portal:hover {
+            background-color: var(--slate-btn-hover);
+            color: #fff;
+        }
+
+        .page-title {
+            color: var(--primary-blue);
+            font-weight: 700;
+            font-size: 1.85rem;
+            margin: 0;
+            text-align: center;
+        }
+
+        .btn-logout {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            font-weight: 500;
+            padding: 0.4rem 0.9rem;
+            border-radius: 6px;
+        }
+
+        /* Tabs / Secções */
+        .nav-pills-custom {
+            background: #fff;
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 0.45rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.35rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .nav-pills-custom .nav-link {
+            color: #4a5568;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            padding: 0.4rem 0.85rem;
+        }
+
+        .nav-pills-custom .nav-link.active {
+            background-color: var(--primary-blue);
+            color: #fff;
+        }
+
+        .nav-pills-custom .nav-link.active .badge {
+            background-color: rgba(255, 255, 255, 0.25) !important;
+            color: #fff;
+        }
+
+        /* Cartões e Tabelas */
+        .clean-card {
+            background: #fff;
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+        }
+
+        .clean-card-header {
+            background-color: var(--primary-blue);
+            color: #fff;
+            padding: 0.75rem 1.15rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-inventory {
+            margin-bottom: 0;
+            font-size: 0.88rem;
+        }
+
+        .table-inventory thead th {
+            background-color: var(--primary-blue);
+            color: #fff;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.03em;
+            border: none;
+            padding: 0.7rem 0.75rem;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .table-inventory tbody tr {
+            cursor: pointer;
+            transition: background-color 0.12s;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .table-inventory tbody tr:hover {
+            background-color: #ebf8ff;
+        }
+
+        .table-inventory td {
+            vertical-align: middle;
+            padding: 0.6rem 0.75rem;
+        }
+
+        .thumb-mini {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 2px;
+        }
+
+        .item-link-title {
+            color: var(--primary-blue);
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        .btn-primary-blue {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .btn-primary-blue:hover {
+            background-color: var(--primary-blue-hover);
+            border-color: var(--primary-blue-hover);
+            color: #fff;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.3rem;
+        }
+
+        .form-control, .form-select {
+            border-color: #cbd5e0;
+            border-radius: 6px;
+            font-size: 0.92rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 0.2rem rgba(0, 136, 204, 0.18);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Cabeçalho Limpo igual ao Inventário da Coleção -->
+    <header class="container-fluid top-header">
+        <div>
+            <a href="inventario.html" class="btn-portal">← Ver Galeria / Inventário</a>
+        </div>
+
+        <h1 class="page-title">Gestão de Inventário</h1>
+
+        <div id="auth-container" class="d-flex align-items-center gap-2">
+            <button id="btn-login" class="btn btn-primary-blue btn-sm" style="display:none;" onclick="loginGoogle()">Entrar com Google</button>
+            <div id="user-info" class="d-flex align-items-center gap-2" style="display:none;">
+                <span id="user-name" class="fw-semibold small text-dark"></span>
+                <button class="btn-logout btn-sm" onclick="logoutGoogle()">Sair</button>
             </div>
         </div>
-    </nav>
+    </header>
 
-    <div class="container mb-5">
-        <div class="d-flex justify-content-between mb-3">
-            <button class="btn btn-primary" id="btn-novo" onclick="limparFormulario()">+ Novo Item</button>
-            <a href="inventario.html" class="btn btn-outline-secondary">Ver Galeria / Site</a>
+    <div class="container-fluid px-4 mb-5">
+        
+        <!-- Barra de Secções (Tabs) -->
+        <div class="d-flex justify-content-center mb-3">
+            <ul class="nav nav-pills nav-pills-custom" id="tabs-marcas" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-marca="Todos" type="button" onclick="mudarSecao('Todos', this)">Todos <span class="badge bg-secondary ms-1" id="badge-Todos">0</span></button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-marca="Lego" type="button" onclick="mudarSecao('Lego', this)">🧱 Lego <span class="badge bg-secondary ms-1" id="badge-Lego">0</span></button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-marca="Funko Pop" type="button" onclick="mudarSecao('Funko Pop', this)">👾 Funko Pop <span class="badge bg-secondary ms-1" id="badge-Funko Pop">0</span></button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-marca="Hot Wheels" type="button" onclick="mudarSecao('Hot Wheels', this)">🔥 Hot Wheels <span class="badge bg-secondary ms-1" id="badge-Hot Wheels">0</span></button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-marca="MiniGT" type="button" onclick="mudarSecao('MiniGT', this)">🏎️ MiniGT <span class="badge bg-secondary ms-1" id="badge-MiniGT">0</span></button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-marca="Playmobil" type="button" onclick="mudarSecao('Playmobil', this)">🤠 Playmobil <span class="badge bg-secondary ms-1" id="badge-Playmobil">0</span></button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-marca="Outros" type="button" onclick="mudarSecao('Outros', this)">📦 Outros <span class="badge bg-secondary ms-1" id="badge-Outros">0</span></button>
+                </li>
+            </ul>
         </div>
 
-        <!-- Secções por Marca (Tabs) -->
-        <ul class="nav nav-pills mb-4 bg-white p-2 rounded shadow-sm" id="tabs-marcas" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" data-marca="Todos" type="button" onclick="mudarSecao('Todos', this)">Todos <span class="badge bg-secondary ms-1" id="badge-Todos">0</span></button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" data-marca="Lego" type="button" onclick="mudarSecao('Lego', this)">🧱 Lego <span class="badge bg-secondary ms-1" id="badge-Lego">0</span></button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" data-marca="Funko Pop" type="button" onclick="mudarSecao('Funko Pop', this)">👾 Funko Pop <span class="badge bg-secondary ms-1" id="badge-Funko Pop">0</span></button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" data-marca="Hot Wheels" type="button" onclick="mudarSecao('Hot Wheels', this)">🔥 Hot Wheels <span class="badge bg-secondary ms-1" id="badge-Hot Wheels">0</span></button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" data-marca="MiniGT" type="button" onclick="mudarSecao('MiniGT', this)">🏎️ MiniGT <span class="badge bg-secondary ms-1" id="badge-MiniGT">0</span></button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" data-marca="Playmobil" type="button" onclick="mudarSecao('Playmobil', this)">🤠 Playmobil <span class="badge bg-secondary ms-1" id="badge-Playmobil">0</span></button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" data-marca="Outros" type="button" onclick="mudarSecao('Outros', this)">📦 Outros <span class="badge bg-secondary ms-1" id="badge-Outros">0</span></button>
-            </li>
-        </ul>
+        <!-- Barra de Pesquisa e Ação Rápida Centrada -->
+        <div class="d-flex justify-content-center align-items-center flex-wrap gap-2 mb-4">
+            <div class="input-group" style="max-width: 380px;">
+                <input type="text" id="input-pesquisa" class="form-control" placeholder="Filtrar por Número, Coleção ou Nome...">
+                <button class="btn btn-primary-blue" type="button" id="btn-pesquisar">Filtrar</button>
+                <button class="btn btn-outline-secondary bg-white" type="button" id="btn-limpar-pesquisa" title="Limpar filtro">✕</button>
+            </div>
+            <button class="btn btn-primary-blue" id="btn-novo" onclick="limparFormulario()">+ Novo Item</button>
+        </div>
 
-        <div class="row">
-            <!-- Coluna da Esquerda: Lista de Itens Filtrada pela Secção -->
-            <div class="col-md-5 mb-4">
-                <div class="card shadow">
-                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0" id="titulo-lista">Lista: Todos</h5>
+        <div class="row g-4">
+            <!-- Coluna da Esquerda: Tabela Limpa de Itens -->
+            <div class="col-lg-6">
+                <div class="clean-card">
+                    <div class="clean-card-header">
+                        <span id="titulo-lista">Lista: Todos</span>
+                        <small class="opacity-75">Clica numa linha para editar</small>
                     </div>
-                    <div class="card-body">
-                        <div class="input-group mb-3">
-                            <input type="text" id="input-pesquisa" class="form-control" placeholder="Pesquisar nº ou nome...">
-                            <button class="btn btn-outline-primary" type="button" id="btn-pesquisar">Filtrar</button>
-                            <button class="btn btn-outline-secondary" type="button" id="btn-limpar-pesquisa" title="Limpar filtro">❌</button>
-                        </div>
-                        
-                        <div class="list-group overflow-auto" id="lista-itens" style="max-height: 520px;">
-                            <div class="text-center p-3 text-muted">A verificar autenticação...</div>
-                        </div>
+                    <div class="table-responsive" style="max-height: 640px; overflow-y: auto;">
+                        <table class="table table-inventory">
+                            <thead>
+                                <tr>
+                                    <th style="width: 56px;">Imagem</th>
+                                    <th style="width: 75px;">Número</th>
+                                    <th>Coleção</th>
+                                    <th>Nome</th>
+                                    <th style="width: 105px;">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lista-itens">
+                                <tr>
+                                    <td colspan="5" class="text-center p-4 text-muted">A verificar autenticação...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
             <!-- Coluna da Direita: Formulário de Edição / Criação -->
-            <div class="col-md-7">
-                <div class="card shadow">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0" id="form-titulo">Adicionar Novo Item</h5>
+            <div class="col-lg-6">
+                <div class="clean-card">
+                    <div class="clean-card-header">
+                        <span id="form-titulo">Adicionar Novo Item</span>
                     </div>
-                    <div class="card-body">
+                    <div class="p-4">
                         
                         <!-- Caixa Exclusiva para Auto-Preenchimento LEGO -->
                         <div id="box-auto-lego" class="alert alert-warning border-warning mb-4" style="display: none;">
@@ -100,7 +311,7 @@
                                     <option value="US">US</option>
                                 </select>
                                 <input type="text" id="input-funko-apify" class="form-control" placeholder="Ex: 410 Darth Maul, Verstappen...">
-                                <button class="btn btn-info fw-bold" type="button" id="btn-buscar-funko-apify">Pesquisar</button>
+                                <button class="btn btn-primary-blue fw-bold" type="button" id="btn-buscar-funko-apify">Pesquisar</button>
                             </div>
                             <div id="status-apify" class="small text-primary fw-semibold mb-2" style="display: none;">
                                 ⏳ A pesquisar no HobbyDB, Loja Oficial e Catálogo Local (10-20 segundos)...
@@ -214,9 +425,9 @@
                                 </div>
                             </div>
 
-                            <div class="d-flex justify-content-between gap-2">
+                            <div class="d-flex justify-content-between gap-2 pt-2">
                                 <button type="button" class="btn btn-danger" id="btn-apagar" style="display:none;" onclick="apagarItem()">Eliminar Item</button>
-                                <button type="submit" class="btn btn-success w-100" id="btn-guardar">Guardar Novo Item</button>
+                                <button type="submit" class="btn btn-primary-blue w-100" id="btn-guardar">Guardar Novo Item</button>
                             </div>
 
                         </form>
@@ -226,7 +437,7 @@
         </div>
     </div>
 
-    <!-- Lógica Firebase, Tabs, Rebrickable e Proxy Apps Script -->
+    <!-- Lógica Firebase, Tabs, Rebrickable e Proxy Apps Script (100% preservada) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -274,13 +485,13 @@
 
             if (user) {
                 btnLogin.style.display = 'none';
-                userInfo.style.display = 'block';
-                userName.textContent = user.displayName || user.email;
+                userInfo.style.setProperty('display', 'flex', 'important');
+                userName.textContent = user.email || user.displayName;
                 carregarListaItens();
             } else {
-                btnLogin.style.display = 'block';
-                userInfo.style.display = 'none';
-                document.getElementById('lista-itens').innerHTML = '<div class="text-warning p-3 text-center">Clica em <b>Entrar com Google</b> no topo para aceder ao inventário.</div>';
+                btnLogin.style.display = 'inline-block';
+                userInfo.style.setProperty('display', 'none', 'important');
+                document.getElementById('lista-itens').innerHTML = '<tr><td colspan="5" class="text-warning p-4 text-center">Clica em <b>Entrar com Google</b> no topo para aceder ao inventário.</td></tr>';
             }
         });
 
@@ -457,7 +668,6 @@
             if (numCaixa && !isNaN(parseInt(numCaixa))) {
                 document.getElementById('NumeroNaColecao').value = parseInt(numCaixa);
             } else {
-                // Caso o utilizador tenha escrito o número na caixa de pesquisa (ex: "410 Darth Maul"), aproveita-o se o catálogo não tiver
                 const termoPesquisa = document.getElementById('input-funko-apify').value;
                 const matchPesquisa = termoPesquisa.match(/\b(\d{1,4})\b/);
                 if (matchPesquisa) {
@@ -497,8 +707,8 @@
 
         // --- FIRESTORE CRUD ---
         async function carregarListaItens() {
-            const listaDiv = document.getElementById('lista-itens');
-            listaDiv.innerHTML = '<div class="text-center p-3">A carregar inventário...</div>';
+            const listaBody = document.getElementById('lista-itens');
+            listaBody.innerHTML = '<tr><td colspan="5" class="text-center p-4 text-muted">A carregar inventário...</td></tr>';
             
             try {
                 const querySnapshot = await getDocs(collection(db, "inventario"));
@@ -511,7 +721,7 @@
                 aplicarFiltros();
             } catch (error) {
                 console.error("Erro ao carregar inventário:", error);
-                listaDiv.innerHTML = `<div class="text-danger p-3 small"><strong>Erro:</strong> ${error.message}</div>`;
+                listaBody.innerHTML = `<tr><td colspan="5" class="text-danger p-3 small"><strong>Erro:</strong> ${error.message}</td></tr>`;
             }
         }
 
@@ -544,8 +754,9 @@
 
                 if (termo) {
                     const nomeMatch = (item.NomeNaColecao || '').toLowerCase().includes(termo);
+                    const colecaoMatch = (item.Colecao || '').toLowerCase().includes(termo);
                     const numMatch = String(item.NumeroNaColecao || '').includes(termo) || String(item.NumeroItem || '').includes(termo);
-                    return nomeMatch || numMatch;
+                    return nomeMatch || colecaoMatch || numMatch;
                 }
 
                 return true;
@@ -555,37 +766,39 @@
         }
 
         function renderizarLista(itens) {
-            const listaDiv = document.getElementById('lista-itens');
-            listaDiv.innerHTML = '';
+            const listaBody = document.getElementById('lista-itens');
+            listaBody.innerHTML = '';
 
             if (itens.length === 0) {
-                listaDiv.innerHTML = '<div class="p-3 text-muted text-center">Nenhum item nesta secção.</div>';
+                listaBody.innerHTML = '<tr><td colspan="5" class="p-4 text-muted text-center">Nenhum item nesta secção.</td></tr>';
                 return;
             }
 
             itens.forEach(item => {
-                const a = document.createElement('a');
-                a.href = "#";
-                a.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center";
+                const tr = document.createElement('tr');
                 
-                const numColecaoTexto = item.NumeroNaColecao !== undefined && item.NumeroNaColecao !== null ? `Nº ${item.NumeroNaColecao}` : '';
+                const numColecaoTexto = item.NumeroNaColecao !== undefined && item.NumeroNaColecao !== null ? item.NumeroNaColecao : '-';
                 const corEstado = item.Estado === 'Wishlist' ? 'bg-warning text-dark' : (item.Estado === 'Encomendado' ? 'bg-info text-dark' : 'bg-success');
                 
-                a.innerHTML = `
-                    <div>
-                        <strong>${numColecaoTexto ? numColecaoTexto + ' - ' : ''}${item.NomeNaColecao || 'Sem Nome'}</strong><br>
-                        <small class="text-muted">${item.Marca || ''} ${item.Colecao ? '• ' + item.Colecao : ''}</small>
-                    </div>
-                    <div class="text-end">
+                let thumbUrl = 'https://placehold.co/42x42?text=📦';
+                if (Array.isArray(item.Imagem) && item.Imagem.length > 0) {
+                    thumbUrl = item.Imagem[0];
+                } else if (typeof item.Imagem === 'string' && item.Imagem.trim().startsWith('http')) {
+                    thumbUrl = item.Imagem.split(',')[0].trim();
+                }
+
+                tr.innerHTML = `
+                    <td><img src="${thumbUrl}" class="thumb-mini" alt="" onerror="this.src='https://placehold.co/42x42?text=📦'"></td>
+                    <td class="fw-semibold text-secondary">${numColecaoTexto}</td>
+                    <td><span class="text-muted small d-block">${item.Marca || ''}</span>${item.Colecao || '-'}</td>
+                    <td><span class="item-link-title">${item.NomeNaColecao || 'Sem Nome'}</span></td>
+                    <td>
                         <span class="badge ${corEstado} d-block mb-1">${item.Estado || 'Adquirido'}</span>
-                        <span class="badge bg-secondary">${item.Pertence || ''}</span>
-                    </div>
+                        <span class="badge bg-light text-dark border">${item.Pertence || ''}</span>
+                    </td>
                 `;
-                a.onclick = (e) => {
-                    e.preventDefault();
-                    preencherFormulario(item);
-                };
-                listaDiv.appendChild(a);
+                tr.onclick = () => preencherFormulario(item);
+                listaBody.appendChild(tr);
             });
         }
 
@@ -639,72 +852,4 @@
             verificarCamposPorMarca();
             atualizarPreviewImagem();
 
-            document.getElementById('form-titulo').textContent = 'Editar Item: ' + (item.NomeNaColecao || '');
-            document.getElementById('btn-guardar').textContent = 'Atualizar Item';
-            document.getElementById('btn-apagar').style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        document.getElementById('item-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('item-id').value;
-
-            const imagensStr = document.getElementById('Imagem').value;
-            const imagensArray = imagensStr ? imagensStr.split(',').map(s => s.trim()).filter(s => s.length > 0) : [];
-
-            const dadosItem = {
-                NomeNaColecao: document.getElementById('NomeNaColecao').value,
-                Marca: document.getElementById('Marca').value,
-                Estado: document.getElementById('Estado').value,
-                Colecao: document.getElementById('Colecao').value,
-                Tipo: document.getElementById('Tipo').value,
-                Ano: parseInt(document.getElementById('Ano').value) || null,
-                NumeroItem: parseInt(document.getElementById('NumeroItem').value) || null,
-                NumeroNaColecao: parseInt(document.getElementById('NumeroNaColecao').value) || null,
-                Preco: parseFloat(document.getElementById('Preco').value) || 0,
-                ValorMercado: parseFloat(document.getElementById('ValorMercado').value) || 0,
-                Quantidade: parseInt(document.getElementById('Quantidade').value) || 1,
-                Pertence: document.getElementById('Pertence').value,
-                Loja: document.getElementById('Loja').value,
-                Descricao: document.getElementById('Descricao').value,
-                Imagem: imagensArray,
-                UltimaAtualizacaoValor: new Date().toISOString().split('T')[0]
-            };
-
-            try {
-                if (id) {
-                    await setDoc(doc(db, "inventario", id), dadosItem, { merge: true });
-                    alert('Item atualizado com sucesso!');
-                } else {
-                    await addDoc(collection(db, "inventario"), dadosItem);
-                    alert('Item criado com sucesso!');
-                    limparFormulario();
-                }
-                carregarListaItens();
-            } catch (error) {
-                console.error("Erro ao guardar:", error);
-                alert('Erro ao guardar o item.');
-            }
-        });
-
-        window.apagarItem = async function() {
-            const id = document.getElementById('item-id').value;
-            if (!id) return;
-
-            if (confirm('Tens a certeza de que queres eliminar este item?')) {
-                try {
-                    await deleteDoc(doc(db, "inventario", id));
-                    alert('Item eliminado com sucesso!');
-                    limparFormulario();
-                    carregarListaItens();
-                } catch (error) {
-                    console.error("Erro ao apagar:", error);
-                    alert('Erro ao apagar o item.');
-                }
-            }
-        }
-
-        verificarCamposPorMarca();
-    </script>
-</body>
-</html>
+            document.getElementById('form-
