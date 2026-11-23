@@ -59,6 +59,61 @@
             text-align: center;
         }
 
+        /* Linha do Título + Menu Hambúrguer */
+        .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .menu-container {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .hamburger-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.6rem;
+            cursor: pointer;
+            color: #333;
+            padding: 4px 6px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Nome "nav-menu" para não colidir com a classe .dropdown-menu do Bootstrap */
+        .nav-menu {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: 38px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border: 1px solid #e2e8f0;
+            width: 220px;
+            z-index: 1000;
+            overflow: hidden;
+            text-align: left;
+        }
+
+        .nav-menu a {
+            display: block;
+            padding: 12px 16px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background-color 0.2s;
+        }
+
+        .nav-menu a:hover { background-color: #f8fafc; }
+        .nav-menu a.blue-link { color: #007acc; }
+        .nav-menu a.add-link { color: #64748b; }
+
         /* Tabs / Secções */
         #tabs-marcas {
             border: 1px solid var(--border-subtle);
@@ -163,13 +218,25 @@
 </head>
 <body>
 
-    <!-- Cabeçalho Limpo igual ao Inventário da Coleção -->
+    <!-- Cabeçalho com menu hambúrguer -->
     <header class="container-fluid top-header">
         <div>
             <a href="index.html" class="btn-portal">← Voltar ao Portal</a>
         </div>
 
-        <h1 class="page-title">Gestão de Inventário</h1>
+        <div class="title-row">
+            <div id="menu-container" class="menu-container" style="display:none;">
+                <button type="button" class="hamburger-btn" onclick="toggleMenu()" aria-label="Abrir menu">☰</button>
+                <div id="nav-menu" class="nav-menu">
+                    <a href="inventario.html" class="blue-link">Tabela de Inventário</a>
+                    <a href="galerias.html" class="blue-link">Galerias</a>
+                    <a href="wishlist.html" class="blue-link">Encomendas & Wishlist</a>
+                    <a href="estatisticas.html" id="admin-stats-btn" class="blue-link" style="display:none;">Valor & Estatísticas</a>
+                    <a href="formulario.html" class="add-link">Gerir Inventário</a>
+                </div>
+            </div>
+            <h1 class="page-title">Gestão de Inventário</h1>
+        </div>
 
         <div id="auth-container">
             <button id="btn-login" class="btn btn-primary-blue btn-sm" style="display:none;" onclick="loginGoogle()">Entrar com Google</button>
@@ -197,7 +264,7 @@
                     <button class="nav-link" data-marca="Hot Wheels" type="button" onclick="mudarSecao('Hot Wheels', this)">🔥 Hot Wheels <span class="badge bg-secondary ms-1" id="badge-Hot Wheels">0</span></button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" data-marca="Mini GT" type="button" onclick="mudarSecao('Mini GT', this)">🏎️ Mini GT <span class="badge bg-secondary ms-1" id="badge-MiniGT">0</span></button>
+                    <button class="nav-link" data-marca="Mini GT" type="button" onclick="mudarSecao('Mini GT', this)">🏎️ Mini GT <span class="badge bg-secondary ms-1" id="badge-Mini GT">0</span></button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" data-marca="Playmobil" type="button" onclick="mudarSecao('Playmobil', this)">🤠 Playmobil <span class="badge bg-secondary ms-1" id="badge-Playmobil">0</span></button>
@@ -241,7 +308,7 @@
                         <h6 class="mb-0 fw-semibold" id="form-titulo">Adicionar Novo Item</h6>
                     </div>
                     <div class="card-body p-4">
-                        
+
                         <!-- Caixa Exclusiva para Auto-Preenchimento LEGO -->
                         <div id="box-auto-lego" class="alert alert-warning border-warning mb-4" style="display: none;">
                             <label for="input-lego-set" class="form-label fw-bold mb-1">🧱 Importação Rápida LEGO (Rebrickable)</label>
@@ -266,10 +333,10 @@
                             <div id="status-apify" class="small text-primary fw-semibold mb-2" style="display: none;">
                                 ⏳ A pesquisar no HobbyDB, Loja Oficial e Catálogo Local (10-20 segundos)...
                             </div>
-                            
+
                             <!-- Grelha Visual de Miniaturas -->
                             <div id="galeria-resultados-apify" class="row row-cols-2 row-cols-md-3 g-2 mt-2 p-2 bg-white rounded border" style="display: none; max-height: 360px; overflow-y: auto;"></div>
-                            
+
                             <small class="text-muted d-block mt-1">Clica na imagem do Funko correto para preencher o formulário.</small>
                         </div>
 
@@ -427,10 +494,48 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
+        // E-mails que veem o link "Valor & Estatísticas" no menu
+        const ADMIN_EMAILS = [
+            "ulisses.dos.santos@gmail.com"
+        ];
+
+        const MARCAS_PRINCIPAIS = ['Lego', 'Funko Pop', 'Hot Wheels', 'Mini GT', 'Playmobil'];
+
         let todosOsItens = [];
         let resultadosApify = [];
         let resultadosMiniGT = [];
         let secaoAtual = 'Todos';
+
+        // Compara marcas ignorando maiúsculas e espaços ("Mini GT" == "MiniGT")
+        function normalizarMarca(v) {
+            return String(v || '').toLowerCase().replace(/\s+/g, '');
+        }
+
+        // Escolhe a opção do <select> da Marca que corresponde ao valor (mesmo gravado como "MiniGT")
+        function definirMarcaNoSelect(valor) {
+            const select = document.getElementById('Marca');
+            const alvo = normalizarMarca(valor);
+            for (const opt of select.options) {
+                if (normalizarMarca(opt.value) === alvo) {
+                    select.value = opt.value;
+                    return;
+                }
+            }
+            select.value = 'Outros';
+        }
+
+        // --- MENU HAMBÚRGUER ---
+        window.toggleMenu = function() {
+            const menu = document.getElementById('nav-menu');
+            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+        }
+
+        document.addEventListener('click', function(event) {
+            const container = document.getElementById('menu-container');
+            if (container && !container.contains(event.target)) {
+                document.getElementById('nav-menu').style.display = 'none';
+            }
+        });
 
         // --- AUTENTICAÇÃO ---
         window.loginGoogle = async function() {
@@ -450,16 +555,25 @@
             const btnLogin = document.getElementById('btn-login');
             const userInfo = document.getElementById('user-info');
             const userName = document.getElementById('user-name');
+            const menuContainer = document.getElementById('menu-container');
+            const adminStatsBtn = document.getElementById('admin-stats-btn');
 
             if (user) {
                 btnLogin.style.display = 'none';
                 userInfo.style.display = 'block';
                 const nomeCompleto = user.displayName || user.email;
                 userName.textContent = nomeCompleto.split(' ')[0];
+
+                menuContainer.style.display = 'block';
+                const emailUser = (user.email || '').toLowerCase().trim();
+                adminStatsBtn.style.display = ADMIN_EMAILS.includes(emailUser) ? 'block' : 'none';
+
                 carregarListaItens();
             } else {
                 btnLogin.style.display = 'block';
                 userInfo.style.display = 'none';
+                menuContainer.style.display = 'none';
+                document.getElementById('nav-menu').style.display = 'none';
                 document.getElementById('lista-itens').innerHTML = '<div class="text-warning p-3 text-center">Clica em <b>Entrar com Google</b> no topo para aceder ao inventário.</div>';
             }
         });
@@ -474,7 +588,7 @@
             document.getElementById('input-pesquisa').value = '';
 
             if (!document.getElementById('item-id').value && marca !== 'Todos') {
-                document.getElementById('Marca').value = marca;
+                definirMarcaNoSelect(marca);
                 verificarCamposPorMarca();
             }
             aplicarFiltros();
@@ -547,10 +661,10 @@
                 document.getElementById('NumeroNaColecao').value = parseInt(rawNum.split('-')[0]) || '';
                 document.getElementById('Descricao').value = `${theme.name} (${set.year}) - ${set.num_parts} peças`;
                 document.getElementById('Imagem').value = set.set_img_url || '';
-                
+
                 atualizarPreviewImagem();
 
-                const jaExiste = todosOsItens.some(i => i.Marca === 'Lego' && i.NumeroNaColecao === parseInt(rawNum.split('-')[0]));
+                const jaExiste = todosOsItens.some(i => normalizarMarca(i.Marca) === 'lego' && i.NumeroNaColecao === parseInt(rawNum.split('-')[0]));
                 if (jaExiste) {
                     alert(`Atenção: O set ${rawNum} já existe no teu inventário!`);
                 }
@@ -743,7 +857,7 @@
             const item = resultadosMiniGT[idx];
             if (!item) return;
 
-            document.getElementById('Marca').value = 'MiniGT';
+            document.getElementById('Marca').value = 'Mini GT';
             document.getElementById('NomeNaColecao').value = item.name || '';
             document.getElementById('Colecao').value = item.license || 'Mini GT';
             document.getElementById('Tipo').value = 'Carro 1/64';
@@ -761,10 +875,11 @@
             }
 
             document.getElementById('Descricao').value = item.description || '';
+
             if (Array.isArray(item.images) && item.images.length > 0) {
-            document.getElementById('Imagem').value = item.images.join(', ');
+                document.getElementById('Imagem').value = item.images.join(', ');
             } else {
-            document.getElementById('Imagem').value = item.mainImage || '';
+                document.getElementById('Imagem').value = item.mainImage || '';
             }
 
             atualizarPreviewImagem();
@@ -772,7 +887,7 @@
 
             const numAtual = parseInt(document.getElementById('NumeroNaColecao').value);
             if (!isNaN(numAtual)) {
-                const jaExiste = todosOsItens.some(i => (i.Marca || '').toLowerCase() === 'minigt' && i.NumeroNaColecao === numAtual);
+                const jaExiste = todosOsItens.some(i => normalizarMarca(i.Marca) === 'minigt' && i.NumeroNaColecao === numAtual);
                 if (jaExiste) {
                     alert(`Atenção: O Mini GT #${numAtual} já existe no teu inventário!`);
                 }
@@ -795,14 +910,14 @@
         async function carregarListaItens() {
             const listaDiv = document.getElementById('lista-itens');
             listaDiv.innerHTML = '<div class="text-center p-3">A carregar inventário...</div>';
-            
+
             try {
                 const querySnapshot = await getDocs(collection(db, "inventario"));
                 todosOsItens = [];
                 querySnapshot.forEach((docSnap) => {
                     todosOsItens.push({ id: docSnap.id, ...docSnap.data() });
                 });
-                
+
                 atualizarContadores();
                 aplicarFiltros();
             } catch (error) {
@@ -812,30 +927,30 @@
         }
 
         function atualizarContadores() {
-            const marcasPrincipais = ['Lego', 'Funko Pop', 'Hot Wheels', 'MiniGT', 'Playmobil'];
             document.getElementById('badge-Todos').textContent = todosOsItens.length;
 
-            marcasPrincipais.forEach(m => {
-                const count = todosOsItens.filter(i => (i.Marca || '').toLowerCase() === m.toLowerCase()).length;
+            MARCAS_PRINCIPAIS.forEach(m => {
+                const count = todosOsItens.filter(i => normalizarMarca(i.Marca) === normalizarMarca(m)).length;
                 const badge = document.getElementById(`badge-${m}`);
                 if (badge) badge.textContent = count;
             });
 
-            const countOutros = todosOsItens.filter(i => !marcasPrincipais.map(m => m.toLowerCase()).includes((i.Marca || '').toLowerCase())).length;
+            const principaisNorm = MARCAS_PRINCIPAIS.map(normalizarMarca);
+            const countOutros = todosOsItens.filter(i => !principaisNorm.includes(normalizarMarca(i.Marca))).length;
             document.getElementById('badge-Outros').textContent = countOutros;
         }
 
         function aplicarFiltros() {
             const termo = document.getElementById('input-pesquisa').value.trim().toLowerCase();
-            const marcasPrincipais = ['lego', 'funko pop', 'hot wheels', 'minigt', 'playmobil'];
+            const principaisNorm = MARCAS_PRINCIPAIS.map(normalizarMarca);
 
             let filtrados = todosOsItens.filter(item => {
-                const marcaItem = (item.Marca || '').toLowerCase();
-                
+                const marcaItem = normalizarMarca(item.Marca);
+
                 if (secaoAtual === 'Outros') {
-                    if (marcasPrincipais.includes(marcaItem)) return false;
+                    if (principaisNorm.includes(marcaItem)) return false;
                 } else if (secaoAtual !== 'Todos') {
-                    if (marcaItem !== secaoAtual.toLowerCase()) return false;
+                    if (marcaItem !== normalizarMarca(secaoAtual)) return false;
                 }
 
                 if (termo) {
@@ -864,10 +979,10 @@
                 const a = document.createElement('a');
                 a.href = "#";
                 a.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-2";
-                
+
                 const numColecaoTexto = item.NumeroNaColecao !== undefined && item.NumeroNaColecao !== null ? `Nº ${item.NumeroNaColecao}` : '';
                 const corEstado = item.Estado === 'Wishlist' ? 'bg-warning text-dark' : (item.Estado === 'Encomendado' ? 'bg-info text-dark' : 'bg-success');
-                
+
                 let thumbUrl = 'https://placehold.co/44x44?text=📦';
                 if (Array.isArray(item.Imagem) && item.Imagem.length > 0) {
                     thumbUrl = item.Imagem[0];
@@ -917,7 +1032,7 @@
             document.getElementById('btn-apagar').style.display = 'none';
 
             if (secaoAtual !== 'Todos') {
-                document.getElementById('Marca').value = secaoAtual;
+                definirMarcaNoSelect(secaoAtual);
             }
             verificarCamposPorMarca();
         }
@@ -925,7 +1040,7 @@
         function preencherFormulario(item) {
             document.getElementById('item-id').value = item.id;
             document.getElementById('NomeNaColecao').value = item.NomeNaColecao || '';
-            document.getElementById('Marca').value = item.Marca || 'Lego';
+            definirMarcaNoSelect(item.Marca || 'Lego');
             document.getElementById('Estado').value = item.Estado || 'Adquirido';
             document.getElementById('Colecao').value = item.Colecao || '';
             document.getElementById('Tipo').value = item.Tipo || '';
@@ -938,7 +1053,7 @@
             document.getElementById('Pertence').value = item.Pertence || 'Miguel';
             document.getElementById('Loja').value = item.Loja || '';
             document.getElementById('Descricao').value = item.Descricao || '';
-            
+
             if (Array.isArray(item.Imagem)) {
                 document.getElementById('Imagem').value = item.Imagem.join(', ');
             } else {
