@@ -1006,6 +1006,9 @@
             document.getElementById('Tipo').value = 'Carro 1/64';
             if (item.year) document.getElementById('Ano').value = item.year;
 
+            const elNumItem = document.getElementById('NumeroItem');
+            if (elNumItem) elNumItem.value = item.colNumber || '';
+
             const refFinal = String(item.boxNumber || '').trim();
             document.getElementById('NumeroNaColecao').value = refFinal;
             document.getElementById('Descricao').value = item.description || '';
@@ -1212,6 +1215,7 @@
             const imagensStr = document.getElementById('Imagem').value;
             const imagensArray = imagensStr ? imagensStr.split(',').map(s => s.trim()).filter(s => s.length > 0) : [];
             const numColecaoRaw = document.getElementById('NumeroNaColecao').value.trim();
+            const numeroItemRaw = String(document.getElementById('NumeroItem').value || '').trim();
 
             const dadosItem = {
                 NomeNaColecao: document.getElementById('NomeNaColecao').value,
@@ -1220,7 +1224,7 @@
                 Colecao: document.getElementById('Colecao').value,
                 Tipo: document.getElementById('Tipo').value,
                 Ano: parseInt(document.getElementById('Ano').value) || null,
-                NumeroItem: parseInt(document.getElementById('NumeroItem').value) || null,
+                NumeroItem: numeroItemRaw || null,
                 NumeroNaColecao: numColecaoRaw || null,
                 Preco: parseFloat(document.getElementById('Preco').value) || 0,
                 ValorMercado: parseFloat(document.getElementById('ValorMercado').value) || 0,
