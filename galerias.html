@@ -177,6 +177,9 @@
     .btn-hotwheels { background-color: #f59e0b; }
     .btn-hotwheels:hover { background-color: #d97706; }
 
+    .btn-minigt { background-color: #10b981; }
+    .btn-minigt:hover { background-color: #059669; }
+
     .btn-lego { background-color: #ef4444; }
     .btn-lego:hover { background-color: #dc2626; }
 
@@ -233,6 +236,11 @@
         <a href="hotwheels.html" class="theme-button btn-hotwheels">
             <span>🏎️ Hot Wheels</span>
             <span class="badge-count" id="count-hotwheels">...</span>
+        </a>
+
+        <a href="minigt.html" class="theme-button btn-minigt">
+            <span>🏁 Mini GT</span>
+            <span class="badge-count" id="count-minigt">...</span>
         </a>
 
         <a href="lego.html" class="theme-button btn-lego">
@@ -327,6 +335,7 @@ async function carregarContagens() {
         let total = 0;
         let funkoCount = 0;
         let hwCount = 0;
+        let minigtCount = 0;
         let legoCount = 0;
 
         snapshot.forEach(doc => {
@@ -338,6 +347,8 @@ async function carregarContagens() {
 
             if (marca.includes('funko') || tipo.includes('pop')) {
                 funkoCount++;
+            } else if (marca.includes('mini gt') || marca.includes('minigt')) {
+                minigtCount++;
             } else if (marca.includes('hot wheels') || marca.includes('mattel') || tipo.includes('carro')) {
                 hwCount++;
             } else if (marca.includes('lego')) {
@@ -347,6 +358,7 @@ async function carregarContagens() {
 
         document.getElementById('count-funko').innerText = `${funkoCount} itens`;
         document.getElementById('count-hotwheels').innerText = `${hwCount} itens`;
+        document.getElementById('count-minigt').innerText = `${minigtCount} itens`;
         document.getElementById('count-lego').innerText = `${legoCount} itens`;
         document.getElementById('count-total').innerText = `${total} itens`;
 
