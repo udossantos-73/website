@@ -1,218 +1,332 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hot Wheels - Catálogo de Coleções</title>
-
-<!-- Fonte -->
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-
-<style>
-body {
-    margin: 0;
-    font-family: 'Montserrat', sans-serif;
-    background-color: #f8f9fa;
-    color: #333;
-}
-
-/* Header */
-header {
-    position: relative;
-    height: 400px;
-    background: url('https://i.imgur.com/mWjeyOR.jpeg') center center / cover no-repeat fixed;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    text-align: center;
-    overflow: hidden;
-}
-header::after {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.4);
-}
-header h1 {
-    position: relative;
-    font-size: 3em;
-    z-index: 1;
-    margin: 0;
-    letter-spacing: 2px;
-    text-shadow: 2px 2px 15px rgba(0,0,0,0.5);
-}
-@media (max-width: 768px) { 
-    header { 
-        /* Mantemos o tamanho, mas removemos o 'fixed' para o mobile entender o 'cover' */
-        background-attachment: scroll !important; 
-        background-position: center center;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeria Hot Wheels</title>
+    <link rel="icon" type="image/svg+xml" href="images/favicon-lego-face.svg">
+    <link rel="icon" type="image/png" sizes="180x180" href="images/favicon-lego-face.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/favicon-lego-face.png">
+    
+    <style>
+    body { 
+        font-family: Arial, sans-serif; 
+        background-color: #f4f4f4; 
+        margin: 20px; 
+        color: #333; 
     }
-    header h1 { font-size: 2em; } 
-}
+    
+    /* CABEÇALHO PARA DESKTOP */
+    .header-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 0 10px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
 
-@media (max-width: 480px) { 
-    header { 
-        height: 250px; 
-        background-attachment: scroll !important;
-    } 
-    header h1 { font-size: 1.8em; } 
-}
+    h1 { color: #007acc; margin: 0; font-size: 1.8rem; }
+    
+    .back-btn {
+        background-color: #64748b;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 0.9rem;
+        display: inline-block;
+        text-align: center;
+        transition: background-color 0.2s;
+    }
+    .back-btn:hover { background-color: #475569; }
 
-/* Cards */
+    /* CAIXA DE SELEÇÃO / DROPDOWN */
+    .filter-container {
+        max-width: 1200px;
+        margin: 0 auto 25px auto;
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
 
-.item-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    padding: 30px 20px;
-}
+    .filter-label {
+        font-weight: bold;
+        color: #475569;
+        font-size: 0.95rem;
+    }
 
-.item-card {
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    padding: 10px;
-    width: 200px;
-	flex: 0 1 200px;
-    cursor: pointer;
-    text-align: center;
-    transition: transform 0.2s;
-}
-.item-card:hover { 
-	transform: translateY(-5px); 
-}
-	
-.item-card img { 
-	width: 100%; 
-	border-radius: 5px; 
-	margin-bottom: 10px; 
-}
+    .filter-select {
+        padding: 10px 14px;
+        font-size: 0.95rem;
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        background-color: #ffffff;
+        color: #1e293b;
+        font-weight: 500;
+        cursor: pointer;
+        outline: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        max-width: 340px;
+        width: 100%;
+    }
 
-.item-card h3 {
-	font-size: 1em; 
-	margin: 0; 
-	font-weight: 700; 
-	color: #007acc; 
-}
+    .filter-select:focus {
+        border-color: #007acc;
+    }
 
-/* Modal */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(0,0,0,0.7);
-    overflow-y: auto;
-}
-.modal-content {
-    background-color: #fefefe;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-}
-.close-button {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-.close-button:hover { color: #000; }
+    /* RODAPÉ FINAL DA PÁGINA */
+    .footer-section {
+        margin-top: 50px;
+        margin-bottom: 30px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
 
-/* Carousel */
-.carousel-container {
-    display: flex;
-    transition: transform 0.4s ease-in-out;
-    width: 100%;
-    overflow: hidden;
-    margin-bottom: 10px;
-}
-.carousel-viewport {
-    width: 100%;
-    overflow: hidden;
-    position: relative;
-}
+    .bottom-logout-btn {
+        padding: 12px 28px;
+        font-size: 1rem;
+        color: white;
+        background-color: #dc3545;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.2s;
+    }
+    .bottom-logout-btn:hover { background-color: #bb2d3b; }
 
-.carousel-track {
-    display: flex;
-    transition: transform 0.4s ease-in-out;
-}
-.carousel-slide {
-    min-width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+    /* BOTÃO PARA VOLTAR AO TOPO (TELEMÓVEL) */
+    .top-btn {
+        display: none;
+        background-color: #007acc;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 6px;
+        border: none;
+        font-weight: bold;
+        font-size: 0.9rem;
+        cursor: pointer;
+        width: 100%;
+        max-width: 300px;
+    }
 
-.carousel-slide img {
-    width: 100%;
-    max-height: 70vh;
-    object-fit: contain;
-}
-.carousel-controls button {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    padding: 10px 15px;
-    background-color: rgba(0,0,0,0.5);
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-size: 1.5em;
-    user-select: none;
-}
+    /* GRELHA DA GALERIA */
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 10px;
+    }
 
+    .gallery-item {
+        background: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        aspect-ratio: 1 / 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-#prev-slide { left: 10px; }
-#next-slide { right: 10px; }
+    .gallery-item:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
 
-/* Slide counter */
-#slide-counter {
-    text-align: center;
-    margin-bottom: 10px;
-    font-weight: bold;
-    color: #333;
-}
-</style>
+    /* Ajustado para não cortar os carros ou blisters Hot Wheels */
+    .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 8px;
+        box-sizing: border-box;
+        display: block;
+    }
+
+    /* MODAL DETALHADO */
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.75); padding: 15px; box-sizing: border-box; }
+    .card-modal-content { background-color: #fff; padding: 25px; border-radius: 12px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+    .close-button { position: absolute; top: 15px; right: 20px; color: #888; font-size: 28px; font-weight: bold; cursor: pointer; }
+    .close-button:hover { color: #000; }
+
+    .card-header { text-align: center; margin-bottom: 15px; padding-right: 20px; }
+    .card-header h2 { margin: 5px 0; color: #007acc; font-size: 1.4rem; }
+    .card-badge { display: inline-block; background: #fee2e2; color: #b91c1c; font-size: 0.85rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; margin-bottom: 5px; }
+
+    .card-image-wrapper { position: relative; width: 100%; height: 260px; background: #fafafa; border-radius: 8px; border: 1px solid #eee; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
+    .card-image-wrapper img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    
+    .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); color: white; border: none; font-size: 1.2rem; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; z-index: 5; }
+    .nav-arrow:hover { background: rgba(0,0,0,0.9); }
+    .nav-arrow.prev { left: 10px; }
+    .nav-arrow.next { right: 10px; }
+
+    .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.9rem; }
+    .card-grid-item { display: flex; flex-direction: column; }
+    .card-grid-item.full-width { grid-column: span 2; }
+    .card-label { font-size: 0.75rem; color: #64748b; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
+    .card-value { color: #1e293b; font-weight: 500; }
+
+    .card-item-navigation { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; }
+    .nav-item-btn { background: #007acc; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
+    .nav-item-btn:hover { background: #005999; }
+    .nav-item-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+    .item-counter { font-size: 0.85rem; color: #64748b; font-weight: bold; }
+
+    /* MODO TELEMÓVEL */
+    @media (max-width: 600px) {
+        body { margin: 10px; }
+        
+        .header-bar {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 12px;
+        }
+
+        h1 { 
+            font-size: 1.5rem; 
+            order: 1; 
+        }
+        
+        .back-btn { 
+            order: 2; 
+            width: 100%;
+            max-width: 300px;
+            box-sizing: border-box;
+        }
+
+        .filter-container {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-select {
+            max-width: 100%;
+        }
+
+        .gallery-grid {
+            grid-template-columns: 1fr !important; 
+            gap: 15px;
+            padding: 0;
+        }
+
+        .top-btn {
+            display: inline-block; 
+        }
+    }
+    </style>
 </head>
 <body>
 
-<header>
-    <h1>Hot Wheels</h1>
-</header>
+<div class="header-bar">
+    <h1>Galeria Hot Wheels</h1>
+    <a href="galerias.html" class="back-btn">&larr; Voltar às Galerias</a>
+</div>
 
-<div class="item-container" id="itemContainer"></div>
+<!-- DROPDOWN PARA FILTRAR POR SÉRIE / COLEÇÃO -->
+<div class="filter-container">
+    <label for="collection-select" class="filter-label">Série / Coleção:</label>
+    <select id="collection-select" class="filter-select" onchange="filtrarPorColecao()">
+        <option value="TODAS">Todas as Séries Hot Wheels</option>
+    </select>
+</div>
 
-<!-- Modal -->
-<div id="pop-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-button" onclick="closeModal()">&times;</span>
-        <h2 id="modal-title"></h2>
-        <div id="modal-image-gallery">
-            <div id="slide-counter"></div>
-            <div class="carousel-track" id="carousel-track"></div>
-            <div class="carousel-controls">
-                <button id="prev-slide" onclick="changeSlide(-1)">&#10094;</button>
-                <button id="next-slide" onclick="changeSlide(1)">&#10095;</button>
+<!-- GRELHA VISUAL -->
+<div class="gallery-grid" id="gallery-container">
+    <p style="text-align: center; grid-column: 1 / -1; color: #64748b;">A carregar coleção de Hot Wheels...</p>
+</div>
+
+<!-- SECÇÃO FINAL DA PÁGINA -->
+<div class="footer-section">
+    <button class="top-btn" onclick="scrollToTop()">&uarr; Ir para o Início da Página</button>
+    <button class="bottom-logout-btn" onclick="logout()">Terminar Sessão</button>
+</div>
+
+<!-- MODAL DE CARTÃO DETALHADO -->
+<div id="card-modal" class="modal">
+    <div class="card-modal-content">
+        <span class="close-button" onclick="closeCardModal()">&times;</span>
+        
+        <div class="card-header">
+            <span class="card-badge" id="card-marca">Hot Wheels</span>
+            <h2 id="card-nome">Nome do Modelo</h2>
+            <div style="font-size: 0.9rem; color: #64748b;">
+                <span id="card-colecao">Série</span> • Ref: <span id="card-numero">N/A</span>
             </div>
         </div>
-        <div id="modal-details"></div>
-        <p class="modal-source-link"><span id="modal-source-status"></span></p>
+
+        <div class="card-image-wrapper">
+            <button class="nav-arrow prev" id="img-prev-btn" onclick="changeCardImage(-1)">&#10094;</button>
+            <img id="card-img-display" src="" alt="Imagem do Modelo">
+            <button class="nav-arrow next" id="img-next-btn" onclick="changeCardImage(1)">&#10095;</button>
+        </div>
+
+        <div class="card-grid">
+            <div class="card-grid-item full-width">
+                <span class="card-label">Descrição</span>
+                <span class="card-value" id="card-descricao">N/A</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Ano</span>
+                <span class="card-value" id="card-ano">N/A</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Estado / Origem</span>
+                <span class="card-value" id="card-origem">N/A</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Loja</span>
+                <span class="card-value" id="card-loja">N/A</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Preço</span>
+                <span class="card-value" id="card-preco">0,00 €</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Data de Compra</span>
+                <span class="card-value" id="card-data">N/A</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Na Coleção?</span>
+                <span class="card-value" id="card-colecionado">Sim</span>
+            </div>
+        </div>
+
+        <div class="card-item-navigation">
+            <button class="nav-item-btn" id="prev-item-btn" onclick="navigateItem(-1)">&larr; Anterior</button>
+            <span class="item-counter" id="item-counter">Item 1 de 10</span>
+            <button class="nav-item-btn" id="next-item-btn" onclick="navigateItem(1)">Seguinte &rarr;</button>
+        </div>
     </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
 <script>
+let allHotWheelsItems = [];      // Todos os Hot Wheels carregados
+let activeFilteredItems = [];    // Hot Wheels ativos na vista atual (filtrados ou todos)
+let currentItemIndex = 0;
+let currentCardImages = [];
+let currentCardImageIndex = 0;
+
 const firebaseConfig = {
     apiKey: "AIzaSyCDbqy7cBEBkIkhiD4dzbhVKq4leduVEYE",
     authDomain: "miguel-inventory.firebaseapp.com",
@@ -221,119 +335,218 @@ const firebaseConfig = {
     messagingSenderId: "277968569414",
     appId: "1:277968569414:web:04884bc1932c2c7dbb6b647"
 };
-firebase.initializeApp(firebaseConfig);
+
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
+const COLLECTION_NAME = "inventario";
 
-const itemContainer = document.getElementById('itemContainer');
-let currentSlideIndex = 0;
-let slideCount = 0;
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-// Carregar cards
-// Pega os dados do Firestore
-db.collection("inventario").where("Marca", "==", "Hot Wheels").get()
-.then(snapshot => {
-    const items = [];
-    snapshot.forEach(doc => {
-        const data = doc.data();
-        data.id = doc.id; // guarda o ID do documento
-        items.push(data);
-    });
+const authorizedEmails = [
+    "ulisses.dos.santos@gmail.com",
+    "anaiabrantes@gmail.com",
+    "miguelabrantesdossantos@gmail.com"
+];
 
-    // Ordena os itens: primeiro por Colecao (alfabética), depois por NumeroNaColecao (numérico)
-    items.sort((a, b) => {
-        const colA = (a.Colecao || '').toLowerCase();
-        const colB = (b.Colecao || '').toLowerCase();
-        if (colA < colB) return -1;
-        if (colA > colB) return 1;
+function logout() {
+    auth.signOut().then(() => { window.location.href = "index.html"; });
+}
 
-        const numA = a.NumeroNaColecao || 0;
-        const numB = b.NumeroNaColecao || 0;
-        return numA - numB;
-    });
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-    // Criar os cards ordenados
-    items.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'item-card';
-        const title = `${item.Colecao || 'Item'} (#${item.NumeroNaColecao || 'N/A'})`;
-        card.onclick = () => openModal(item.id, title);
-
-        const mainImage = item.Imagem && item.Imagem.length > 0 ? item.Imagem[0] : 'https://via.placeholder.com/200';
-        card.innerHTML = `
-            <img src="${mainImage}" alt="${item.Colecao}">
-            <h3>${item.Colecao}</h3>
-            <h3>${item.NumeroNaColecao || ''}</h3>
-        `;
-        itemContainer.appendChild(card);
-    });
-}).catch(console.error);
-
-// Abrir modal
-function openModal(itemId, itemName) {
-    const track = document.getElementById('carousel-track');
-    track.innerHTML = '';
-    currentSlideIndex = 0;
-
-    db.collection("inventario").doc(itemId).get()
-    .then(doc => {
-        if (!doc.exists) return;
-
-        const item = doc.data();
-        const images = Array.isArray(item.Imagem) ? item.Imagem : [];
-
-        if (images.length > 0) {
-            slideCount = images.length;
-
-            images.forEach((url, index) => {
-                const slide = document.createElement('div');
-                slide.className = 'carousel-slide';
-                slide.innerHTML = `<img src="${url}" alt="${itemName} ${index+1}">`;
-                track.appendChild(slide);
-            });
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        const userEmail = (user.email || "").toLowerCase().trim();
+        if (authorizedEmails.includes(userEmail)) {
+            loadHotWheelsGallery();
         } else {
-            slideCount = 1;
-            track.innerHTML = `
-                <div class="carousel-slide">
-                    <p>Nenhuma imagem disponível</p>
-                </div>`;
+            alert("Acesso Negado! O e-mail (" + user.email + ") não tem permissão.");
+            window.location.href = "index.html";
         }
+    } else {
+        setTimeout(() => {
+            if (!auth.currentUser) {
+                window.location.href = "index.html";
+            }
+        }, 1000);
+    }
+});
 
-        document.getElementById('modal-title').innerText = itemName;
-        document.getElementById('pop-modal').style.display = 'flex';
+function formatCurrency(v) { return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(v || 0); }
+function formatDate(t) { return (t && t.toDate) ? new Intl.DateTimeFormat('pt-PT', { day: '2-digit', month: 'short', year: 'numeric' }).format(t.toDate()) : 'Desconhecida'; }
+function translateOrigem(item) {
+    if (item.Estado) return item.Estado;
+    return item.Origem === false ? 'Oferecido' : 'Adquirido';
+}
+function translateColecionado(item) {
+    if (item.Estado) return item.Estado === 'Adquirido' ? 'Sim' : `Não (${item.Estado})`;
+    return item.Colecionado === false ? 'Não' : 'Sim';
+}
+function translateLoja(v) { return v ? v : 'Desconhecida'; }
 
-        updateCarousel();
+function obterListaImagens(item) {
+    if (Array.isArray(item.Imagem)) {
+        return item.Imagem.filter(u => typeof u === 'string' && u.trim().startsWith('http'));
+    }
+    if (typeof item.Imagem === 'string' && item.Imagem.trim().length > 0) {
+        return item.Imagem.split(',').map(s => s.trim()).filter(u => u.startsWith('http'));
+    }
+    return [];
+}
+
+function loadHotWheelsGallery() {
+    const container = document.getElementById('gallery-container');
+    container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #64748b;">A carregar dados do inventário...</p>';
+    
+    db.collection(COLLECTION_NAME).get().then((snap) => {
+        allHotWheelsItems = [];
+        snap.forEach(doc => { 
+            let d = doc.data(); 
+            d.id = doc.id; 
+            const marcaNorm = (d.Marca || '').toLowerCase().replace(/\s+/g, '');
+            if (marcaNorm.includes('hotwheels')) {
+                allHotWheelsItems.push(d); 
+            }
+        });
+
+        allHotWheelsItems.sort((a, b) => {
+            const cmpCol = (a.Colecao || '').localeCompare(b.Colecao || '', 'pt');
+            if (cmpCol !== 0) return cmpCol;
+            return String(a.NumeroNaColecao || '').localeCompare(String(b.NumeroNaColecao || ''), 'pt', { numeric: true });
+        });
+        
+        preencherDropdownColecoes();
+        activeFilteredItems = [...allHotWheelsItems];
+        renderGallery(activeFilteredItems);
+
+    }).catch(err => {
+        console.error("Erro ao carregar Firestore:", err);
+        container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #dc3545;">Erro ao carregar dados da coleção.</p>';
     });
 }
 
-function updateCarousel() {
-    const track = document.getElementById('carousel-track');
-    track.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
+function preencherDropdownColecoes() {
+    const select = document.getElementById('collection-select');
+    if (!select) return;
 
-    document.getElementById('prev-slide').style.display =
-        slideCount > 1 ? 'block' : 'none';
-    document.getElementById('next-slide').style.display =
-        slideCount > 1 ? 'block' : 'none';
+    select.innerHTML = '<option value="TODAS">Todas as Séries Hot Wheels (' + allHotWheelsItems.length + ')</option>';
+
+    const colecoesMap = {};
+    allHotWheelsItems.forEach(item => {
+        const col = (item.Colecao || 'Outros').trim();
+        colecoesMap[col] = (colecoesMap[col] || 0) + 1;
+    });
+
+    const colecoesOrdenadas = Object.keys(colecoesMap).sort((a, b) => a.localeCompare(b, 'pt'));
+
+    colecoesOrdenadas.forEach(col => {
+        const option = document.createElement('option');
+        option.value = col;
+        option.textContent = `${col} (${colecoesMap[col]})`;
+        select.appendChild(option);
+    });
 }
 
-function changeSlide(step) {
-    currentSlideIndex += step;
+function filtrarPorColecao() {
+    const select = document.getElementById('collection-select');
+    const colecaoSelecionada = select ? select.value : "TODAS";
 
-    if (currentSlideIndex < 0) currentSlideIndex = slideCount - 1;
-    if (currentSlideIndex >= slideCount) currentSlideIndex = 0;
+    if (colecaoSelecionada === "TODAS") {
+        activeFilteredItems = [...allHotWheelsItems];
+    } else {
+        activeFilteredItems = allHotWheelsItems.filter(item => (item.Colecao || 'Outros').trim() === colecaoSelecionada);
+    }
 
-    updateCarousel();
+    renderGallery(activeFilteredItems);
 }
 
-function closeModal() {
-    document.getElementById('pop-modal').style.display = 'none';
-    document.getElementById('carousel-track').innerHTML = '';
-    currentSlideIndex = 0;
-    slideCount = 0;
+function renderGallery(items) {
+    const container = document.getElementById('gallery-container');
+    container.innerHTML = '';
+
+    if (items.length === 0) {
+        container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #64748b;">Nenhum Hot Wheels encontrado para esta série.</p>';
+        return;
+    }
+
+    items.forEach((item, index) => {
+        const imgs = obterListaImagens(item);
+        const firstImg = imgs.length > 0 ? imgs[0] : 'https://placehold.co/200x200?text=Hot+Wheels';
+        const titleText = item.NomeNaColecao || item.Nome || item.Colecao || 'Hot Wheels';
+
+        const card = document.createElement('div');
+        card.className = 'gallery-item';
+        card.title = titleText;
+        card.onclick = () => openCardModal(index);
+        
+        card.innerHTML = `<img src="${firstImg}" alt="${titleText}" loading="lazy" onerror="this.src='https://placehold.co/200x200?text=Hot+Wheels'">`;
+        container.appendChild(card);
+    });
 }
 
-// Fechar ao clicar fora
-window.onclick = function(e) {
-    if (e.target.id === 'pop-modal') closeModal();
+function openCardModal(index) {
+    currentItemIndex = index;
+    displayCardData();
+    document.getElementById('card-modal').style.display = 'flex';
+}
+
+function displayCardData() {
+    const item = activeFilteredItems[currentItemIndex];
+    if (!item) return;
+
+    document.getElementById('card-marca').innerText = item.Marca || 'Hot Wheels';
+    document.getElementById('card-nome').innerText = item.NomeNaColecao || item.Nome || item.nome || 'Sem Nome';
+    document.getElementById('card-colecao').innerText = item.Colecao || 'Hot Wheels';
+    document.getElementById('card-numero').innerText = item.NumeroNaColecao || item.Numero || 'N/A';
+    document.getElementById('card-descricao').innerText = item.Descricao || 'Sem descrição disponível.';
+    document.getElementById('card-ano').innerText = item.Ano || 'N/A';
+    document.getElementById('card-origem').innerText = translateOrigem(item);
+    document.getElementById('card-loja').innerText = translateLoja(item.Loja || item.loja);
+    document.getElementById('card-preco').innerText = formatCurrency(item.Preço || item.Preco || item.preço);
+    document.getElementById('card-data').innerText = formatDate(item.DatadeCompra);
+    document.getElementById('card-colecionado').innerText = translateColecionado(item);
+
+    const imgs = obterListaImagens(item);
+    currentCardImages = imgs.length > 0 ? imgs : ['https://placehold.co/300x300?text=Hot+Wheels'];
+    currentCardImageIndex = 0;
+    updateCardImageDisplay();
+
+    document.getElementById('item-counter').innerText = `${currentItemIndex + 1} de ${activeFilteredItems.length}`;
+    document.getElementById('prev-item-btn').disabled = (currentItemIndex === 0);
+    document.getElementById('next-item-btn').disabled = (currentItemIndex === activeFilteredItems.length - 1);
+}
+
+function updateCardImageDisplay() {
+    document.getElementById('card-img-display').src = currentCardImages[currentCardImageIndex];
+    const showArrows = currentCardImages.length > 1;
+    document.getElementById('img-prev-btn').style.display = showArrows ? 'flex' : 'none';
+    document.getElementById('img-next-btn').style.display = showArrows ? 'flex' : 'none';
+}
+
+function changeCardImage(direction) {
+    currentCardImageIndex += direction;
+    if (currentCardImageIndex >= currentCardImages.length) currentCardImageIndex = 0;
+    if (currentCardImageIndex < 0) currentCardImageIndex = currentCardImages.length - 1;
+    updateCardImageDisplay();
+}
+
+function navigateItem(direction) {
+    const newIndex = currentItemIndex + direction;
+    if (newIndex >= 0 && newIndex < activeFilteredItems.length) {
+        currentItemIndex = newIndex;
+        displayCardData();
+    }
+}
+
+function closeCardModal() {
+    document.getElementById('card-modal').style.display = 'none';
+}
+
+window.onclick = (e) => {
+    if (e.target.className === 'modal') closeCardModal();
 };
 </script>
 
