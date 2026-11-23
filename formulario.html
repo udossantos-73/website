@@ -376,6 +376,7 @@
 
                         <form id="item-form">
                             <input type="hidden" id="item-id">
+                            <input type="hidden" id="LinkSerie">
 
                             <div class="row">
                                 <div class="col-md-6 mb-3">
@@ -408,7 +409,10 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="Colecao" class="form-label" id="label-colecao">Tema / Série (ex: Speed Champions, Star Wars)</label>
-                                    <input type="text" class="form-control" id="Colecao">
+                                    <input type="text" class="form-control" id="Colecao" oninput="atualizarLinkSerie()">
+                                    <div id="colecao-link-container" class="mt-1" style="display: none;">
+                                        <a id="colecao-link" href="#" target="_blank" rel="noopener noreferrer" class="small text-decoration-none"></a>
+                                    </div>
                                 </div>
 
                                 <div class="col-md-6 mb-3">
@@ -418,17 +422,22 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-md-4 mb-3">
+                                <div class="col-md-3 mb-3">
                                     <label for="Ano" class="form-label">Ano</label>
                                     <input type="number" class="form-control" id="Ano">
                                 </div>
 
-                                <div class="col-md-4 mb-3">
+                                <div class="col-md-3 mb-3">
                                     <label for="NumeroItem" class="form-label" id="label-num-item">Nº do Item / Série</label>
                                     <input type="text" class="form-control" id="NumeroItem">
                                 </div>
 
-                                <div class="col-md-4 mb-3">
+                                <div class="col-md-3 mb-3">
+                                    <label for="NumeroSerie" class="form-label" id="label-num-serie">Nº na Série</label>
+                                    <input type="text" class="form-control" id="NumeroSerie" placeholder="ex: 3/6">
+                                </div>
+
+                                <div class="col-md-3 mb-3">
                                     <label for="NumeroNaColecao" class="form-label" id="label-num-colecao">Nº na Coleção / Set</label>
                                     <input type="text" class="form-control" id="NumeroNaColecao" placeholder="ex: 77243 ou MGT00904-007E">
                                 </div>
@@ -511,7 +520,6 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        // E-mails que veem o link "Valor & Estatísticas" no menu
         const ADMIN_EMAILS = [
             "ulisses.dos.santos@gmail.com"
         ];
@@ -524,12 +532,10 @@
         let resultadosHotWheels = [];
         let secaoAtual = 'Todos';
 
-        // Compara marcas ignorando maiúsculas e espaços ("Mini GT" == "MiniGT")
         function normalizarMarca(v) {
             return String(v || '').toLowerCase().replace(/\s+/g, '');
         }
 
-        // Escolhe a opção do <select> da Marca que corresponde ao valor (mesmo gravado como "MiniGT")
         function definirMarcaNoSelect(valor) {
             const select = document.getElementById('Marca');
             const alvo = normalizarMarca(valor);
@@ -540,6 +546,33 @@
                 }
             }
             select.value = 'Outros';
+        }
+
+        // --- LINK DA SÉRIE ---
+        window.atualizarLinkSerie = function(urlForcado) {
+            const inputColecao = document.getElementById('Colecao');
+            const inputLinkSerie = document.getElementById('LinkSerie');
+            const container = document.getElementById('colecao-link-container');
+            const linkEl = document.getElementById('colecao-link');
+            if (!inputColecao || !container || !linkEl) return;
+
+            const nomeSerie = inputColecao.value.trim();
+            let urlSerie = (urlForcado !== undefined)
+                ? String(urlForcado || '').trim()
+                : String((inputLinkSerie && inputLinkSerie.value) || linkEl.dataset.url || '').trim();
+
+            if (inputLinkSerie) inputLinkSerie.value = urlSerie;
+            linkEl.dataset.url = urlSerie;
+
+            if (urlSerie && nomeSerie) {
+                linkEl.href = urlSerie;
+                linkEl.textContent = `🔗 Abrir série na Wiki: ${nomeSerie}`;
+                container.style.display = 'block';
+            } else {
+                linkEl.href = '#';
+                linkEl.textContent = '';
+                container.style.display = 'none';
+            }
         }
 
         // --- MENU HAMBÚRGUER ---
@@ -685,6 +718,7 @@
                 document.getElementById('Marca').value = 'Lego';
                 document.getElementById('NomeNaColecao').value = set.name;
                 document.getElementById('Colecao').value = theme.name;
+                atualizarLinkSerie('');
                 document.getElementById('Tipo').value = 'Set';
                 document.getElementById('Ano').value = set.year || '';
                 document.getElementById('NumeroNaColecao').value = numSetStr;
@@ -708,7 +742,7 @@
             }
         });
 
-        // --- PESQUISA VISUAL FUNKO POP (GRELHA DE IMAGENS) ---
+        // --- PESQUISA VISUAL FUNKO POP ---
         document.getElementById('btn-buscar-funko-apify').addEventListener('click', async () => {
             const termo = document.getElementById('input-funko-apify').value.trim();
             const lojaStore = document.getElementById('select-store-apify').value;
@@ -736,7 +770,6 @@
                 });
 
                 const data = await response.json();
-
                 if (data.error) throw new Error(data.error);
 
                 resultadosApify = data;
@@ -787,6 +820,7 @@
             document.getElementById('Marca').value = 'Funko Pop';
             document.getElementById('NomeNaColecao').value = pop.name || pop.title || '';
             document.getElementById('Colecao').value = pop.license || '';
+            atualizarLinkSerie('');
             document.getElementById('Tipo').value = 'Figura';
 
             const numCaixa = String(pop.boxNumber || '').trim();
@@ -818,7 +852,7 @@
             document.getElementById('galeria-resultados-apify').style.display = 'none';
         };
 
-        // --- PESQUISA VISUAL MINI GT (CATÁLOGO OFICIAL TSM MODEL) ---
+        // --- PESQUISA VISUAL MINI GT ---
         document.getElementById('btn-buscar-minigt').addEventListener('click', async () => {
             const termo = document.getElementById('input-minigt-busca').value.trim();
             if (!termo) return alert('Insere o número (ex: MGT00904-007E ou 642) ou nome do modelo Mini GT.');
@@ -892,6 +926,7 @@
             document.getElementById('Marca').value = 'Mini GT';
             document.getElementById('NomeNaColecao').value = item.name || '';
             document.getElementById('Colecao').value = item.license || 'Mini GT';
+            atualizarLinkSerie('');
             document.getElementById('Tipo').value = 'Carro 1/64';
 
             const termoPesquisa = document.getElementById('input-minigt-busca').value.trim();
@@ -929,7 +964,7 @@
             }
         };
 
-        // --- PESQUISA VISUAL HOT WHEELS (CATÁLOGO WIKI) ---
+        // --- PESQUISA VISUAL HOT WHEELS ---
         document.getElementById('btn-buscar-hotwheels').addEventListener('click', async () => {
             const termo = document.getElementById('input-hotwheels-busca').value.trim();
             if (!termo) return alert('Insere o nome ou código do Hot Wheels (ex: Porsche 934/5 ou HYW36).');
@@ -967,6 +1002,7 @@
                     const nome = item.name || 'Sem nome';
                     const num = item.boxNumber || '';
                     const serie = item.license || 'Hot Wheels';
+                    const serieBadge = item.seriesNumber ? `${serie} (${item.seriesNumber})` : serie;
                     const ano = item.year ? ` (${item.year})` : '';
                     const imgUrl = item.mainImage || 'https://placehold.co/120x120?text=Hot+Wheels';
 
@@ -978,7 +1014,7 @@
                             <div class="card-body p-2 text-center">
                                 <span class="badge bg-danger mb-1" style="font-size: 0.65rem;">${num || 'Hot Wheels'}${ano}</span>
                                 <p class="card-title fw-bold mb-1" style="font-size: 0.78rem; line-height: 1.15;">${nome}</p>
-                                <small class="text-muted d-block text-truncate" style="font-size: 0.68rem;">${serie}</small>
+                                <small class="text-muted d-block text-truncate" style="font-size: 0.68rem;">${serieBadge}</small>
                             </div>
                         </div>
                     `;
@@ -1003,11 +1039,15 @@
             document.getElementById('Marca').value = 'Hot Wheels';
             document.getElementById('NomeNaColecao').value = item.name || '';
             document.getElementById('Colecao').value = item.license || 'Hot Wheels';
+            atualizarLinkSerie(item.seriesUrl || '');
             document.getElementById('Tipo').value = 'Carro 1/64';
             if (item.year) document.getElementById('Ano').value = item.year;
 
             const elNumItem = document.getElementById('NumeroItem');
             if (elNumItem) elNumItem.value = item.colNumber || '';
+
+            const elNumSerie = document.getElementById('NumeroSerie');
+            if (elNumSerie) elNumSerie.value = item.seriesNumber || '';
 
             const refFinal = String(item.boxNumber || '').trim();
             document.getElementById('NumeroNaColecao').value = refFinal;
@@ -1091,7 +1131,8 @@
                     const nomeMatch = (item.NomeNaColecao || '').toLowerCase().includes(termo);
                     const colecaoMatch = (item.Colecao || '').toLowerCase().includes(termo);
                     const numMatch = String(item.NumeroNaColecao || '').toLowerCase().includes(termo)
-                        || String(item.NumeroItem || '').toLowerCase().includes(termo);
+                        || String(item.NumeroItem || '').toLowerCase().includes(termo)
+                        || String(item.NumeroSerie || '').toLowerCase().includes(termo);
                     return nomeMatch || colecaoMatch || numMatch;
                 }
 
@@ -1158,6 +1199,7 @@
         window.limparFormulario = function() {
             document.getElementById('item-form').reset();
             document.getElementById('item-id').value = '';
+            document.getElementById('LinkSerie').value = '';
             document.getElementById('input-lego-set').value = '';
             document.getElementById('input-funko-apify').value = '';
             document.getElementById('input-minigt-busca').value = '';
@@ -1166,6 +1208,7 @@
             document.getElementById('galeria-resultados-minigt').style.display = 'none';
             document.getElementById('galeria-resultados-hotwheels').style.display = 'none';
             document.getElementById('preview-container').style.display = 'none';
+            atualizarLinkSerie('');
             document.getElementById('form-titulo').textContent = 'Adicionar Novo Item';
             document.getElementById('btn-guardar').textContent = 'Guardar Novo Item';
             document.getElementById('btn-apagar').style.display = 'none';
@@ -1182,9 +1225,11 @@
             definirMarcaNoSelect(item.Marca || 'Lego');
             document.getElementById('Estado').value = item.Estado || 'Adquirido';
             document.getElementById('Colecao').value = item.Colecao || '';
+            atualizarLinkSerie(item.LinkSerie || '');
             document.getElementById('Tipo').value = item.Tipo || '';
             document.getElementById('Ano').value = item.Ano || '';
             document.getElementById('NumeroItem').value = item.NumeroItem || '';
+            document.getElementById('NumeroSerie').value = item.NumeroSerie || '';
             document.getElementById('NumeroNaColecao').value = item.NumeroNaColecao ?? '';
             document.getElementById('Preco').value = item.Preco || 0;
             document.getElementById('ValorMercado').value = item.ValorMercado || 0;
@@ -1216,15 +1261,19 @@
             const imagensArray = imagensStr ? imagensStr.split(',').map(s => s.trim()).filter(s => s.length > 0) : [];
             const numColecaoRaw = document.getElementById('NumeroNaColecao').value.trim();
             const numeroItemRaw = String(document.getElementById('NumeroItem').value || '').trim();
+            const numeroSerieRaw = String(document.getElementById('NumeroSerie').value || '').trim();
+            const linkSerieRaw = String(document.getElementById('LinkSerie').value || '').trim();
 
             const dadosItem = {
                 NomeNaColecao: document.getElementById('NomeNaColecao').value,
                 Marca: document.getElementById('Marca').value,
                 Estado: document.getElementById('Estado').value,
                 Colecao: document.getElementById('Colecao').value,
+                LinkSerie: linkSerieRaw || null,
                 Tipo: document.getElementById('Tipo').value,
                 Ano: parseInt(document.getElementById('Ano').value) || null,
                 NumeroItem: numeroItemRaw || null,
+                NumeroSerie: numeroSerieRaw || null,
                 NumeroNaColecao: numColecaoRaw || null,
                 Preco: parseFloat(document.getElementById('Preco').value) || 0,
                 ValorMercado: parseFloat(document.getElementById('ValorMercado').value) || 0,
