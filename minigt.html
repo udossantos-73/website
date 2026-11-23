@@ -148,12 +148,11 @@
         box-shadow: 0 8px 16px rgba(0,0,0,0.15);
     }
 
-    /* Ajustado para não cortar as figuras Mini GT*/
     .gallery-item img {
         width: 100%;
         height: 100%;
-        object-fit: contain;
-        padding: 8px;
+        object-fit: cover;
+        padding: 0;
         box-sizing: border-box;
         display: block;
     }
@@ -243,13 +242,13 @@
 <div class="filter-container">
     <label for="collection-select" class="filter-label">Coleção:</label>
     <select id="collection-select" class="filter-select" onchange="filtrarPorColecao()">
-        <option value="TODAS">Todas os Items Mini GT</option>
+        <option value="TODAS">Todas as Coleções Mini GT</option>
     </select>
 </div>
 
 <!-- GRELHA VISUAL -->
 <div class="gallery-grid" id="gallery-container">
-    <p style="text-align: center; grid-column: 1 / -1; color: #64748b;">A carregar coleção de Mini GTs...</p>
+    <p style="text-align: center; grid-column: 1 / -1; color: #64748b;">A carregar coleção de Mini GT...</p>
 </div>
 
 <!-- SECÇÃO FINAL DA PÁGINA -->
@@ -317,8 +316,8 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
 <script>
-let allMiniGTItems = [];         // Todos os Mini GTs carregados
-let activeFilteredItems = [];    // Mini GTs ativos na vista atual (filtrados ou todos)
+let allMiniGtItems = [];         // Todos os Mini GT carregados
+let activeFilteredItems = [];    // Mini GT ativos na vista atual (filtrados ou todos)
 let currentItemIndex = 0;
 let currentCardImages = [];
 let currentCardImageIndex = 0;
@@ -357,7 +356,7 @@ auth.onAuthStateChanged((user) => {
     if (user) {
         const userEmail = (user.email || "").toLowerCase().trim();
         if (authorizedEmails.includes(userEmail)) {
-            loadMiniGTGallery();
+            loadMiniGtGallery();
         } else {
             alert("Acesso Negado! O e-mail (" + user.email + ") não tem permissão.");
             window.location.href = "index.html";
@@ -377,24 +376,29 @@ function translateOrigem(v) { return v === false ? 'Oferecido' : 'Adquirido'; }
 function translateColecionado(v) { return v === true ? 'Sim' : 'Não'; }
 function translateLoja(v) { return v ? v : 'Desconhecida'; }
 
-function loadMiniGTGallery() {
+function isMiniGtItem(data) {
+    const marca = (data.Marca || data.marca || '').toLowerCase();
+    return marca.includes('mini gt') || marca.includes('minigt');
+}
+
+function loadMiniGtGallery() {
     const container = document.getElementById('gallery-container');
     container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #64748b;">A carregar dados do inventário...</p>';
     
     db.collection(COLLECTION_NAME).get().then((snap) => {
-        allMiniGTItems = [];
+        allMiniGtItems = [];
         snap.forEach(doc => { 
             let d = doc.data(); 
             d.id = doc.id; 
-            if ((d.Marca || '').toLowerCase().includes('Mini GT')) {
-                allMiniGTItems.push(d); 
+            if (isMiniGtItem(d)) {
+                allMiniGtItems.push(d); 
             }
         });
 
-        allMiniGTItems.sort((a,b) => (a.Colecao || '').localeCompare(b.Colecao || '') || ((a.NumeroNaColecao || 0) - (b.NumeroNaColecao || 0)));
+        allMiniGtItems.sort((a,b) => (a.Colecao || '').localeCompare(b.Colecao || '') || ((a.NumeroNaColecao || 0) - (b.NumeroNaColecao || 0)));
         
         preencherDropdownColecoes();
-        activeFilteredItems = [...allMiniGTItems];
+        activeFilteredItems = [...allMiniGtItems];
         renderGallery(activeFilteredItems);
 
     }).catch(err => {
@@ -407,10 +411,10 @@ function preencherDropdownColecoes() {
     const select = document.getElementById('collection-select');
     if (!select) return;
 
-    select.innerHTML = '<option value="TODAS">Todas os items Mini GT (' + allMiniGTtems.length + ')</option>';
+    select.innerHTML = '<option value="TODAS">Todas as Coleções Mini GT (' + allMiniGtItems.length + ')</option>';
 
     const colecoesMap = {};
-    allMiniGTtems.forEach(item => {
+    allMiniGtItems.forEach(item => {
         const col = (item.Colecao || 'Outros').trim();
         colecoesMap[col] = (colecoesMap[col] || 0) + 1;
     });
@@ -430,9 +434,9 @@ function filtrarPorColecao() {
     const colecaoSelecionada = select ? select.value : "TODAS";
 
     if (colecaoSelecionada === "TODAS") {
-        activeFilteredItems = [...allMiniGTtems];
+        activeFilteredItems = [...allMiniGtItems];
     } else {
-        activeFilteredItems = allMiniGTtems.filter(item => (item.Colecao || 'Outros').trim() === colecaoSelecionada);
+        activeFilteredItems = allMiniGtItems.filter(item => (item.Colecao || 'Outros').trim() === colecaoSelecionada);
     }
 
     renderGallery(activeFilteredItems);
@@ -443,7 +447,7 @@ function renderGallery(items) {
     container.innerHTML = '';
 
     if (items.length === 0) {
-        container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #64748b;">Nenhum Mini GT encontrado para esta coleção.</p>';
+        container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: #64748b;">Nenhum modelo Mini GT encontrado para esta coleção.</p>';
         return;
     }
 
@@ -524,3 +528,8 @@ window.onclick = (e) => {
 
 </body>
 </html>
+
+<ElicitationsGroup message="Para dar seguimento à galeria Mini GT:">
+  <Elicitation label="Adicionar filtro por estado ou escala no modal" query="Altera o código de minigt.html para mostrar a escala (ex. 1:64) e o estado no modal detalhado." />
+  <Elicitation label="Ordenar modelos Mini GT por número da coleção" query="Altera a ordenação em minigt.html para ordenar primeiro por NumeroNaColecao numérico e depois por Colecao." />
+</ElicitationsGroup>
