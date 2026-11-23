@@ -197,7 +197,7 @@
                     <button class="nav-link" data-marca="Hot Wheels" type="button" onclick="mudarSecao('Hot Wheels', this)">🔥 Hot Wheels <span class="badge bg-secondary ms-1" id="badge-Hot Wheels">0</span></button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" data-marca="MiniGT" type="button" onclick="mudarSecao('MiniGT', this)">🏎️ MiniGT <span class="badge bg-secondary ms-1" id="badge-MiniGT">0</span></button>
+                    <button class="nav-link" data-marca="Mini GT" type="button" onclick="mudarSecao('Mini GT', this)">🏎️ Mini GT <span class="badge bg-secondary ms-1" id="badge-MiniGT">0</span></button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" data-marca="Playmobil" type="button" onclick="mudarSecao('Playmobil', this)">🤠 Playmobil <span class="badge bg-secondary ms-1" id="badge-Playmobil">0</span></button>
@@ -300,7 +300,7 @@
                                         <option value="Lego">Lego</option>
                                         <option value="Funko Pop">Funko Pop</option>
                                         <option value="Hot Wheels">Hot Wheels</option>
-                                        <option value="MiniGT">MiniGT</option>
+                                        <option value="Mini GT">Mini GT</option>
                                         <option value="Playmobil">Playmobil</option>
                                         <option value="Outros">Outros</option>
                                     </select>
@@ -504,9 +504,9 @@
                 if (!document.getElementById('Tipo').value || document.getElementById('Tipo').value === 'Set' || document.getElementById('Tipo').value === 'Carro 1/64') {
                     document.getElementById('Tipo').value = 'Figura';
                 }
-            } else if (marca === 'MiniGT') {
+            } else if (marca === 'Mini GT') {
                 boxMiniGT.style.display = 'block';
-                labelNumColecao.textContent = 'Nº MiniGT (ex: 642)';
+                labelNumColecao.textContent = 'Nº Mini GT (ex: 642)';
                 labelColecao.textContent = 'Fabricante / Série (ex: Porsche, Lamborghini)';
                 if (!document.getElementById('Tipo').value || document.getElementById('Tipo').value === 'Set' || document.getElementById('Tipo').value === 'Figura') {
                     document.getElementById('Tipo').value = 'Carro 1/64';
