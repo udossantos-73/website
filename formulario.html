@@ -357,6 +357,23 @@
                             <small class="text-muted d-block mt-1">Clica no modelo Mini GT correto para preencher número, fabricante, nome e foto.</small>
                         </div>
 
+                        <!-- Caixa Exclusiva para Auto-Preenchimento HOT WHEELS (Catálogo Wiki) -->
+                        <div id="box-auto-hotwheels" class="alert alert-danger border-danger mb-4" style="display: none;">
+                            <label for="input-hotwheels-busca" class="form-label fw-bold mb-1">🔥 Pesquisa Rápida Hot Wheels (Catálogo Wiki)</label>
+                            <div class="input-group mb-2">
+                                <input type="text" id="input-hotwheels-busca" class="form-control" placeholder="Insere o modelo ou nº (ex: Porsche 934/5, HYW36, Senna)...">
+                                <button class="btn btn-primary-blue fw-bold" type="button" id="btn-buscar-hotwheels">Pesquisar</button>
+                            </div>
+                            <div id="status-hotwheels" class="small text-danger fw-semibold mb-2" style="display: none;">
+                                ⏳ A consultar catálogo Hot Wheels...
+                            </div>
+
+                            <!-- Grelha Visual de Miniaturas Hot Wheels -->
+                            <div id="galeria-resultados-hotwheels" class="row row-cols-2 row-cols-md-3 g-2 mt-2 p-2 bg-white rounded border" style="display: none; max-height: 360px; overflow-y: auto;"></div>
+
+                            <small class="text-muted d-block mt-1">Clica no modelo Hot Wheels correto para preencher série, ano, referência e foto.</small>
+                        </div>
+
                         <form id="item-form">
                             <input type="hidden" id="item-id">
 
@@ -504,6 +521,7 @@
         let todosOsItens = [];
         let resultadosApify = [];
         let resultadosMiniGT = [];
+        let resultadosHotWheels = [];
         let secaoAtual = 'Todos';
 
         // Compara marcas ignorando maiúsculas e espaços ("Mini GT" == "MiniGT")
@@ -599,12 +617,14 @@
             const boxLego = document.getElementById('box-auto-lego');
             const boxFunko = document.getElementById('box-auto-funko');
             const boxMiniGT = document.getElementById('box-auto-minigt');
+            const boxHotWheels = document.getElementById('box-auto-hotwheels');
             const labelNumColecao = document.getElementById('label-num-colecao');
             const labelColecao = document.getElementById('label-colecao');
 
             boxLego.style.display = 'none';
             boxFunko.style.display = 'none';
             boxMiniGT.style.display = 'none';
+            boxHotWheels.style.display = 'none';
 
             if (marca === 'Lego') {
                 boxLego.style.display = 'block';
@@ -622,6 +642,13 @@
                 boxMiniGT.style.display = 'block';
                 labelNumColecao.textContent = 'Nº Mini GT (ex: MGT00904-007E)';
                 labelColecao.textContent = 'Fabricante / Série (ex: Porsche, Lamborghini)';
+                if (!document.getElementById('Tipo').value || document.getElementById('Tipo').value === 'Set' || document.getElementById('Tipo').value === 'Figura') {
+                    document.getElementById('Tipo').value = 'Carro 1/64';
+                }
+            } else if (marca === 'Hot Wheels') {
+                boxHotWheels.style.display = 'block';
+                labelNumColecao.textContent = 'Toy Number / Nº Série (ex: HYW36 ou 4/6)';
+                labelColecao.textContent = 'Série / Coleção (ex: Pantone, Car Culture, Mainline)';
                 if (!document.getElementById('Tipo').value || document.getElementById('Tipo').value === 'Set' || document.getElementById('Tipo').value === 'Figura') {
                     document.getElementById('Tipo').value = 'Carro 1/64';
                 }
@@ -902,6 +929,102 @@
             }
         };
 
+        // --- PESQUISA VISUAL HOT WHEELS (CATÁLOGO WIKI) ---
+        document.getElementById('btn-buscar-hotwheels').addEventListener('click', async () => {
+            const termo = document.getElementById('input-hotwheels-busca').value.trim();
+            if (!termo) return alert('Insere o nome ou código do Hot Wheels (ex: Porsche 934/5 ou HYW36).');
+
+            const btn = document.getElementById('btn-buscar-hotwheels');
+            const statusDiv = document.getElementById('status-hotwheels');
+            const galeria = document.getElementById('galeria-resultados-hotwheels');
+
+            btn.disabled = true;
+            statusDiv.style.display = 'block';
+            galeria.style.display = 'none';
+            galeria.innerHTML = '';
+
+            try {
+                const response = await fetch(APPS_SCRIPT_PROXY_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        search: termo,
+                        marca: 'hotwheels'
+                    })
+                });
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+
+                resultadosHotWheels = data;
+
+                if (!Array.isArray(resultadosHotWheels) || resultadosHotWheels.length === 0) {
+                    alert(`Nenhum modelo Hot Wheels encontrado com "${termo}".`);
+                    return;
+                }
+
+                resultadosHotWheels.forEach((item, idx) => {
+                    const nome = item.name || 'Sem nome';
+                    const num = item.boxNumber || '';
+                    const serie = item.license || 'Hot Wheels';
+                    const ano = item.year ? ` (${item.year})` : '';
+                    const imgUrl = item.mainImage || 'https://placehold.co/120x120?text=Hot+Wheels';
+
+                    const col = document.createElement('div');
+                    col.className = 'col';
+                    col.innerHTML = `
+                        <div class="card h-100 shadow-sm border-secondary" style="cursor: pointer; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'" onclick="selecionarHotWheelsCard(${idx})">
+                            <img src="${imgUrl}" class="card-img-top p-2" style="height: 115px; object-fit: contain; background: #f8f9fa;" onerror="this.src='https://placehold.co/120x120?text=Hot+Wheels'">
+                            <div class="card-body p-2 text-center">
+                                <span class="badge bg-danger mb-1" style="font-size: 0.65rem;">${num || 'Hot Wheels'}${ano}</span>
+                                <p class="card-title fw-bold mb-1" style="font-size: 0.78rem; line-height: 1.15;">${nome}</p>
+                                <small class="text-muted d-block text-truncate" style="font-size: 0.68rem;">${serie}</small>
+                            </div>
+                        </div>
+                    `;
+                    galeria.appendChild(col);
+                });
+
+                galeria.style.display = 'flex';
+
+            } catch (erro) {
+                console.error(erro);
+                alert('Erro: ' + erro.message);
+            } finally {
+                btn.disabled = false;
+                statusDiv.style.display = 'none';
+            }
+        });
+
+        window.selecionarHotWheelsCard = function(idx) {
+            const item = resultadosHotWheels[idx];
+            if (!item) return;
+
+            document.getElementById('Marca').value = 'Hot Wheels';
+            document.getElementById('NomeNaColecao').value = item.name || '';
+            document.getElementById('Colecao').value = item.license || 'Hot Wheels';
+            document.getElementById('Tipo').value = 'Carro 1/64';
+            if (item.year) document.getElementById('Ano').value = item.year;
+
+            const refFinal = String(item.boxNumber || '').trim();
+            document.getElementById('NumeroNaColecao').value = refFinal;
+            document.getElementById('Descricao').value = item.description || '';
+            document.getElementById('Imagem').value = item.mainImage || '';
+
+            atualizarPreviewImagem();
+            document.getElementById('galeria-resultados-hotwheels').style.display = 'none';
+
+            if (refFinal) {
+                const jaExiste = todosOsItens.some(i =>
+                    normalizarMarca(i.Marca) === 'hotwheels' &&
+                    String(i.NumeroNaColecao || '').trim().toLowerCase() === refFinal.toLowerCase()
+                );
+                if (jaExiste) {
+                    alert(`Atenção: O Hot Wheels ${refFinal} já existe no teu inventário!`);
+                }
+            }
+        };
+
         window.atualizarPreviewImagem = function() {
             const urlStr = document.getElementById('Imagem').value.split(',')[0].trim();
             const container = document.getElementById('preview-container');
@@ -1035,8 +1158,10 @@
             document.getElementById('input-lego-set').value = '';
             document.getElementById('input-funko-apify').value = '';
             document.getElementById('input-minigt-busca').value = '';
+            document.getElementById('input-hotwheels-busca').value = '';
             document.getElementById('galeria-resultados-apify').style.display = 'none';
             document.getElementById('galeria-resultados-minigt').style.display = 'none';
+            document.getElementById('galeria-resultados-hotwheels').style.display = 'none';
             document.getElementById('preview-container').style.display = 'none';
             document.getElementById('form-titulo').textContent = 'Adicionar Novo Item';
             document.getElementById('btn-guardar').textContent = 'Guardar Novo Item';
