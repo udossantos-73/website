@@ -398,16 +398,21 @@
                                 </div>
                             </div>
 
-                            <!-- Linha 2: Toy Number / Nº na Coleção + Nome na Coleção + Estado -->
+                            <!-- Linha 2: Toy Number + Nome na Coleção + Nº na Coleção + Estado -->
                             <div class="row">
-                                <div class="col-md-3 mb-3">
-                                    <label for="NumeroNaColecao" class="form-label" id="label-num-colecao">Toy Number / Nº Coleção</label>
-                                    <input type="text" class="form-control" id="NumeroNaColecao" placeholder="ex: HYW36 ou 77243">
+                                <div class="col-md-2 mb-3">
+                                    <label for="ToyNumber" class="form-label" id="label-toy-number">Toy Number</label>
+                                    <input type="text" class="form-control" id="ToyNumber" placeholder="ex: HYW36">
                                 </div>
 
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-5 mb-3">
                                     <label for="NomeNaColecao" class="form-label">Nome na Coleção</label>
                                     <input type="text" class="form-control" id="NomeNaColecao" required>
+                                </div>
+
+                                <div class="col-md-2 mb-3">
+                                    <label for="NumeroNaColecao" class="form-label" id="label-num-colecao">Nº na Coleção</label>
+                                    <input type="text" class="form-control" id="NumeroNaColecao" placeholder="ex: 120/250">
                                 </div>
 
                                 <div class="col-md-3 mb-3">
@@ -534,6 +539,14 @@
             return String(v || '').toLowerCase().replace(/\s+/g, '');
         }
 
+        function obterToyNumber(item) {
+            return String(item.ToyNumber || '').trim();
+        }
+
+        function obterNumeroColecao(item) {
+            return String(item.NumeroNaColecao || '').trim();
+        }
+
         function definirMarcaNoSelect(valor) {
             const select = document.getElementById('Marca');
             const alvo = normalizarMarca(valor);
@@ -649,6 +662,7 @@
             const boxFunko = document.getElementById('box-auto-funko');
             const boxMiniGT = document.getElementById('box-auto-minigt');
             const boxHotWheels = document.getElementById('box-auto-hotwheels');
+            const labelToyNumber = document.getElementById('label-toy-number');
             const labelNumColecao = document.getElementById('label-num-colecao');
             const labelColecao = document.getElementById('label-colecao');
 
@@ -659,31 +673,36 @@
 
             if (marca === 'Lego') {
                 boxLego.style.display = 'block';
-                labelNumColecao.textContent = 'Nº do Set LEGO';
+                labelToyNumber.textContent = 'Nº Set LEGO';
+                labelNumColecao.textContent = 'Nº na Coleção';
                 labelColecao.textContent = 'Tema LEGO (ex: Speed Champions)';
                 if (!document.getElementById('Tipo').value) document.getElementById('Tipo').value = 'Set';
             } else if (marca === 'Funko Pop') {
                 boxFunko.style.display = 'block';
-                labelNumColecao.textContent = 'Nº Caixa Funko';
+                labelToyNumber.textContent = 'Nº Caixa Funko';
+                labelNumColecao.textContent = 'Nº na Coleção';
                 labelColecao.textContent = 'Franquia / Coleção (ex: Star Wars, Formula 1)';
                 if (!document.getElementById('Tipo').value || document.getElementById('Tipo').value === 'Set' || document.getElementById('Tipo').value === 'Carro 1/64') {
                     document.getElementById('Tipo').value = 'Figura';
                 }
             } else if (marca === 'Mini GT') {
                 boxMiniGT.style.display = 'block';
-                labelNumColecao.textContent = 'Nº Mini GT';
+                labelToyNumber.textContent = 'Nº Mini GT';
+                labelNumColecao.textContent = 'Nº na Coleção';
                 labelColecao.textContent = 'Fabricante / Série (ex: Porsche, Lamborghini)';
                 if (!document.getElementById('Tipo').value || document.getElementById('Tipo').value === 'Set' || document.getElementById('Tipo').value === 'Figura') {
                     document.getElementById('Tipo').value = 'Carro 1/64';
                 }
             } else if (marca === 'Hot Wheels') {
                 boxHotWheels.style.display = 'block';
-                labelNumColecao.textContent = 'Toy Number';
+                labelToyNumber.textContent = 'Toy Number';
+                labelNumColecao.textContent = 'Nº na Coleção';
                 labelColecao.textContent = 'Série / Coleção (ex: Pantone, Car Culture, Mainline)';
                 if (!document.getElementById('Tipo').value || document.getElementById('Tipo').value === 'Set' || document.getElementById('Tipo').value === 'Figura') {
                     document.getElementById('Tipo').value = 'Carro 1/64';
                 }
             } else {
+                labelToyNumber.textContent = 'Toy Number';
                 labelNumColecao.textContent = 'Nº na Coleção';
                 labelColecao.textContent = 'Série / Coleção (ex: Pantone, Star Wars)';
             }
@@ -719,7 +738,7 @@
                 atualizarLinkSerie('');
                 document.getElementById('Tipo').value = 'Set';
                 document.getElementById('Ano').value = set.year || '';
-                document.getElementById('NumeroNaColecao').value = numSetStr;
+                document.getElementById('ToyNumber').value = numSetStr;
                 document.getElementById('Descricao').value = `${theme.name} (${set.year}) - ${set.num_parts} peças`;
                 document.getElementById('Imagem').value = set.set_img_url || '';
 
@@ -727,7 +746,7 @@
 
                 const jaExiste = todosOsItens.some(i =>
                     normalizarMarca(i.Marca) === 'lego' &&
-                    String(i.NumeroNaColecao || '').trim() === numSetStr
+                    obterToyNumber(i) === numSetStr
                 );
                 if (jaExiste) {
                     alert(`Atenção: O set ${rawNum} já existe no teu inventário!`);
@@ -823,12 +842,12 @@
 
             const numCaixa = String(pop.boxNumber || '').trim();
             if (numCaixa) {
-                document.getElementById('NumeroNaColecao').value = numCaixa;
+                document.getElementById('ToyNumber').value = numCaixa;
             } else {
                 const termoPesquisa = document.getElementById('input-funko-apify').value;
                 const matchPesquisa = termoPesquisa.match(/\b(\d{1,4})\b/);
                 if (matchPesquisa) {
-                    document.getElementById('NumeroNaColecao').value = matchPesquisa[1];
+                    document.getElementById('ToyNumber').value = matchPesquisa[1];
                 }
             }
 
@@ -938,7 +957,7 @@
                 refFinal = "MGT" + String(parseInt(matchNum[1], 10)).padStart(5, "0");
             }
 
-            document.getElementById('NumeroNaColecao').value = refFinal;
+            document.getElementById('ToyNumber').value = refFinal;
             document.getElementById('Descricao').value = item.description || '';
 
             if (Array.isArray(item.images) && item.images.length > 0) {
@@ -954,7 +973,7 @@
             if (refNorm) {
                 const jaExiste = todosOsItens.some(i =>
                     normalizarMarca(i.Marca) === 'minigt' &&
-                    String(i.NumeroNaColecao || '').trim().toLowerCase() === refNorm
+                    obterToyNumber(i).toLowerCase() === refNorm
                 );
                 if (jaExiste) {
                     alert(`Atenção: O Mini GT ${refFinal} já existe no teu inventário!`);
@@ -1044,21 +1063,25 @@
             const elNumSerie = document.getElementById('NumeroSerie');
             if (elNumSerie) elNumSerie.value = item.seriesNumber || '';
 
-            const refFinal = String(item.boxNumber || '').trim();
-            document.getElementById('NumeroNaColecao').value = refFinal;
+            const toyFinal = String(item.boxNumber || '').trim();
+            document.getElementById('ToyNumber').value = toyFinal;
+
+            const numColecaoApi = String(item.collectionNumber || item.mainlineNumber || '').trim();
+            document.getElementById('NumeroNaColecao').value = numColecaoApi;
+
             document.getElementById('Descricao').value = item.description || '';
             document.getElementById('Imagem').value = item.mainImage || '';
 
             atualizarPreviewImagem();
             document.getElementById('galeria-resultados-hotwheels').style.display = 'none';
 
-            if (refFinal) {
+            if (toyFinal) {
                 const jaExiste = todosOsItens.some(i =>
                     normalizarMarca(i.Marca) === 'hotwheels' &&
-                    String(i.NumeroNaColecao || '').trim().toLowerCase() === refFinal.toLowerCase()
+                    obterToyNumber(i).toLowerCase() === toyFinal.toLowerCase()
                 );
                 if (jaExiste) {
-                    alert(`Atenção: O Hot Wheels ${refFinal} já existe no teu inventário!`);
+                    alert(`Atenção: O Hot Wheels ${toyFinal} já existe no teu inventário!`);
                 }
             }
         };
@@ -1125,8 +1148,8 @@
                 if (termo) {
                     const nomeMatch = (item.NomeNaColecao || '').toLowerCase().includes(termo);
                     const colecaoMatch = (item.Colecao || '').toLowerCase().includes(termo);
-                    const numMatch = String(item.NumeroNaColecao || '').toLowerCase().includes(termo)
-                        || String(item.NumeroItem || '').toLowerCase().includes(termo)
+                    const numMatch = obterToyNumber(item).toLowerCase().includes(termo)
+                        || obterNumeroColecao(item).toLowerCase().includes(termo)
                         || String(item.NumeroSerie || '').toLowerCase().includes(termo);
                     return nomeMatch || colecaoMatch || numMatch;
                 }
@@ -1151,9 +1174,9 @@
                 a.href = "#";
                 a.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-2";
 
-                const numColecaoTexto = item.NumeroNaColecao !== undefined && item.NumeroNaColecao !== null && String(item.NumeroNaColecao).trim() !== ''
-                    ? `Nº ${item.NumeroNaColecao}`
-                    : '';
+                const toyTexto = obterToyNumber(item);
+                const numColecaoTexto = obterNumeroColecao(item);
+                const prefixoNumero = toyTexto ? `Nº ${toyTexto}` : (numColecaoTexto ? `Nº ${numColecaoTexto}` : '');
                 const corEstado = item.Estado === 'Wishlist' ? 'bg-warning text-dark' : (item.Estado === 'Encomendado' ? 'bg-info text-dark' : 'bg-success');
 
                 let thumbUrl = 'https://placehold.co/44x44?text=📦';
@@ -1167,8 +1190,8 @@
                     <div class="d-flex align-items-center gap-2 overflow-hidden">
                         <img src="${thumbUrl}" class="thumb-mini" alt="" onerror="this.src='https://placehold.co/44x44?text=📦'">
                         <div class="text-truncate">
-                            <strong>${numColecaoTexto ? numColecaoTexto + ' - ' : ''}${item.NomeNaColecao || 'Sem Nome'}</strong><br>
-                            <small class="text-muted">${item.Marca || ''} ${item.Colecao ? '• ' + item.Colecao : ''}</small>
+                            <strong>${prefixoNumero ? prefixoNumero + ' - ' : ''}${item.NomeNaColecao || 'Sem Nome'}</strong><br>
+                            <small class="text-muted">${item.Marca || ''} ${item.Colecao ? '• ' + item.Colecao : ''}${numColecaoTexto ? ' • ' + numColecaoTexto : ''}</small>
                         </div>
                     </div>
                     <div class="text-end flex-shrink-0">
@@ -1224,7 +1247,8 @@
             document.getElementById('Tipo').value = item.Tipo || '';
             document.getElementById('Ano').value = item.Ano || '';
             document.getElementById('NumeroSerie').value = item.NumeroSerie || '';
-            document.getElementById('NumeroNaColecao').value = item.NumeroNaColecao ?? '';
+            document.getElementById('ToyNumber').value = obterToyNumber(item);
+            document.getElementById('NumeroNaColecao').value = obterNumeroColecao(item);
             document.getElementById('Preco').value = item.Preco || 0;
             document.getElementById('ValorMercado').value = item.ValorMercado || 0;
             document.getElementById('Quantidade').value = item.Quantidade || 1;
@@ -1253,6 +1277,7 @@
 
             const imagensStr = document.getElementById('Imagem').value;
             const imagensArray = imagensStr ? imagensStr.split(',').map(s => s.trim()).filter(s => s.length > 0) : [];
+            const toyNumberRaw = document.getElementById('ToyNumber').value.trim();
             const numColecaoRaw = document.getElementById('NumeroNaColecao').value.trim();
             const numeroSerieRaw = String(document.getElementById('NumeroSerie').value || '').trim();
             const linkSerieRaw = String(document.getElementById('LinkSerie').value || '').trim();
@@ -1266,6 +1291,7 @@
                 Tipo: document.getElementById('Tipo').value,
                 Ano: parseInt(document.getElementById('Ano').value) || null,
                 NumeroSerie: numeroSerieRaw || null,
+                ToyNumber: toyNumberRaw || null,
                 NumeroNaColecao: numColecaoRaw || null,
                 Preco: parseFloat(document.getElementById('Preco').value) || 0,
                 ValorMercado: parseFloat(document.getElementById('ValorMercado').value) || 0,
