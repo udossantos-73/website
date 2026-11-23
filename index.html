@@ -311,7 +311,10 @@ const authorizedEmails = [
     "miguelabrantesdossantos@gmail.com"
 ];
 
-const ADMIN_EMAIL = "ulisses.dos.santos@gmail.com";
+const ADMIN_EMAILS = [
+    "ulisses.dos.santos@gmail.com",
+    "anaiabrantes@gmail.com"
+    ];
 let currentItemSorteado = null;
 
 function login() {
@@ -347,7 +350,7 @@ auth.onAuthStateChanged((user) => {
             const nomeCompleto = user.displayName || user.email.split('@')[0];
             document.getElementById('user-email').innerText = nomeCompleto.split(' ')[0];
 
-            if (userEmail === ADMIN_EMAIL) {
+            if (ADMIN_EMAILS.includes(userEmail)) {
                 document.getElementById('admin-stats-btn').style.display = 'block';
             } else {
                 document.getElementById('admin-stats-btn').style.display = 'none';
