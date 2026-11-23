@@ -333,8 +333,10 @@ const COLLECTION_NAME = "inventario";
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
 // PERMISSÃO EXCLUSIVA APENAS PARA O TEU E-MAIL
-const ADMIN_EMAIL = "ulisses.dos.santos@gmail.com";
-
+const ADMIN_EMAILS = [
+    "ulisses.dos.santos@gmail.com",
+    "anaiabrantes@gmail.com"
+];
 function logout() {
     auth.signOut().then(() => { window.location.href = "index.html"; });
 }
@@ -362,7 +364,7 @@ function formatCurrency(v) {
 auth.onAuthStateChanged((user) => {
     if (user) {
         const userEmail = (user.email || "").toLowerCase().trim();
-        if (userEmail === ADMIN_EMAIL) {
+        if (ADMIN_EMAILS.includes(userEmail)) {
             document.getElementById('user-area').style.display = 'flex';
             document.getElementById('menu-container').style.display = 'block';
             document.getElementById('admin-stats-btn').style.display = 'block';
