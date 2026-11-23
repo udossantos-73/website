@@ -378,7 +378,9 @@ function translateLoja(v) { return v ? v : 'Desconhecida'; }
 
 function isMiniGtItem(data) {
     const marca = (data.Marca || data.marca || '').toLowerCase();
-    return marca.includes('mini gt') || marca.includes('minigt');
+    const estado = (data.Estado || data.estado || '').trim().toLowerCase();
+    const isMiniGt = marca.includes('mini gt') || marca.includes('minigt');
+    return isMiniGt && estado !== 'wishlist';
 }
 
 function loadMiniGtGallery() {
