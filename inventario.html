@@ -106,7 +106,7 @@
 
     .pop-inventory { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background-color: white; }
     .pop-inventory th, .pop-inventory td { border: 1px solid #ddd; padding: 12px 8px; text-align: left; }
-    .pop-inventory th { background-color: #0088cc; color: white; font-weight: bold; text-transform: uppercase; }
+    .pop-inventory th { background-color: #0088cc; color: white; font-weight: bold; text-transform: uppercase; font-size: 0.85rem; }
     .pop-inventory tbody tr:nth-child(even) { background-color: #f9f9f9; }
     .pop-inventory tbody tr:hover { background-color: #f1f5f9; }
 
@@ -123,6 +123,21 @@
         color: #005999 !important;
         background-color: #e0f2fe;
     }
+
+    /* Etiquetas visuais para a coluna Estado */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 9px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        text-align: center;
+        white-space: nowrap;
+    }
+    .status-adquirido { background-color: #dcfce7; color: #166534; }
+    .status-encomendado { background-color: #fef3c7; color: #92400e; }
+    .status-wishlist { background-color: #e0f2fe; color: #075985; }
+    .status-outro { background-color: #f1f5f9; color: #475569; }
 
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.75); padding: 15px; box-sizing: border-box; }
     .card-modal-content { background-color: #fff; padding: 25px; border-radius: 12px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
@@ -211,6 +226,12 @@
         <option value="Lego">Lego</option>
         <option value="Mini GT">Mini GT</option>
     </select>
+    <select id="searchEstado" onchange="filterData()">
+        <option value="">Todos os Estados</option>
+        <option value="Adquirido">Adquirido</option>
+        <option value="Encomendado">Encomendado</option>
+        <option value="Wishlist">Wishlist</option>
+    </select>
 </div>
 
 <table class="pop-inventory">
@@ -218,19 +239,18 @@
         <tr>
             <th data-label="Marca">Marca</th>
             <th data-label="Imagem">Imagem</th>
-            <th data-label="Numero">Numero</th>
+            <th data-label="Numero">Número</th>
             <th data-label="Colecao">Coleção</th>
             <th data-label="Nome">Nome</th>
-            <th data-label="Descricao">Descrição</th>
-            <th data-label="Origem">Origem</th>
+            <th data-label="Estado">Estado</th>
+            <th data-label="Qtd">Qtd</th>
+            <th data-label="PrecoPago">Preço Pago</th>
+            <th data-label="ValorMercado">Valor de Mercado</th>
             <th data-label="Loja">Loja</th>
-            <th data-label="Preco">Preço</th>
-            <th data-label="Data">Data Compra</th>
-            <th data-label="Colecionado">Colecionado</th>
         </tr>
     </thead>
     <tbody id="inventory-body">
-        <tr><td colspan="11">A verificar autenticação...</td></tr>
+        <tr><td colspan="10">A verificar autenticação...</td></tr>
     </tbody>
 </table>
 
@@ -258,24 +278,32 @@
                 <span class="card-value" id="card-descricao">N/A</span>
             </div>
             <div class="card-grid-item">
-                <span class="card-label">Origem</span>
-                <span class="card-value" id="card-origem">N/A</span>
+                <span class="card-label">Estado</span>
+                <span class="card-value" id="card-estado">N/A</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Quantidade</span>
+                <span class="card-value" id="card-qtd">1</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Preço Pago</span>
+                <span class="card-value" id="card-preco">0,00 €</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Valor de Mercado</span>
+                <span class="card-value" id="card-valor-mercado">-</span>
             </div>
             <div class="card-grid-item">
                 <span class="card-label">Loja</span>
                 <span class="card-value" id="card-loja">N/A</span>
             </div>
             <div class="card-grid-item">
-                <span class="card-label">Preço</span>
-                <span class="card-value" id="card-preco">0,00 €</span>
-            </div>
-            <div class="card-grid-item">
                 <span class="card-label">Data de Compra</span>
                 <span class="card-value" id="card-data">N/A</span>
             </div>
             <div class="card-grid-item full-width">
-                <span class="card-label">Na Coleção?</span>
-                <span class="card-value" id="card-colecionado">Sim</span>
+                <span class="card-label">Origem</span>
+                <span class="card-value" id="card-origem">N/A</span>
             </div>
         </div>
 
@@ -380,13 +408,45 @@ auth.onAuthStateChanged((user) => {
 });
 
 function formatCurrency(v) { return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(v || 0); }
+function formatOptionalCurrency(v) {
+    if (v === undefined || v === null || v === '') return '-';
+    return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(Number(v));
+}
 function formatDate(t) { return (t && t.toDate) ? new Intl.DateTimeFormat('pt-PT', { day: '2-digit', month: 'short', year: 'numeric' }).format(t.toDate()) : 'Desconhecida'; }
 function translateOrigem(v) { return v === false ? 'Oferecido' : 'Adquirido'; }
-function translateColecionado(v) { return v === true ? 'Sim' : 'Não'; }
 function translateLoja(v) { return v ? v : 'Desconhecida'; }
 
+// Obtém o Estado do item (Adquirido, Encomendado, Wishlist) com fallback para registos antigos
+function getEstadoTexto(item) {
+    const raw = item.Estado || item.estado;
+    if (raw) {
+        const norm = String(raw).trim().toLowerCase();
+        if (norm === 'adquirido' || norm === 'colecionado') return 'Adquirido';
+        if (norm === 'encomendado') return 'Encomendado';
+        if (norm === 'wishlist') return 'Wishlist';
+        return raw;
+    }
+    if (item.Colecionado === true) return 'Adquirido';
+    if (item.Colecionado === false) return 'Wishlist';
+    return 'Adquirido';
+}
+
+function renderEstadoBadge(estado) {
+    const norm = estado.toLowerCase();
+    let cls = 'status-outro';
+    if (norm === 'adquirido') cls = 'status-adquirido';
+    else if (norm === 'encomendado') cls = 'status-encomendado';
+    else if (norm === 'wishlist') cls = 'status-wishlist';
+    return `<span class="status-badge ${cls}">${estado}</span>`;
+}
+
+function getQuantidade(item) {
+    const q = item.Quantidade ?? item.Qtd ?? item.qtd;
+    return (q !== undefined && q !== null && q !== '') ? q : 1;
+}
+
 function loadInventory() {
-    document.getElementById('inventory-body').innerHTML = '<tr><td colspan="11">A carregar dados do inventário...</td></tr>';
+    document.getElementById('inventory-body').innerHTML = '<tr><td colspan="10">A carregar dados do inventário...</td></tr>';
 
     db.collection(COLLECTION_NAME).get().then((snap) => {
         allItems = [];
@@ -396,7 +456,7 @@ function loadInventory() {
         renderTable(currentFilteredItems);
     }).catch(err => {
         console.error("Erro ao carregar Firestore:", err);
-        document.getElementById('inventory-body').innerHTML = '<tr><td colspan="11">Erro nas permissões da base de dados.</td></tr>';
+        document.getElementById('inventory-body').innerHTML = '<tr><td colspan="10">Erro nas permissões da base de dados.</td></tr>';
     });
 }
 
@@ -405,7 +465,7 @@ function renderTable(data) {
     body.innerHTML = '';
 
     if (data.length === 0) {
-        body.innerHTML = '<tr><td colspan="11">Nenhum item encontrado.</td></tr>';
+        body.innerHTML = '<tr><td colspan="10">Nenhum item encontrado.</td></tr>';
         return;
     }
 
@@ -413,8 +473,11 @@ function renderTable(data) {
         const row = body.insertRow();
         const img = (item.Imagem && item.Imagem[0]) ? item.Imagem[0] : 'https://via.placeholder.com/50';
         const valorLoja = item.Loja || item.loja;
-        const valorPreco = item.Preço || item.Preco || item.preço || 0;
+        const valorPrecoPago = item.PrecoPago ?? item.Preço ?? item.Preco ?? item.preço ?? 0;
+        const valorMercado = item.ValorMercado ?? item.ValordeMercado ?? item.valorMercado;
         const nomeItem = item.NomeNaColecao || item.Nome || item.nome || item.Colecao || 'Ver Detalhes';
+        const estadoTexto = getEstadoTexto(item);
+        const qtd = getQuantidade(item);
 
         row.innerHTML = `
             <td data-label="Marca">${item.Marca || 'N/A'}</td>
@@ -422,12 +485,11 @@ function renderTable(data) {
             <td data-label="Numero">${item.NumeroNaColecao || item.Numero || 'N/A'}</td>
             <td data-label="Colecao">${item.Colecao || 'N/A'}</td>
             <td data-label="Nome"><a class="item-name-link" href="javascript:void(0)" onclick="openCardModal(${index})">${nomeItem}</a></td>
-            <td data-label="Descricao">${item.Descricao || 'N/A'}</td>
-            <td data-label="Origem">${translateOrigem(item.Origem)}</td>
+            <td data-label="Estado">${renderEstadoBadge(estadoTexto)}</td>
+            <td data-label="Qtd" style="text-align: center; font-weight: bold;">${qtd}</td>
+            <td data-label="PrecoPago">${formatCurrency(valorPrecoPago)}</td>
+            <td data-label="ValorMercado">${formatOptionalCurrency(valorMercado)}</td>
             <td data-label="Loja">${translateLoja(valorLoja)}</td>
-            <td data-label="Preco">${formatCurrency(valorPreco)}</td>
-            <td data-label="Data">${formatDate(item.DatadeCompra)}</td>
-            <td data-label="Colecionado">${translateColecionado(item.Colecionado)}</td>
         `;
     });
 }
@@ -436,17 +498,20 @@ function filterData() {
     const numTxt = document.getElementById('searchNumero').value.toLowerCase().trim();
     const colTxt = document.getElementById('searchColecao').value.toLowerCase().trim();
     const marca = normalizarMarca(document.getElementById('searchMarca').value);
+    const estadoFiltro = document.getElementById('searchEstado').value.toLowerCase().trim();
 
     currentFilteredItems = allItems.filter(i => {
         const numItem = String(i.NumeroNaColecao || i.Numero || '').toLowerCase();
         const colItem = (i.Colecao || '').toLowerCase();
         const nomeItem = (i.NomeNaColecao || i.Nome || i.nome || '').toLowerCase();
+        const estadoItem = getEstadoTexto(i).toLowerCase();
 
         const matchNumero = numItem.includes(numTxt);
         const matchColecaoOuNome = colItem.includes(colTxt) || nomeItem.includes(colTxt);
         const matchMarca = (marca === "" || normalizarMarca(i.Marca) === marca);
+        const matchEstado = (estadoFiltro === "" || estadoItem === estadoFiltro);
 
-        return matchNumero && matchColecaoOuNome && matchMarca;
+        return matchNumero && matchColecaoOuNome && matchMarca && matchEstado;
     });
 
     renderTable(currentFilteredItems);
@@ -462,16 +527,21 @@ function displayCardData() {
     const item = currentFilteredItems[currentItemIndex];
     if (!item) return;
 
+    const valorPrecoPago = item.PrecoPago ?? item.Preço ?? item.Preco ?? item.preço ?? 0;
+    const valorMercado = item.ValorMercado ?? item.ValordeMercado ?? item.valorMercado;
+
     document.getElementById('card-marca').innerText = item.Marca || 'Geral';
     document.getElementById('card-nome').innerText = item.NomeNaColecao || item.Nome || item.nome || 'Sem Nome';
     document.getElementById('card-colecao').innerText = item.Colecao || 'N/A';
     document.getElementById('card-numero').innerText = item.NumeroNaColecao || item.Numero || 'N/A';
     document.getElementById('card-descricao').innerText = item.Descricao || 'Sem descrição disponível.';
-    document.getElementById('card-origem').innerText = translateOrigem(item.Origem);
+    document.getElementById('card-estado').innerHTML = renderEstadoBadge(getEstadoTexto(item));
+    document.getElementById('card-qtd').innerText = getQuantidade(item);
+    document.getElementById('card-preco').innerText = formatCurrency(valorPrecoPago);
+    document.getElementById('card-valor-mercado').innerText = formatOptionalCurrency(valorMercado);
     document.getElementById('card-loja').innerText = translateLoja(item.Loja || item.loja);
-    document.getElementById('card-preco').innerText = formatCurrency(item.Preço || item.Preco || item.preço);
     document.getElementById('card-data').innerText = formatDate(item.DatadeCompra);
-    document.getElementById('card-colecionado').innerText = translateColecionado(item.Colecionado);
+    document.getElementById('card-origem').innerText = translateOrigem(item.Origem);
 
     currentCardImages = (item.Imagem && item.Imagem.length > 0) ? item.Imagem : ['https://via.placeholder.com/300?text=Sem+Imagem'];
     currentCardImageIndex = 0;
