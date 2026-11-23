@@ -7,10 +7,10 @@
     <link rel="icon" type="image/svg+xml" href="images/favicon-lego-face.svg">
     <link rel="icon" type="image/png" sizes="180x180" href="images/favicon-lego-face.png">
     <link rel="apple-touch-icon" sizes="180x180" href="images/favicon-lego-face.png">
-    
+
     <style>
     body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 20px; color: #333; }
-    
+
     .header-bar {
         display: flex;
         justify-content: space-between;
@@ -78,7 +78,7 @@
     .dropdown-menu a.add-link { color: #64748b; }
 
     h1 { color: #0088cc; margin: 0; font-size: 1.75rem; line-height: 1.2; }
-    
+
     .back-btn {
         background-color: #6c7a89;
         color: white;
@@ -109,18 +109,18 @@
     .pop-inventory th { background-color: #0088cc; color: white; font-weight: bold; text-transform: uppercase; }
     .pop-inventory tbody tr:nth-child(even) { background-color: #f9f9f9; }
     .pop-inventory tbody tr:hover { background-color: #f1f5f9; }
-    
+
     .pop-main-image { width: 50px; height: auto; border-radius: 4px; display: block; margin: auto; }
 
-    .item-name-link { 
-        color: #007acc !important; 
-        font-weight: bold !important; 
-        cursor: pointer !important; 
-        text-decoration: underline !important; 
+    .item-name-link {
+        color: #007acc !important;
+        font-weight: bold !important;
+        cursor: pointer !important;
+        text-decoration: underline !important;
         display: inline-block;
     }
-    .item-name-link:hover { 
-        color: #005999 !important; 
+    .item-name-link:hover {
+        color: #005999 !important;
         background-color: #e0f2fe;
     }
 
@@ -135,7 +135,7 @@
 
     .card-image-wrapper { position: relative; width: 100%; height: 260px; background: #fafafa; border-radius: 8px; border: 1px solid #eee; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
     .card-image-wrapper img { max-width: 100%; max-height: 100%; object-fit: contain; }
-    
+
     .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); color: white; border: none; font-size: 1.2rem; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; z-index: 5; }
     .nav-arrow:hover { background: rgba(0,0,0,0.9); }
     .nav-arrow.prev { left: 10px; }
@@ -187,10 +187,11 @@
                 <a href="wishlist.html" class="blue-link">Wishlist</a>
                 <a href="galerias.html" class="blue-link">Galerias</a>
                 <a href="inventario.html" class="blue-link">Inventário</a>
-                <!-- BOTÃO DE ESTATÍSTICAS EXCLUSIVO PARA O ULISSES -->
                 <a href="formulario.html" class="add-link">Gerir Inventário</a>
+                <!-- BOTÃO DE ESTATÍSTICAS EXCLUSIVO PARA O ADMIN -->
                 <a href="estatisticas.html" id="admin-stats-btn" class="add-link" style="display:none;">Valor & Estatísticas</a>
             </div>
+        </div>
         <h1>Inventário da Coleção</h1>
     </div>
 
@@ -222,7 +223,7 @@
             <th data-label="Nome">Nome</th>
             <th data-label="Descricao">Descrição</th>
             <th data-label="Origem">Origem</th>
-            <th data-label="Loja">Loja</th> 
+            <th data-label="Loja">Loja</th>
             <th data-label="Preco">Preço</th>
             <th data-label="Data">Data Compra</th>
             <th data-label="Colecionado">Colecionado</th>
@@ -236,7 +237,7 @@
 <div id="card-modal" class="modal">
     <div class="card-modal-content">
         <span class="close-button" onclick="closeCardModal()">&times;</span>
-        
+
         <div class="card-header">
             <span class="card-badge" id="card-marca">Marca</span>
             <h2 id="card-nome">Nome do Item</h2>
@@ -319,7 +320,15 @@ const authorizedEmails = [
     "miguelabrantesdossantos@gmail.com"
 ];
 
-const ADMIN_EMAIL = "ulisses.dos.santos@gmail.com";
+// E-mails que veem o link "Valor & Estatísticas" no menu
+const ADMIN_EMAILS = [
+    "ulisses.dos.santos@gmail.com"
+];
+
+// Compara marcas ignorando maiúsculas e espaços ("Mini GT" == "MiniGT")
+function normalizarMarca(v) {
+    return String(v || '').toLowerCase().replace(/\s+/g, '');
+}
 
 function logout() {
     auth.signOut().then(() => { window.location.href = "index.html"; });
@@ -344,21 +353,18 @@ auth.onAuthStateChanged((user) => {
             const userDetailsEl = document.getElementById('user-details');
             const userEmailEl = document.getElementById('user-email');
             const menuContainerEl = document.getElementById('menu-container');
-            
+
             if (userDetailsEl) userDetailsEl.style.display = 'flex';
             if (menuContainerEl) menuContainerEl.style.display = 'block';
-            
+
             if (userEmailEl) {
                 const nomeCompleto = user.displayName || user.email.split('@')[0];
                 userEmailEl.innerText = nomeCompleto.split(' ')[0];
             }
 
-            if (userEmail === ADMIN_EMAIL) {
-                document.getElementById('admin-stats-btn').style.display = 'block';
-            } else {
-                document.getElementById('admin-stats-btn').style.display = 'none';
-            }
-            
+            document.getElementById('admin-stats-btn').style.display =
+                ADMIN_EMAILS.includes(userEmail) ? 'block' : 'none';
+
             loadInventory();
         } else {
             alert("Acesso Negado! O e-mail (" + user.email + ") não tem permissão.");
@@ -381,7 +387,7 @@ function translateLoja(v) { return v ? v : 'Desconhecida'; }
 
 function loadInventory() {
     document.getElementById('inventory-body').innerHTML = '<tr><td colspan="11">A carregar dados do inventário...</td></tr>';
-    
+
     db.collection(COLLECTION_NAME).get().then((snap) => {
         allItems = [];
         snap.forEach(doc => { let d = doc.data(); d.id = doc.id; allItems.push(d); });
@@ -397,7 +403,7 @@ function loadInventory() {
 function renderTable(data) {
     const body = document.getElementById('inventory-body');
     body.innerHTML = '';
-    
+
     if (data.length === 0) {
         body.innerHTML = '<tr><td colspan="11">Nenhum item encontrado.</td></tr>';
         return;
@@ -409,7 +415,7 @@ function renderTable(data) {
         const valorLoja = item.Loja || item.loja;
         const valorPreco = item.Preço || item.Preco || item.preço || 0;
         const nomeItem = item.NomeNaColecao || item.Nome || item.nome || item.Colecao || 'Ver Detalhes';
-        
+
         row.innerHTML = `
             <td data-label="Marca">${item.Marca || 'N/A'}</td>
             <td data-label="Imagem"><img src="${img}" class="pop-main-image"></td>
@@ -429,7 +435,7 @@ function renderTable(data) {
 function filterData() {
     const numTxt = document.getElementById('searchNumero').value.toLowerCase().trim();
     const colTxt = document.getElementById('searchColecao').value.toLowerCase().trim();
-    const marca = document.getElementById('searchMarca').value;
+    const marca = normalizarMarca(document.getElementById('searchMarca').value);
 
     currentFilteredItems = allItems.filter(i => {
         const numItem = String(i.NumeroNaColecao || i.Numero || '').toLowerCase();
@@ -438,7 +444,7 @@ function filterData() {
 
         const matchNumero = numItem.includes(numTxt);
         const matchColecaoOuNome = colItem.includes(colTxt) || nomeItem.includes(colTxt);
-        const matchMarca = (marca === "" || i.Marca === marca);
+        const matchMarca = (marca === "" || normalizarMarca(i.Marca) === marca);
 
         return matchNumero && matchColecaoOuNome && matchMarca;
     });
