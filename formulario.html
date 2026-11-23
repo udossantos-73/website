@@ -344,7 +344,7 @@
                         <div id="box-auto-minigt" class="alert alert-primary border-primary mb-4" style="display: none;">
                             <label for="input-minigt-busca" class="form-label fw-bold mb-1">🏎️ Pesquisa Rápida Mini GT (Catálogo Oficial)</label>
                             <div class="input-group mb-2">
-                                <input type="text" id="input-minigt-busca" class="form-control" placeholder="Insere o nº (ex: 642) ou modelo (ex: Porsche 911)...">
+                                <input type="text" id="input-minigt-busca" class="form-control" placeholder="Insere o nº (ex: MGT00904-007E ou 642) ou modelo...">
                                 <button class="btn btn-primary-blue fw-bold" type="button" id="btn-buscar-minigt">Pesquisar</button>
                             </div>
                             <div id="status-minigt" class="small text-primary fw-semibold mb-2" style="display: none;">
@@ -413,7 +413,7 @@
 
                                 <div class="col-md-4 mb-3">
                                     <label for="NumeroNaColecao" class="form-label" id="label-num-colecao">Nº na Coleção / Set</label>
-                                    <input type="number" class="form-control" id="NumeroNaColecao">
+                                    <input type="text" class="form-control" id="NumeroNaColecao" placeholder="ex: 77243 ou MGT00904-007E">
                                 </div>
                             </div>
 
@@ -620,7 +620,7 @@
                 }
             } else if (marca === 'Mini GT') {
                 boxMiniGT.style.display = 'block';
-                labelNumColecao.textContent = 'Nº Mini GT (ex: 642)';
+                labelNumColecao.textContent = 'Nº Mini GT (ex: MGT00904-007E)';
                 labelColecao.textContent = 'Fabricante / Série (ex: Porsche, Lamborghini)';
                 if (!document.getElementById('Tipo').value || document.getElementById('Tipo').value === 'Set' || document.getElementById('Tipo').value === 'Figura') {
                     document.getElementById('Tipo').value = 'Carro 1/64';
@@ -653,18 +653,23 @@
                 });
                 const theme = resTheme.ok ? await resTheme.json() : { name: 'LEGO' };
 
+                const numSetStr = String(rawNum.split('-')[0]).trim();
+
                 document.getElementById('Marca').value = 'Lego';
                 document.getElementById('NomeNaColecao').value = set.name;
                 document.getElementById('Colecao').value = theme.name;
                 document.getElementById('Tipo').value = 'Set';
                 document.getElementById('Ano').value = set.year || '';
-                document.getElementById('NumeroNaColecao').value = parseInt(rawNum.split('-')[0]) || '';
+                document.getElementById('NumeroNaColecao').value = numSetStr;
                 document.getElementById('Descricao').value = `${theme.name} (${set.year}) - ${set.num_parts} peças`;
                 document.getElementById('Imagem').value = set.set_img_url || '';
 
                 atualizarPreviewImagem();
 
-                const jaExiste = todosOsItens.some(i => normalizarMarca(i.Marca) === 'lego' && i.NumeroNaColecao === parseInt(rawNum.split('-')[0]));
+                const jaExiste = todosOsItens.some(i =>
+                    normalizarMarca(i.Marca) === 'lego' &&
+                    String(i.NumeroNaColecao || '').trim() === numSetStr
+                );
                 if (jaExiste) {
                     alert(`Atenção: O set ${rawNum} já existe no teu inventário!`);
                 }
@@ -757,14 +762,14 @@
             document.getElementById('Colecao').value = pop.license || '';
             document.getElementById('Tipo').value = 'Figura';
 
-            const numCaixa = pop.boxNumber || '';
-            if (numCaixa && !isNaN(parseInt(numCaixa))) {
-                document.getElementById('NumeroNaColecao').value = parseInt(numCaixa);
+            const numCaixa = String(pop.boxNumber || '').trim();
+            if (numCaixa) {
+                document.getElementById('NumeroNaColecao').value = numCaixa;
             } else {
                 const termoPesquisa = document.getElementById('input-funko-apify').value;
                 const matchPesquisa = termoPesquisa.match(/\b(\d{1,4})\b/);
                 if (matchPesquisa) {
-                    document.getElementById('NumeroNaColecao').value = parseInt(matchPesquisa[1]);
+                    document.getElementById('NumeroNaColecao').value = matchPesquisa[1];
                 }
             }
 
@@ -789,7 +794,7 @@
         // --- PESQUISA VISUAL MINI GT (CATÁLOGO OFICIAL TSM MODEL) ---
         document.getElementById('btn-buscar-minigt').addEventListener('click', async () => {
             const termo = document.getElementById('input-minigt-busca').value.trim();
-            if (!termo) return alert('Insere o número (ex: 642) ou nome do modelo Mini GT.');
+            if (!termo) return alert('Insere o número (ex: MGT00904-007E ou 642) ou nome do modelo Mini GT.');
 
             const btn = document.getElementById('btn-buscar-minigt');
             const statusDiv = document.getElementById('status-minigt');
@@ -834,7 +839,7 @@
                             <img src="${imgUrl}" class="card-img-top p-2" style="height: 115px; object-fit: contain; background: #f8f9fa;" onerror="this.src='https://placehold.co/120x120?text=MiniGT'">
                             <div class="card-body p-2 text-center">
                                 <span class="badge ${tagOrigem.includes('Oficial') ? 'bg-primary' : 'bg-secondary'} mb-1" style="font-size: 0.65rem;">${tagOrigem}</span>
-                                <p class="card-title fw-bold mb-1" style="font-size: 0.78rem; line-height: 1.15;">${num ? '#'+num+' - ' : ''}${nome}</p>
+                                <p class="card-title fw-bold mb-1" style="font-size: 0.78rem; line-height: 1.15;">${num ? num+' - ' : ''}${nome}</p>
                                 <small class="text-muted d-block text-truncate" style="font-size: 0.68rem;">${fabricante}</small>
                             </div>
                         </div>
@@ -862,18 +867,18 @@
             document.getElementById('Colecao').value = item.license || 'Mini GT';
             document.getElementById('Tipo').value = 'Carro 1/64';
 
-            const numBox = item.boxNumber || '';
-            const numParsed = parseInt(numBox);
-            if (!isNaN(numParsed)) {
-                document.getElementById('NumeroNaColecao').value = numParsed;
-            } else {
-                const termoPesquisa = document.getElementById('input-minigt-busca').value;
-                const matchPesquisa = termoPesquisa.match(/\b(\d{1,4})\b/);
-                if (matchPesquisa) {
-                    document.getElementById('NumeroNaColecao').value = parseInt(matchPesquisa[1]);
-                }
+            const termoPesquisa = document.getElementById('input-minigt-busca').value.trim();
+            const matchMgt = termoPesquisa.match(/MGT0*\d{1,4}(?:-[A-Z0-9]+)?/i);
+            const matchNum = termoPesquisa.match(/\b(\d{1,4})\b/);
+
+            let refFinal = String(item.boxNumber || '').trim();
+            if (!refFinal && matchMgt) {
+                refFinal = matchMgt[0].toUpperCase();
+            } else if (!refFinal && matchNum) {
+                refFinal = "MGT" + String(parseInt(matchNum[1], 10)).padStart(5, "0");
             }
 
+            document.getElementById('NumeroNaColecao').value = refFinal;
             document.getElementById('Descricao').value = item.description || '';
 
             if (Array.isArray(item.images) && item.images.length > 0) {
@@ -885,11 +890,14 @@
             atualizarPreviewImagem();
             document.getElementById('galeria-resultados-minigt').style.display = 'none';
 
-            const numAtual = parseInt(document.getElementById('NumeroNaColecao').value);
-            if (!isNaN(numAtual)) {
-                const jaExiste = todosOsItens.some(i => normalizarMarca(i.Marca) === 'minigt' && i.NumeroNaColecao === numAtual);
+            const refNorm = refFinal.toLowerCase();
+            if (refNorm) {
+                const jaExiste = todosOsItens.some(i =>
+                    normalizarMarca(i.Marca) === 'minigt' &&
+                    String(i.NumeroNaColecao || '').trim().toLowerCase() === refNorm
+                );
                 if (jaExiste) {
-                    alert(`Atenção: O Mini GT #${numAtual} já existe no teu inventário!`);
+                    alert(`Atenção: O Mini GT ${refFinal} já existe no teu inventário!`);
                 }
             }
         };
@@ -956,7 +964,8 @@
                 if (termo) {
                     const nomeMatch = (item.NomeNaColecao || '').toLowerCase().includes(termo);
                     const colecaoMatch = (item.Colecao || '').toLowerCase().includes(termo);
-                    const numMatch = String(item.NumeroNaColecao || '').includes(termo) || String(item.NumeroItem || '').includes(termo);
+                    const numMatch = String(item.NumeroNaColecao || '').toLowerCase().includes(termo)
+                        || String(item.NumeroItem || '').toLowerCase().includes(termo);
                     return nomeMatch || colecaoMatch || numMatch;
                 }
 
@@ -980,7 +989,9 @@
                 a.href = "#";
                 a.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-2";
 
-                const numColecaoTexto = item.NumeroNaColecao !== undefined && item.NumeroNaColecao !== null ? `Nº ${item.NumeroNaColecao}` : '';
+                const numColecaoTexto = item.NumeroNaColecao !== undefined && item.NumeroNaColecao !== null && String(item.NumeroNaColecao).trim() !== ''
+                    ? `Nº ${item.NumeroNaColecao}`
+                    : '';
                 const corEstado = item.Estado === 'Wishlist' ? 'bg-warning text-dark' : (item.Estado === 'Encomendado' ? 'bg-info text-dark' : 'bg-success');
 
                 let thumbUrl = 'https://placehold.co/44x44?text=📦';
@@ -1046,7 +1057,7 @@
             document.getElementById('Tipo').value = item.Tipo || '';
             document.getElementById('Ano').value = item.Ano || '';
             document.getElementById('NumeroItem').value = item.NumeroItem || '';
-            document.getElementById('NumeroNaColecao').value = item.NumeroNaColecao || '';
+            document.getElementById('NumeroNaColecao').value = item.NumeroNaColecao ?? '';
             document.getElementById('Preco').value = item.Preco || 0;
             document.getElementById('ValorMercado').value = item.ValorMercado || 0;
             document.getElementById('Quantidade').value = item.Quantidade || 1;
@@ -1075,6 +1086,7 @@
 
             const imagensStr = document.getElementById('Imagem').value;
             const imagensArray = imagensStr ? imagensStr.split(',').map(s => s.trim()).filter(s => s.length > 0) : [];
+            const numColecaoRaw = document.getElementById('NumeroNaColecao').value.trim();
 
             const dadosItem = {
                 NomeNaColecao: document.getElementById('NomeNaColecao').value,
@@ -1084,7 +1096,7 @@
                 Tipo: document.getElementById('Tipo').value,
                 Ano: parseInt(document.getElementById('Ano').value) || null,
                 NumeroItem: parseInt(document.getElementById('NumeroItem').value) || null,
-                NumeroNaColecao: parseInt(document.getElementById('NumeroNaColecao').value) || null,
+                NumeroNaColecao: numColecaoRaw || null,
                 Preco: parseFloat(document.getElementById('Preco').value) || 0,
                 ValorMercado: parseFloat(document.getElementById('ValorMercado').value) || 0,
                 Quantidade: parseInt(document.getElementById('Quantidade').value) || 1,
