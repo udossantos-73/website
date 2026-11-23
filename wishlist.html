@@ -283,6 +283,18 @@
         line-height: 1.25;
     }
 
+    /* Nome clicável (abre o pop-up de detalhes) */
+    .item-name-link {
+        color: #007acc;
+        font-weight: bold;
+        cursor: pointer;
+        text-decoration: underline;
+    }
+    .item-name-link:hover {
+        color: #005999;
+        background-color: #e0f2fe;
+    }
+
     .item-sub {
         font-size: 0.8rem;
         color: #64748b;
@@ -327,6 +339,36 @@
         font-size: 0.92rem;
         grid-column: 1 / -1;
     }
+
+    /* Pop-up de detalhes do item (igual ao do Inventário) */
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.75); padding: 15px; box-sizing: border-box; }
+    .card-modal-content { background-color: #fff; padding: 25px; border-radius: 12px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+    .close-button { position: absolute; top: 15px; right: 20px; color: #888; font-size: 28px; font-weight: bold; cursor: pointer; }
+    .close-button:hover { color: #000; }
+
+    .card-header { text-align: center; margin-bottom: 15px; padding-right: 20px; }
+    .card-header h2 { margin: 5px 0; color: #007acc; font-size: 1.4rem; }
+    .card-badge { display: inline-block; background: #e0f2fe; color: #0369a1; font-size: 0.85rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; margin-bottom: 5px; }
+
+    .card-image-wrapper { position: relative; width: 100%; height: 260px; background: #fafafa; border-radius: 8px; border: 1px solid #eee; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
+    .card-image-wrapper img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+    .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); color: white; border: none; font-size: 1.2rem; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; z-index: 5; }
+    .nav-arrow:hover { background: rgba(0,0,0,0.9); }
+    .nav-arrow.prev { left: 10px; }
+    .nav-arrow.next { right: 10px; }
+
+    .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.9rem; }
+    .card-grid-item { display: flex; flex-direction: column; }
+    .card-grid-item.full-width { grid-column: span 2; }
+    .card-label { font-size: 0.75rem; color: #64748b; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
+    .card-value { color: #1e293b; font-weight: 500; }
+
+    .card-item-navigation { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; }
+    .nav-item-btn { background: #007acc; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
+    .nav-item-btn:hover { background: #005999; }
+    .nav-item-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+    .item-counter { font-size: 0.85rem; color: #64748b; font-weight: bold; }
 
     @media (max-width: 600px) {
         .top-bar {
@@ -376,7 +418,7 @@
             <option value="Lego">🧱 Lego</option>
             <option value="Funko Pop">👾 Funko Pop</option>
             <option value="Hot Wheels">🔥 Hot Wheels</option>
-            <option value="MiniGT">🏎️ MiniGT</option>
+            <option value="Mini GT">🏎️ Mini GT</option>
             <option value="Playmobil">🤠 Playmobil</option>
         </select>
     </div>
@@ -402,6 +444,60 @@
             <div class="empty-state">A carregar wishlist...</div>
         </div>
     </section>
+</div>
+
+<!-- POP-UP COM OS DETALHES DO ITEM -->
+<div id="card-modal" class="modal">
+    <div class="card-modal-content">
+        <span class="close-button" onclick="closeCardModal()">&times;</span>
+
+        <div class="card-header">
+            <span class="card-badge" id="card-marca">Marca</span>
+            <h2 id="card-nome">Nome do Item</h2>
+            <div style="font-size: 0.9rem; color: #64748b;">
+                <span id="card-colecao">Coleção</span> #<span id="card-numero">00</span>
+            </div>
+        </div>
+
+        <div class="card-image-wrapper">
+            <button class="nav-arrow prev" id="img-prev-btn" onclick="changeCardImage(-1)">&#10094;</button>
+            <img id="card-img-display" src="" alt="Imagem do Item">
+            <button class="nav-arrow next" id="img-next-btn" onclick="changeCardImage(1)">&#10095;</button>
+        </div>
+
+        <div class="card-grid">
+            <div class="card-grid-item full-width">
+                <span class="card-label">Descrição</span>
+                <span class="card-value" id="card-descricao">N/A</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Origem</span>
+                <span class="card-value" id="card-origem">N/A</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Loja</span>
+                <span class="card-value" id="card-loja">N/A</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Preço</span>
+                <span class="card-value" id="card-preco">0,00 €</span>
+            </div>
+            <div class="card-grid-item">
+                <span class="card-label">Data de Compra</span>
+                <span class="card-value" id="card-data">N/A</span>
+            </div>
+            <div class="card-grid-item full-width">
+                <span class="card-label">Estado</span>
+                <span class="card-value" id="card-estado">N/A</span>
+            </div>
+        </div>
+
+        <div class="card-item-navigation">
+            <button class="nav-item-btn" id="prev-item-btn" onclick="navigateItem(-1)">&larr; Anterior</button>
+            <span class="item-counter" id="item-counter">Item 1 de 10</span>
+            <button class="nav-item-btn" id="next-item-btn" onclick="navigateItem(1)">Seguinte &rarr;</button>
+        </div>
+    </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -433,6 +529,12 @@ const authorizedEmails = [
 const ADMIN_EMAIL = "ulisses.dos.santos@gmail.com";
 let todosPendentes = [];
 
+// Itens visíveis no ecrã (Encomendados primeiro, depois Wishlist), usados pelo pop-up
+let itensVisiveis = [];
+let currentItemIndex = 0;
+let currentCardImages = [];
+let currentCardImageIndex = 0;
+
 function logout() {
     auth.signOut().then(() => { window.location.href = "index.html"; });
 }
@@ -451,6 +553,22 @@ document.addEventListener('click', function(event) {
 
 function formatCurrency(v) {
     return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(v || 0);
+}
+function formatDate(t) {
+    return (t && t.toDate) ? new Intl.DateTimeFormat('pt-PT', { day: '2-digit', month: 'short', year: 'numeric' }).format(t.toDate()) : 'Desconhecida';
+}
+function translateOrigem(v) { return v === false ? 'Oferecido' : 'Adquirido'; }
+function translateLoja(v) { return v ? v : 'Desconhecida'; }
+function normalizarMarca(v) { return (v || '').toLowerCase().replace(/\s+/g, ''); }
+
+function obterImagens(item) {
+    if (Array.isArray(item.Imagem)) {
+        return item.Imagem.filter(u => typeof u === 'string' && u.trim().startsWith('http')).map(u => u.trim());
+    }
+    if (typeof item.Imagem === 'string') {
+        return item.Imagem.split(',').map(s => s.trim()).filter(s => s.startsWith('http'));
+    }
+    return [];
 }
 
 auth.onAuthStateChanged((user) => {
@@ -501,7 +619,7 @@ function carregarDados() {
 
 function aplicarFiltros() {
     const texto = document.getElementById('filtro-texto').value.toLowerCase().trim();
-    const marca = document.getElementById('filtro-marca').value;
+    const marca = normalizarMarca(document.getElementById('filtro-marca').value);
 
     const filtrados = todosPendentes.filter(item => {
         const nome = (item.NomeNaColecao || '').toLowerCase();
@@ -510,7 +628,7 @@ function aplicarFiltros() {
         const num = String(item.NumeroNaColecao || '').toLowerCase();
 
         const matchTexto = !texto || nome.includes(texto) || colecao.includes(texto) || loja.includes(texto) || num.includes(texto);
-        const matchMarca = !marca || (item.Marca || '').toLowerCase() === marca.toLowerCase();
+        const matchMarca = !marca || normalizarMarca(item.Marca) === marca;
 
         return matchTexto && matchMarca;
     });
@@ -518,11 +636,14 @@ function aplicarFiltros() {
     const encomendados = filtrados.filter(i => (i.Estado || '').toLowerCase().trim() === 'encomendado');
     const wishlist = filtrados.filter(i => (i.Estado || '').toLowerCase().trim() === 'wishlist');
 
-    renderizarBloco(encomendados, 'lista-encomendados', 'meta-encomendados', true);
-    renderizarBloco(wishlist, 'lista-wishlist', 'meta-wishlist', false);
+    // Ordem usada pelo pop-up: Encomendados e depois Wishlist (a mesma do ecrã)
+    itensVisiveis = [...encomendados, ...wishlist];
+
+    renderizarBloco(encomendados, 'lista-encomendados', 'meta-encomendados', true, 0);
+    renderizarBloco(wishlist, 'lista-wishlist', 'meta-wishlist', false, encomendados.length);
 }
 
-function renderizarBloco(lista, containerId, metaId, mostrarLoja) {
+function renderizarBloco(lista, containerId, metaId, mostrarLoja, offset) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
 
@@ -539,14 +660,14 @@ function renderizarBloco(lista, containerId, metaId, mostrarLoja) {
         return;
     }
 
-    lista.forEach(item => {
-        const imgUrl = (Array.isArray(item.Imagem) && item.Imagem[0])
-            ? item.Imagem[0]
-            : (typeof item.Imagem === 'string' && item.Imagem.startsWith('http') ? item.Imagem.split(',')[0].trim() : 'https://placehold.co/80x80?text=📦');
+    lista.forEach((item, i) => {
+        const imagens = obterImagens(item);
+        const imgUrl = imagens[0] || 'https://placehold.co/80x80?text=📦';
 
         const numTexto = item.NumeroNaColecao ? `#${item.NumeroNaColecao} - ` : '';
         const lojaTexto = (item.Loja || '').trim() || 'Loja n/d';
         const precoVal = parseFloat(item.Preco || item.Preço || item.ValorMercado || 0);
+        const indiceGlobal = offset + i;
 
         const card = document.createElement('div');
         card.className = 'item-card';
@@ -557,7 +678,7 @@ function renderizarBloco(lista, containerId, metaId, mostrarLoja) {
                     <span class="tag-marca">${item.Marca || 'Item'}</span>
                     ${mostrarLoja ? `<span class="tag-loja">🏪 ${lojaTexto}</span>` : ''}
                 </div>
-                <div class="item-title">${numTexto}${item.NomeNaColecao || 'Sem Nome'}</div>
+                <div class="item-title">${numTexto}<a class="item-name-link" href="javascript:void(0)" onclick="openCardModal(${indiceGlobal})">${item.NomeNaColecao || 'Sem Nome'}</a></div>
                 <div class="item-sub">${item.Colecao || ''}</div>
                 <div class="item-bottom">
                     <span class="item-price">${precoVal > 0 ? formatCurrency(precoVal) : ''}</span>
@@ -568,6 +689,74 @@ function renderizarBloco(lista, containerId, metaId, mostrarLoja) {
         container.appendChild(card);
     });
 }
+
+// --- POP-UP DE DETALHES ---
+function openCardModal(index) {
+    currentItemIndex = index;
+    displayCardData();
+    document.getElementById('card-modal').style.display = 'flex';
+}
+
+function displayCardData() {
+    const item = itensVisiveis[currentItemIndex];
+    if (!item) return;
+
+    const preco = item.Preco || item.Preço || item.preço || item.ValorMercado || 0;
+
+    document.getElementById('card-marca').innerText = item.Marca || 'Geral';
+    document.getElementById('card-nome').innerText = item.NomeNaColecao || item.Nome || item.nome || 'Sem Nome';
+    document.getElementById('card-colecao').innerText = item.Colecao || 'N/A';
+    document.getElementById('card-numero').innerText = item.NumeroNaColecao || item.Numero || 'N/A';
+    document.getElementById('card-descricao').innerText = item.Descricao || 'Sem descrição disponível.';
+    document.getElementById('card-origem').innerText = translateOrigem(item.Origem);
+    document.getElementById('card-loja').innerText = translateLoja(item.Loja || item.loja);
+    document.getElementById('card-preco').innerText = formatCurrency(parseFloat(preco));
+    document.getElementById('card-data').innerText = formatDate(item.DatadeCompra);
+    document.getElementById('card-estado').innerText = item.Estado || 'N/A';
+
+    const imagens = obterImagens(item);
+    currentCardImages = imagens.length > 0 ? imagens : ['https://placehold.co/300x300?text=Sem+Imagem'];
+    currentCardImageIndex = 0;
+    updateCardImageDisplay();
+
+    document.getElementById('item-counter').innerText = `${currentItemIndex + 1} de ${itensVisiveis.length}`;
+    document.getElementById('prev-item-btn').disabled = (currentItemIndex === 0);
+    document.getElementById('next-item-btn').disabled = (currentItemIndex === itensVisiveis.length - 1);
+}
+
+function updateCardImageDisplay() {
+    document.getElementById('card-img-display').src = currentCardImages[currentCardImageIndex];
+    const showArrows = currentCardImages.length > 1;
+    document.getElementById('img-prev-btn').style.display = showArrows ? 'flex' : 'none';
+    document.getElementById('img-next-btn').style.display = showArrows ? 'flex' : 'none';
+}
+
+function changeCardImage(direction) {
+    currentCardImageIndex += direction;
+    if (currentCardImageIndex >= currentCardImages.length) currentCardImageIndex = 0;
+    if (currentCardImageIndex < 0) currentCardImageIndex = currentCardImages.length - 1;
+    updateCardImageDisplay();
+}
+
+function navigateItem(direction) {
+    const newIndex = currentItemIndex + direction;
+    if (newIndex >= 0 && newIndex < itensVisiveis.length) {
+        currentItemIndex = newIndex;
+        displayCardData();
+    }
+}
+
+function closeCardModal() {
+    document.getElementById('card-modal').style.display = 'none';
+}
+
+window.onclick = (e) => {
+    if (e.target.className === 'modal') closeCardModal();
+};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeCardModal();
+});
 </script>
 
 </body>
