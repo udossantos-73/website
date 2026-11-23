@@ -402,7 +402,7 @@
                             <div class="row">
                                 <div class="col-md-2 mb-3">
                                     <label for="ToyNumber" class="form-label" id="label-toy-number">Toy Number</label>
-                                    <input type="text" class="form-control" id="ToyNumber" placeholder="ex: HYW36">
+                                    <input type="text" class="form-control" id="ToyNumber" placeholder="ex: JJJ62">
                                 </div>
 
                                 <div class="col-md-5 mb-3">
@@ -540,11 +540,17 @@
         }
 
         function obterToyNumber(item) {
-            return String(item.ToyNumber || '').trim();
+            const toy = String(item.ToyNumber || '').trim();
+            if (toy) return toy;
+            const legado = String(item.NumeroNaColecao || '').trim();
+            return legado && !legado.includes('/') ? legado : '';
         }
 
         function obterNumeroColecao(item) {
-            return String(item.NumeroNaColecao || '').trim();
+            const numCol = String(item.NumeroNaColecao || '').trim();
+            if (!numCol) return '';
+            if (String(item.ToyNumber || '').trim()) return numCol;
+            return numCol.includes('/') ? numCol : '';
         }
 
         function definirMarcaNoSelect(valor) {
@@ -984,7 +990,7 @@
         // --- PESQUISA VISUAL HOT WHEELS ---
         document.getElementById('btn-buscar-hotwheels').addEventListener('click', async () => {
             const termo = document.getElementById('input-hotwheels-busca').value.trim();
-            if (!termo) return alert('Insere o nome ou código do Hot Wheels (ex: Porsche 934/5 ou HYW36).');
+            if (!termo) return alert('Insere o nome ou código do Hot Wheels (ex: Porsche 934/5 ou JJJ62).');
 
             const btn = document.getElementById('btn-buscar-hotwheels');
             const statusDiv = document.getElementById('status-hotwheels');
