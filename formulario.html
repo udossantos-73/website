@@ -361,7 +361,7 @@
                         <div id="box-auto-hotwheels" class="alert alert-danger border-danger mb-4" style="display: none;">
                             <label for="input-hotwheels-busca" class="form-label fw-bold mb-1">🔥 Pesquisa Rápida Hot Wheels (Catálogo Wiki)</label>
                             <div class="input-group mb-2">
-                                <input type="text" id="input-hotwheels-busca" class="form-control" placeholder="Insere o modelo ou nº (ex: Porsche 934/5, HYW36, Senna)...">
+                                <input type="text" id="input-hotwheels-busca" class="form-control" placeholder="Insere o modelo ou nº (ex: Porsche 934/5, JJJ62, Senna)...">
                                 <button class="btn btn-primary-blue fw-bold" type="button" id="btn-buscar-hotwheels">Pesquisar</button>
                             </div>
                             <div id="status-hotwheels" class="small text-danger fw-semibold mb-2" style="display: none;">
@@ -551,6 +551,26 @@
             if (!numCol) return '';
             if (String(item.ToyNumber || '').trim()) return numCol;
             return numCol.includes('/') ? numCol : '';
+        }
+
+        function extrairNumeroColecaoHotWheels(item) {
+            const candidatos = [
+                item.colNumber,
+                item.col,
+                item.colNum,
+                item.collectionNumber,
+                item.mainlineNumber,
+                item.collection
+            ];
+            for (const val of candidatos) {
+                const limpo = String(val || '').trim();
+                if (limpo) return limpo;
+            }
+            const textoExtra = [item.description, item.rawRow, item.notes]
+                .map(v => String(v || ''))
+                .join(' ');
+            const matchCol = textoExtra.match(/\b(\d{1,3}\s*\/\s*\d{2,3})\b/);
+            return matchCol ? matchCol[1].replace(/\s+/g, '') : '';
         }
 
         function definirMarcaNoSelect(valor) {
@@ -1024,6 +1044,7 @@
                 resultadosHotWheels.forEach((item, idx) => {
                     const nome = item.name || 'Sem nome';
                     const num = item.boxNumber || '';
+                    const colNum = extrairNumeroColecaoHotWheels(item);
                     const serie = item.license || 'Hot Wheels';
                     const serieBadge = item.seriesNumber ? `${serie} (${item.seriesNumber})` : serie;
                     const ano = item.year ? ` (${item.year})` : '';
@@ -1037,7 +1058,7 @@
                             <div class="card-body p-2 text-center">
                                 <span class="badge bg-danger mb-1" style="font-size: 0.65rem;">${num || 'Hot Wheels'}${ano}</span>
                                 <p class="card-title fw-bold mb-1" style="font-size: 0.78rem; line-height: 1.15;">${nome}</p>
-                                <small class="text-muted d-block text-truncate" style="font-size: 0.68rem;">${serieBadge}</small>
+                                <small class="text-muted d-block text-truncate" style="font-size: 0.68rem;">${colNum ? '#' + colNum + ' • ' : ''}${serieBadge}</small>
                             </div>
                         </div>
                     `;
@@ -1072,7 +1093,7 @@
             const toyFinal = String(item.boxNumber || '').trim();
             document.getElementById('ToyNumber').value = toyFinal;
 
-            const numColecaoApi = String(item.collectionNumber || item.mainlineNumber || '').trim();
+            const numColecaoApi = extrairNumeroColecaoHotWheels(item);
             document.getElementById('NumeroNaColecao').value = numColecaoApi;
 
             document.getElementById('Descricao').value = item.description || '';
